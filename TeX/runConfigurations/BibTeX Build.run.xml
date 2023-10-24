@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="BibTeX Build" type="BIBTEX_RUN_CONFIGURATION" factoryName="LaTeX configuration factory">
+    <texify-bibtex>
+      <compiler>BIBTEX</compiler>
+      <compiler-path />
+      <compiler-arguments />
+      <envs />
+      <main-file>$PROJECT_DIR$/TeX/main.tex</main-file>
+      <aux-dir>$PROJECT_DIR$/out</aux-dir>
+    </texify-bibtex>
+    <method v="2" />
+  </configuration>
+</component>

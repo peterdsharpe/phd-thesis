@@ -1,0 +1,248 @@
+%! Author = peter
+%! Date = 9/20/2023
+
+% Preamble
+\documentclass[12pt,vi,twoside]{article}
+\usepackage{subfiles}
+
+% Packages
+\include{preamble}
+\include{commands}
+
+\title{PhD Proposal Document}
+\author{Peter Sharpe}
+% Document
+\begin{document}
+
+    \begin{center}
+
+        \vspace*{1cm}
+
+        \textsc{Massachusetts Institute of Technology}
+
+        Department of Aeronautics and Astronautics
+
+        \vspace{1cm}
+
+        \textbf{PhD Proposal Document}
+
+        \vspace{1cm}
+
+        \textbf{\large TODO Title}
+
+        \vspace{1cm}
+
+        Ph.D. Candidate:\\
+        Peter Sharpe
+
+        \vspace{1cm}
+
+        Committee:\\
+        Professor John Hansman (Chair)\\
+        Professor Mark Drela\\
+        Professor Karen Willcox\\
+
+        \vspace{1cm}
+
+        External Evaluator:\\
+        TODO
+
+        \vspace{3cm}
+
+        TODO date
+
+    \end{center}
+
+%    \clearpage
+    \section*{Abstract}
+
+    TODO abstract
+
+%    \clearpage
+
+    % table of contents
+    \tableofcontents
+
+
+    \section{Introduction}
+
+    TODO intro
+
+
+    \section{Literature Review of Aircraft Design Optimization}
+
+    \subsection{Promises and Pitfalls}
+
+    \begin{quote}
+        \textit{``When an aircraft designer hears that a new program will use multidisciplinary optimization, the reaction is often less than enthusiastic. Over the past 30 years, aircraft optimization at the conceptual and preliminary design levels has often yielded results that were either not believable, or might have been obtained more simply using methods familiar to the engineers. Even 5-20 years ago, actual industry application of numerical optimization for aircraft preliminary design was not widespread.''}
+        \flushright-Ilan Kroo, 1997 \cite{kroo_multidisciplinary_1997}
+    \end{quote}
+
+    These are the opening lines of a landmark 1997 paper by aircraft designer Ilan Kroo on the state of the art and future directions in the then-nascent field of multidisciplinary design optimization (MDO) for aircraft \cite{kroo_multidisciplinary_1997}. A unique aspect of Kroo's work is that it not only reviewed the status of the field's academic research at a pivotal moment, but it also assessed the extent to which these research advances had translated to practical industry impact.
+
+    Overall, Kroo's conclusions on the matter are mixed. On one hand, he notes the auspicious progress of aircraft MDO research during the preceding decades by all traditional metrics: problem size, analysis fidelity, runtime speed, and so on. He credits these successes largely to both algorithmic advances and the exponential growth of computational power over time (Moore's law). Extrapolating these trends forward, he concludes that the field is poised to make a significant real-world impact on the aircraft design process. This promise is made clear in a remark that many aircraft designers would agree with to this day: ``In a very real sense, preliminary design is [multidisciplinary design optimization].''
+
+
+    On the other hand, Kroo notes that actual industry applications of aircraft MDO remain conspicuously limited, in contrast to the field's many academic successes. Kroo identifies several reasons for this, including:
+    \begin{enumerate}
+        \item \textbf{Lack of trust in optimization results.} Kroo notes that when optimization is applied to an analysis toolchain, it acts adversarially, disproportionately seeking out the ``weakest link'' in the analysis chain to exploit it. Model assumptions and simplifications that are acceptable in a manual sizing study are often unacceptable in an optimization study, and this can lead to unrealistic results from MDO tools.
+        \end{enumerate}
+
+    Kroo notes that an MDO
+
+
+
+
+%    had enabled significant progress in the field, and that the field is poised to make a significant impact on the aircraft design process on the basis of these trends. On the other hand, he notes that the field has not yet made this impact, and that the reasons for this are many.
+
+    With the benefit of an additional quarter-century of hindsight from this paper's publication, we can begin to assess some of these forecasts. In many ways, Kroo's sentiments are astonishingly prescient and still relevant today: despite decades of research and development, the use of optimization in aircraft design is still not widespread in industry.
+
+    In many ways, we argue that this gap between academic research and industry application in aircraft design optimization has actually grown since the time of Kroo's work.
+
+    Contemporaneous publications from leading voices in the field of aircraft design around the time of Kroo's work paint a similar story - expressing optimism about the field's growing potential while highlighting (or in some cases, urging) hesitation by industry practitioners.
+
+    The year after Kroo's review paper, Drela published a \cite{caughey_pros_1998}
+
+    \subsection{Pivotal Moments}
+
+    \subsection{Emerging Trends}
+
+
+    It would be remiss to discuss the last decade of optimization advances (and in particular, the growing recognition of the \textit{interpretability problem} of large-scale computational tools) without discussing the explosion of interest in machine learning. Learning is inherently an optimization problem to develop a generalized regressor model from given observations.
+
+    Indeed, a major criticism of generative AI in the present day is that it yields results that appear plausible on the surface level but may be deeply flawed in ways that are difficult to detect. In many ways, it is not the incorrectness, but rather the difficulty of detecting incorrectness that poses the largest threat of breaching trust. This is a problem that is not unique to AI, but rather is a fundamental challenge of large-scale computational tools in general. The field of aircraft design optimization is no exception to this, and it is one that has been recognized for decades. However, the problem remains unsolved.
+
+    \subsection{Identification of a Technical Gap}
+    \label{sec:technical-gap}
+
+    TODO
+
+
+    \section{Expected Contributions}
+    \label{sec:contributions}
+
+    In addition to reviewing the state of the art, the Ph.D. thesis will make the following novel contributions to address the technical gap described in Section \ref{sec:technical-gap}:
+
+    \begin{enumerate}
+        \item Build a computational framework for engineering design optimization based on the paradigm of \textit{code transformations}, which enables the use of modern techniques in computer science and applied math (detailed more in Section TODO). This framework will act as a ``proving ground'' on top of which subsequent research objectives will be implemented and evaluated.
+        \item Demonstrate that this \textit{code transformation} paradigm enables the formulation of large-scale engineering design optimization problems at the conceptual stage, to an extent that is not otherwise possible with existing public aircraft design frameworks. To satisfy this objective, the framework will demonstrate (on at least one applied aircraft design case study) performance equaling-or-exceeding the state-of-the-art across the following metrics:
+        \begin{itemize}
+            \item Runtime speed (i.e., scalability of computational resources, and runtimes compatible with human-in-the-loop interactive design).
+            \item Problem implementation and re-implementation speed (i.e., scalability of engineering time resources).
+            \item Mathematical flexibility: the ability to achieve the above metrics without imposing restrictions on user models that can force undue deviations from physical reality (e.g., log-convexity).
+        \end{itemize}
+        \item Demonstrate the double-edged sword of the large-scale conceptual design optimization capabilities enabled by this framework:
+        \begin{enumerate}
+            \item \textbf{Benefit:} Demonstrate that enabling large-scale engineering design at the conceptual stage offers measurable performance gains in the resulting aircraft designs compared to those produced with existing methods. Specifically, the thesis will present at least one applied aircraft design case study, which is then solved with two separate approaches:
+            \begin{enumerate}
+                \item A first-order sizing study where an aircraft is designed by coupling only ``core'' aircraft design disciplines (aerodynamics, structures, and propulsion) and traditional sizing relations (e.g., $W/S$ and $T/W$ diagrams)
+                \item A higher-order sizing study where more ``non-core'' disciplines (e.g., stability and control, trajectory and mission optimization, cost analysis, field lengths, noise, manufacturability) are added to the aircraft design problem. Geometric flexibility, as measured by the number of design variables describing the aircraft geometry, will also be increased.
+            \end{enumerate}
+            The resulting designs from these two studies will then be compared (post-optimality) to assess their performance on both stated objectives (to assess how much large-scale modeling expands the feasible design space) and secondary metrics (to assess how well core disciplines act as a surrogate for non-core disciplines).
+            \item \textbf{Risk:} Demonstrate the major pitfall of the new large-scale conceptual design optimization: the lack of result \textit{interpretability}. Show that the system complexity enabled by large-scale optimization leads to results are more difficult to communicate, interpret, review, and trust.
+        \end{enumerate}
+        \item
+        \item Identify framework features and characteristics that aid in the \textit{interpretability} and \textit{reviewability} of large-scale engineering design optimization problems. This should be based on a combination of literature review, aircraft design case studies, and (as resources allow) discussions with framework users and aircraft designers. Fundamentally, this is more a communication question than a technical one: setting up a large-scale optimization problem is doable with state-of-the-art aircraft design optimization tools, but  (``how do we communicate whether we can trust the results of a design optimization study?'').
+        \item Implement some of these practical This should include, at minimum:
+        \begin{itemize}
+            \item A constraint activity log, which
+        \end{itemize}
+    \end{enumerate}
+
+    An important distinction is that the primary goal of this thesis is not to create the single ``end-all'' framework for aircraft conceptual MDO - these frameworks naturally come and go over the years as programming languages and optimization algorithms evolve. Rather, the goal is about guiding framework architectures: ``What features and paradigms should framework designers consider to mitigate the interpretability challenges of large-scale engineering design optimization?''.
+
+
+    \section{Status and Proposed Schedule}
+
+    \subsection{Fields of Study and Coursework}
+
+    At the first meeting with the thesis committee (Apr. 5, 2023), the following major and minor programs of study were proposed:
+
+    \begin{itemize}[noitemsep]
+        \item Major: \textbf{Computation for Design and Optimization}
+        \begin{itemize}[noitemsep]
+            \item 16.920: Numerical Methods for Partial Differential Equations
+            \item 6.255: Optimization Methods
+            \item 16.888: Multidisciplinary Design Optimization
+            \item 18.337: Parallel Computing and Scientific Machine Learning
+            \item 16.842: Fundamentals of Systems Engineering
+        \end{itemize}
+        \item Minor: \textbf{Flight Physics}
+        \begin{itemize}[noitemsep]
+            \item 16.110: Flight Vehicle Aerodynamics
+            \item 16.13: Aerodynamics of Viscous Fluids
+            \item 16.885: Aircraft Systems Engineering
+        \end{itemize}
+        \item Doctoral math requirement (overlap allowed):
+        \begin{itemize}[noitemsep]
+            \item 16.920: Numerical Methods for Partial Differential Equations
+            \item 6.255: Optimization Methods
+        \end{itemize}
+    \end{itemize}
+
+    \noindent The program of study was approved by the committee at the Apr. 2023 meeting, with no further coursework recommendations made. All listed classes have been completed for credit with A/A+ grades, satisfying requirements.
+
+    \subsection{Degree Milestones}
+
+    Major degree milestones, both past and future, are listed in Table \ref{tab:timeline}.
+
+    \begin{table}[H]
+        \centering
+        \caption{Tentative planned timeline for PhD degree milestones.}
+        \label{tab:timeline}
+        \begin{tabular}{c r l}
+            Complete?  & Date               & Milestone                       \\
+            \midrule
+            \checkmark & Fall 2019          & Began studies at MIT            \\
+            \checkmark & Summer 2021        & S.M. thesis submitted           \\
+            \checkmark & Summer 2021        & S.M. degree awarded             \\
+            \checkmark & Fall 2022          & Formation of doctoral committee \\
+            \checkmark & Spring 2023        & Committee Meeting \#1           \\
+            {}         & Fall 2023          & Ph.D. Thesis Proposal Defense   \\
+            {}         & Spring 2024        & Committee Meeting \#2           \\
+            {}         & Fall 2024          & Committee Meeting \#3           \\
+            {}         & Winter/Spring 2025 & Ph.D. Thesis Defense            \\
+
+        \end{tabular}
+    \end{table}
+
+    \subsection{Research Schedule}
+
+    \subsubsection*{Spring 2024}
+
+    \begin{enumerate}
+        \item Motivate the optimization framework developed in the thesis.
+        \begin{enumerate}
+            \item Identify or develop an aircraft design benchmark problem suitable for comparing existing frameworks and their associated paradigms. The design problem should be realistic (incorporating all core aircraft disciplines), but it should not be overly complex. Potential suitable problems could include:
+            \begin{itemize}[noitemsep]
+                \item \href{https://github.com/peterdsharpe/AeroSandbox/blob/master/tutorial/02%20-%20Design%20Optimization/03%20-%20Aircraft%20Design%20-%20SimPleAC.ipynb}{SimPleAC}, a small aircraft design problem initially proposed by Warren Hoburg \cite{hoburg_geometric_2014} and further refined by Berk Ozturk \cite{ozturk_conceptual_2018}.
+                \item The solar seaplane design problem developed and implemented as part of TA work for MIT 16.821 in Spring 2023 \cite{solar-seaplane}.
+                \item An aircraft design problem adapted from the \href{https://www.aiaa.org/get-involved/students-educators/Design-Competitions}{AIAA Graduate Aircraft Design Competition}, where the 2023-24 problem is a self-launching electric sailplane.
+                \item Long-haul liquid-hydrogen-powered transport aircraft design, which was studied and developed for MIT 16.886 in Fall 2022 and MIT 16.885 in Fall 2023 \cite{gaubatz_estimating_2023, transport_aircraft}.
+            \end{itemize}
+%            (e.g., the NASA Common Research Model) and more realistic problems (e.g., the D8.8). The goal is to have a set of problems that can be used to evaluate the framework's performance across a range of problem sizes and complexities.
+            \item Implement the benchmark problem in several frameworks that are representative of state-of-the-art and/or industry-standard paradigms: AeroSandbox, OpenMDAO, GPKit, and a ``optimizer wrapped around black-box analysis'' method\footnote{Typical of industry methods, such as those seen in the development of the Facebook HALE aircraft development effort\cite{fbhale}}.
+            \item Compare the implementations on the basis of the three framework-level metrics identified in Section \ref{sec:contributions}: runtime speed, problem implementation speed, and mathematical flexibility. Document this thoroughly. Use this exercise as a jumping-off point to write a thesis chapter on how specific framework design choices affect each of these three metrics.
+            \item Show that the thesis framework makes large-scale optimization practical to implement at the conceptual design stage.
+        \end{enumerate}
+        \item Quantitatively illustrate the performance benefit associated with large-scale optimization in conceptual-level aircraft design:
+        \begin{enumerate}
+            \item Identify or develop an aircraft design benchmark problem suitable for comparing various levels of model fidelity at the conceptual design level. The design problem should be sufficiently complex such that it can be solved with or without the inclusion of secondary disciplines. Potential suitable problems could include:
+            \begin{itemize}[nolistsep]
+                \item MIT Firefly, a rocket-propelled micro-UAV design problem coupling packaging constraints, transonic aerodynamics, trajectory design, and propulsion design.
+                \item Dawn One, a high-altitude-long-endurance solar-powered aircraft.
+            \end{itemize}
+        \end{enumerate}
+    \end{enumerate}
+
+    \subsubsection*{Fall 2024}
+
+    \begin{enumerate}
+        \item Present the idea that implicit model assumptions and constraint-satisfaction information as ``metadata'' that should be
+
+        Research
+
+        % Bibliography
+        \include{biblio}
+
+    \end{document}

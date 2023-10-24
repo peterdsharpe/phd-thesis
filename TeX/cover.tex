@@ -1,0 +1,87 @@
+
+\title{Title}
+
+\author{Peter Sharpe}
+\prevdegrees{B.S., Washington University in St. Louis (2018)}
+\prevdegrees{S.M., Massachusetts Institute of Technology (2021)}
+% If you wish to list your previous degrees on the cover page, use the 
+% previous degrees command:
+%       \prevdegrees{A.A., Harvard University (1985)}
+% You can use the \\ command to list multiple previous degrees
+%       \prevdegrees{B.S., University of California (1978) \\
+%                    S.M., Massachusetts Institute of Technology (1981)}
+\department{Department of Aeronautics and Astronautics}
+
+% If the thesis is for two degrees simultaneously, list them both
+% separated by \and like this:
+% \degree{Doctor of Philosophy \and Master of Science}
+\degree{Doctor of Philosophy in Aeronautics and Astronautics}
+
+% As of the 2007-08 academic year, valid degree months are September, 
+% February, or June.  The default is June.
+\degreemonth{MONTH}
+\degreeyear{YEAR}
+\thesisdate{DATE}
+
+%% By default, the thesis will be copyrighted to MIT.  If you need to copyright
+%% the thesis to yourself, just specify the `vi' documentclass option.  If for
+%% some reason you want to exactly specify the copyright notice text, you can
+%% use the \copyrightnoticetext command.  
+%\copyrightnoticetext{\copyright IBM, 1990.  Do not open till Xmas.}
+
+% If there is more than one supervisor, use the \supervisor command
+% once for each.
+\supervisor{R. John Hansman}{T. Wilson Professor in Aeronautics}
+
+% This is the department committee chairman, not the thesis committee
+% chairman.  You should replace this with your Department's Committee
+% Chairman.
+\chairman{Jonathan How}{Professor, Aeronautics and Astronautics\\Chair, Graduate Program Committee}
+
+% Make the titlepage based on the above information.  If you need
+% something special and can't use the standard form, you can specify
+% the exact text of the titlepage yourself.  Put it in a titlepage
+% environment and leave blank lines where you want vertical space.
+% The spaces will be adjusted to fill the entire page.  The dotted
+% lines for the signatures are made with the \signature command.
+\maketitle
+
+% The abstractpage environment sets up everything on the page except
+% the text itself.  The title and other header material are put at the
+% top of the page, and the supervisors are listed at the bottom.  A
+% new page is begun both before and after.  Of course, an abstract may
+% be more than one page itself.  If you need more control over the
+% format of the page, you can use the abstract environment, which puts
+% the word "Abstract" at the beginning and single spaces its text.
+
+%% You can either \input (*not* \include) your abstract file, or you can put
+%% the text of the abstract directly between the \begin{abstractpage} and
+%% \end{abstractpage} commands.
+
+% First copy: start a new page, and save the page number.
+\cleardoublepage
+% Uncomment the next line if you do NOT want a page number on your
+% abstract and acknowledgments pages.
+% \pagestyle{empty}
+\setcounter{savepage}{\thepage}
+\begin{abstractpage}
+\input{abstract}
+\end{abstractpage}
+
+% Additional copy: start a new page, and reset the page number.  This way,
+% the second copy of the abstract is not counted as separate pages.
+% Uncomment the next 6 lines if you need two copies of the abstract
+% page.
+% \setcounter{page}{\thesavepage}
+% \begin{abstractpage}
+% \input{abstract}
+% \end{abstractpage}
+
+\cleardoublepage
+
+\section*{Acknowledgments}
+
+\input{acknowledgements}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% -*-latex-*-
