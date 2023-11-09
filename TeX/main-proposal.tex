@@ -2,7 +2,7 @@
 %! Date = 9/20/2023
 
 % Preamble
-\documentclass[12pt,vi,twoside]{article}
+\documentclass[12pt,vi,oneside]{report}
 \usepackage{subfiles}
 
 % Packages
@@ -53,7 +53,7 @@
     \end{center}
 
 %    \clearpage
-    \section*{Abstract}
+    \chapter*{Abstract}
 
     TODO abstract
 
@@ -63,17 +63,17 @@
     \tableofcontents
 
 
-    \section{Introduction}
+    \chapter{Introduction}
 
-    \subsection{Background}
+    \section{Background}
 
     TODO intro
 
-    \subsection{Project Definition and Thesis Overview}
+    \section{Project Definition and Thesis Overview}
 
-    \subsection{Motivation for Improving Industry Access to Design Optimization}
+    \section{Motivation for Improving Industry Access to Design Optimization}
 
-    \subsection{Document Organization}
+    \section{Document Organization}
 
     The latest doctoral handbook for the MIT Department of Aeronautics and Astronautics requires the following elements in a PhD proposal, which, for reader convenience, are mapped to specific portions of this document:
 
@@ -97,10 +97,10 @@
     \endgroup
 
 
-    \section{A Review of Aircraft Design Optimization}
+    \chapter{A Review of Aircraft Design Optimization}
     \label{sec:literature}
 
-    \subsection{Early Promises, Predictions, and Pitfalls}
+    \section{Early Promises, Predictions, and Pitfalls}
 
     \begin{quote}
         \textit{``When an aircraft designer hears that a new program will use multidisciplinary optimization, the reaction is often less than enthusiastic. Over the past 30 years, aircraft optimization at the conceptual and preliminary design levels has often yielded results that were either not believable, or might have been obtained more simply using methods familiar to the engineers. Even 5-20 years ago, actual industry application of numerical optimization for aircraft preliminary design was not widespread.''}
@@ -129,9 +129,9 @@
 
     In summary, while computational limits were a clear early barrier, foundational challenges around managing complexity and aligning optimization with real-world design constraints were already emerging. These issues would become increasingly central as MDO research rapidly expanded in scope.
 
-    \subsection{A Retrospective on Aircraft Design Optimization in Industry}
+    \section{A Retrospective on Aircraft Design Optimization in Industry}
 
-    \subsubsection*{Current Status}
+    \subsection*{Current Status}
 
     With the benefit of an additional quarter-century of hindsight since the date of these early MDO assessments, we can begin to assess how these forecasts have played out. In many ways, these predictions by Kroo and others were remarkably accurate. The scale and speed of optimization problems solved today has indeed grown exponentially in the years since. This is not only due to increasing computational power, but also from algorithmic and architectural improvements in MDO and optimization more broadly\footnote{discussed later in Section \ref{sec:literature_advances}}. Numerous high-quality aircraft MDO case studies and post-hoc design studies have been published in the years since, including the D8 transport aircraft \cite{drela_development_2011, drela_tasopt_2010}, the STARC-ABL aircraft \cite{yildirim_performance_2021}, and the Aerion AS2 \cite{bons_highfidelity_2020}. Some of these studies leverage relatively-high-fidelity models (e.g., RANS CFD) that would have been computationally-intractable for optimization studies in prior eras.
 
@@ -164,7 +164,7 @@
 
     Ashley considers another possible explanation for the lack of visible MDO use in industry: that of ``military classification or company proprietary considerations.'' \cite{ashley_making_1982} However, after exhaustive correspondence with dozens of aircraft design industry contacts, Ashley concludes that this limitation was only occasional and ``not to an extent that would affect the principal conclusions.'' Even after decades, industry usage of formal mathematical optimization processes for aircraft design remains fairly limited, and, when used, often leverages only a small fraction of the field's research advances.
 
-    \subsection{Pivotal Advances in Design Optimization Research}
+    \section{Pivotal Advances in Design Optimization Research}
     \label{sec:literature_advances}
 
     On a more optimistic note, MDO's substantial academia-industry gap is equally attributable to academia's remarkable advances in design optimization research over recent decades. This progress is readily apparent from analyzing trends in academic literature. As shown in Figure \ref{fig:mdo_citation_counts}, the fraction of aircraft design publications directly referencing MDO has grown from near-zero in 1985 to 10\% today.
@@ -197,12 +197,12 @@
 
     The remainder of this section will discuss some of the most important advances in design optimization research that have helped to reduce the costs incurred at various steps of this holistic process.
 
-    \subsubsection{Two Directions: ``Wide'' vs. ``Deep'' MDO}
+    \subsection{Two Directions: ``Wide'' vs. ``Deep'' MDO}
     \label{sec:wide_vs_deep}
 
-    \subsubsection{Advances in Optimization Algorithms}
+    \subsection{Advances in Optimization Algorithms}
 
-    \subsubsection{Advances in Design Optimization Practice}
+    \subsection{Advances in Design Optimization Practice}
 %     complexity -- motivating the idea of general-purpose \textit{MDO frameworks} to address this as opposed to problem-specific codes
 
     % Multipoint
@@ -215,7 +215,7 @@
 
     A notable area where computational methods for aircraft design have long made inroads to industry is in inverse design tools. (As an aerodynamic example, the inverse approach used by the XFoil airfoil design code \cite{drela_xfoil_1989} and others \cite{liebeck_blendedwingbody_1998} to recover a shape from a specified pressure distribution.) These tools can be seen as an alternative workflow to optimization approaches\footnote{Interestingly, inverse design tools can be viewed mathematically as a subset of nonlinear optimization, where the feasible space is a single point and there is no objective function.}, in that they aim to create a mapping from ``performance specification space'' back to the ``design space''. Drela \cite{drela_pros_1998} and others
 
-    \subsubsection{Emerging Trends and Opportunities}
+    \subsection{Emerging Trends and Opportunities}
 
 
     It would be remiss to discuss the last decade of optimization advances (and in particular, the growing recognition of the \textit{interpretability problem} of large-scale computational tools) without discussing the explosion of interest in machine learning. Learning is inherently an optimization problem to develop a generalized regressor model from given observations.
@@ -223,10 +223,10 @@
     Indeed, a major criticism of generative AI in the present day is that it yields results that appear plausible on the surface level but may be deeply flawed in ways that are difficult to detect. In many ways, it is not the incorrectness, but rather the difficulty of detecting incorrectness that poses the largest threat of breaching trust. This is a problem that is not unique to AI, but rather is a fundamental challenge of large-scale computational tools in general.
 
 
-    \section{Thesis Approach, Methodology, and Contributions}
+    \chapter{Thesis Approach, Methodology, and Contributions}
     \label{sec:approach}
 
-    \subsection{The Technical Gap: Practical Limitations of MDO Frameworks in Industry}
+    \section{The Technical Gap: Practical Limitations of MDO Frameworks in Industry}
     \label{sec:technical-gap}
 
     The stark dichotomy of MDO -- its immense potential to fundamentally transform the aircraft design process contrasted with its barriers to practical adoption -- is a central motivation for this thesis. The goal of this work is to identify and address the root causes of this gap between academic research and practical industry use. In particular, we will focus on the challenges of \textit{interpretability} and \textit{reviewability} of large-scale engineering design optimization problems. These challenges are not unique to MDO, but rather are a fundamental challenge of large-scale computational tools in general. The field of aircraft design optimization is no exception to this, and it is one that has been recognized for decades. However, the problem remains unsolved.
@@ -246,7 +246,7 @@
     TODO
 
 
-%    \subsubsection*{Current Industry Challenges}
+%    \subsection*{Current Industry Challenges}
 
     Interestingly, many of the challenges identified by early MDO works \cite{kroo_multidisciplinary_1997, ashley_making_1982} are the same ones that the field is grappling with today.
 
@@ -274,7 +274,7 @@
 
     % Practical optimization does not necessarily tend towards integrated design. Barnaby Wainfan, designer of the Facetmobile and Technical Fellow for Aerodynamics at Northrup Grumman: one of the under-appreciated benefits of the "conventional" configuration is that it is \textit{modifiable} -
 
-    \subsection{Proposed Contributions}
+    \section{Proposed Contributions}
     \label{sec:contributions}
 
     The Ph.D. thesis will make the following novel conceptual contributions to address the technical gap described in Section \ref{sec:technical-gap}:
@@ -312,7 +312,7 @@
         \end{itemize}
     \end{enumerate}
 
-    \subsubsection{Code Transformation Paradigm}
+    \subsection{Code Transformation Paradigm}
 
     The thesis will introduce the idea of \textit{code transformations} as a new computational paradigm on top of which an MDO framework can be built. Here, code transformations are defined as a generalized set of computational techniques that intercept the original optimization problem posed by the user (at runtime), apply some improvement based on analysis of the code itself, and then solve a modified optimization problem instead. This encompasses a variety of recent advanced techniques in scientific computing, such as:
     \begin{itemize}[noitemsep]
@@ -335,7 +335,7 @@
 
     \begin{table}[H]
         \centering
-        \caption{A subjective comparison of tradeoffs between existing MDO framework paradigms and the proposed \textit{code transformation} paradigm. The industrial state-of-the-art is largely \textit{black-box optimization}. The academic state-of-the-art has two major branches: \textit{gradient-based methods with analytical gradients}, and \textit{disciplined optimization methods}. More detailed definitions and justifications for these assessments are given in Appendix \ref{sec:paradigm_comparison}.}
+        \caption{A subjective comparison of tradeoffs between existing MDO framework paradigms and the proposed \textit{code transformation} paradigm. The industrial state-of-the-art is largely \textit{black-box optimization}. The academic state-of-the-art has two major branches: \textit{gradient-based methods with analytical gradients}, and \textit{disciplined optimization methods}. More detailed discussion of these assessments, including definitions and reasoning, is given in Appendix \ref{sec:paradigm_comparison}.}
         \label{tab:paradigm_comparison}
 
         \begin{adjustbox}{width=\textwidth}
@@ -424,7 +424,7 @@
 
     Thus, this contribution is twofold. First, the thesis will conceptually introduce code transformations as a new paradigm for engineering MDO frameworks. Secondly, the thesis will demonstrate strategies that allow traceability of engineering design code with minimal user effort, enabling the use of code transformations in practice.
 
-    \subsubsection{Differentiable Physics Models}
+    \subsection{Differentiable Physics Models}
 
     The thesis will also contribute the first computational implementations of several key physics models for aircraft design that are compatible with a code transformations paradigm (i.e., traceable).
 
@@ -482,24 +482,24 @@
         \end{tabularx}
     \end{table}
 
-    \subsubsection{Sparsity Tracing via NaN-Propagation}
+    \subsection{Sparsity Tracing via NaN-Propagation}
 
-    \subsubsection{Strategies for Black-Box Functions}
+    \subsection{Strategies for Black-Box Functions}
 
-    \subsubsection{Identifying Framework Requirements for Interpretability}
+    \subsection{Identifying Framework Requirements for Interpretability}
 
     An important distinction is that the primary goal of this thesis is not to create the single ``end-all'' framework for aircraft conceptual MDO - these frameworks naturally come and go over the years as programming languages and optimization algorithms evolve. Rather, the overarching goal is about guiding framework architectures: ``What features and paradigms should framework designers consider to mitigate the interpretability challenges of large-scale engineering design optimization?''.
 
-    \subsubsection{Aircraft System Identification from Minimal Sensor Data}
+    \subsection{Aircraft System Identification from Minimal Sensor Data}
 
 
-    \section{Status and Proposed Schedule}
+    \chapter{Status and Proposed Schedule}
     \label{sec:status}
 
-    \subsection{Results to Date}
+    \section{Results to Date}
     \label{sec:results}
 
-    \subsubsection{Code Transformation Paradigm}
+    \subsection{Code Transformation Paradigm}
 
     In the adjacent field of machine learning, application of these techniques\footnote{in particular, automatic differentiation and backend-agnostic computing enabling GPU acceleration} have ignited a revolution of progress. Rackauckas in 2021 \cite{rackauckas_generalizing_2021} states: ``[Automatic differentiation] has become the pervasive backbone behind all of the machine learning libraries.''
 
@@ -512,7 +512,7 @@
 
     Which is typically achieved through type-flexible programming (through either dynamic typing or multiple dispatch)
 
-    \subsection{Fields of Study and Coursework}
+    \section{Fields of Study and Coursework}
 
     At the first meeting with the thesis committee (Apr. 5, 2023), the following major and minor programs of study were proposed:
 
@@ -540,7 +540,7 @@
 
     \noindent The program of study was approved by the committee at the Apr. 2023 meeting, with no further coursework recommendations made. All listed classes have been completed for credit with A/A+ grades, satisfying requirements.
 
-    \subsection{Degree Milestones}
+    \section{Degree Milestones}
 
     Major degree milestones, both past and future, are listed in Table \ref{tab:timeline}.
 
@@ -564,10 +564,10 @@
         \end{tabular}
     \end{table}
 
-    \subsection{Research Schedule}
+    \section{Research Schedule}
     \label{sec:schedule}
 
-    \subsubsection*{Spring 2024}
+    \subsection*{Spring 2024}
 
     \begin{enumerate}
         \item Motivate the optimization framework developed in the thesis.
@@ -594,20 +594,20 @@
         \end{enumerate}
     \end{enumerate}
 
-    \subsubsection*{Fall 2024}
+    \subsection*{Fall 2024}
 
     \begin{enumerate}
         \item Present the idea that implicit model assumptions and constraint-satisfaction information as ``metadata'' that should be
     \end{enumerate}
 
-    \subsection{Facilities Required}
+    \section{Facilities Required}
     \label{sec:facilities}
 
     No special facilities are required for this work beyond those already available at MIT AeroAstro.
 
     % below is the appendix titled "paradigm comparison" that goes into more detail on the comparison table
     \begin{appendices}
-        \section{Comparison of MDO Framework Paradigms}
+        \chapter{Comparison of MDO Framework Paradigms}
         \label{sec:paradigm_comparison}
 
     \end{appendices}
