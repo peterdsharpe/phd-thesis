@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Build" type="LATEX_RUN_CONFIGURATION" factoryName="LaTeX configuration factory" activateToolWindowBeforeRun="false">
+  <configuration default="false" name="Final Build: Proposal" type="LATEX_RUN_CONFIGURATION" factoryName="LaTeX configuration factory" activateToolWindowBeforeRun="false">
     <texify>
       <compiler>LATEXMK</compiler>
       <compiler-path />
@@ -8,7 +8,7 @@
       <viewer-command />
       <compiler-arguments>-shell-escape</compiler-arguments>
       <envs />
-      <main-file>$PROJECT_DIR$/TeX/main.tex</main-file>
+      <main-file>$PROJECT_DIR$/TeX/main-proposal.tex</main-file>
       <output-path>$PROJECT_DIR$/out</output-path>
       <auxil-path>{projectDir}/auxil</auxil-path>
       <compile-twice>false</compile-twice>
@@ -18,6 +18,8 @@
       <bib-run-config>[]</bib-run-config>
       <makeindex-run-config>[]</makeindex-run-config>
     </texify>
-    <method v="2" />
+    <method v="2">
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="BibTeX Build: Proposal" run_configuration_type="BIBTEX_RUN_CONFIGURATION" />
+    </method>
   </configuration>
 </component>
