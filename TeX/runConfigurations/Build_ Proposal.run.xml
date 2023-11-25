@@ -6,7 +6,7 @@
       <sumatra-path />
       <pdf-viewer>NONE</pdf-viewer>
       <viewer-command />
-      <compiler-arguments>-shell-escape</compiler-arguments>
+      <compiler-arguments>-shell-escape -xelatex</compiler-arguments>
       <envs />
       <main-file>$PROJECT_DIR$/TeX/main-proposal.tex</main-file>
       <output-path>$PROJECT_DIR$/out</output-path>

@@ -24,7 +24,7 @@
 
         \vspace{1cm}
 
-        \textbf{PhD Proposal Document}
+        \textbf{Ph.D. Proposal Document}
 
         \vspace{1cm}
 
@@ -66,17 +66,11 @@
     \chapter{Introduction}
     \label{sec:intro}
 
-
-    \section{Background}
-
-    TODO intro
+    TODO background
 
 
     \section{Project Definition and Thesis Overview}
     \label{sec:definition}
-
-
-    \section{Motivation for Improving Industry Access to Design Optimization}
 
 
     \section{Proposal Document Organization}
@@ -116,11 +110,11 @@
 
     These are the opening lines of a landmark 1997 paper that reviewed the state of the art and future directions in the then-nascent field of aircraft multidisciplinary design optimization (MDO) \cite{kroo_multidisciplinary_1997}. The paper, by aircraft designer and MDO pioneer Ilan Kroo, not only reviewed the status of the field's academic research, but also took the key step of assessing whether these research advances had translated to practical industry impact. As a later review by an MDO technical organizing committee would emphasize, ``the ultimate benchmark of a research field's impact is indicated by the realization of its theories into successful products throughout industry.'' \cite{agte_mdo_2010}
 
-    Kroo's assessment of the field is generally optimistic, but with some important reservations. On one hand, he notes the auspicious progress of aircraft MDO research during the preceding decades by all traditional metrics: problem size, analysis fidelity, runtime speed, and so on. He credits these successes largely to both algorithmic advances and the exponential growth of computational power over time (Moore's law\footnote{``Moore's law'' is an empirical observation that chip transistor density (a surrogate for computational power) has tended to double roughly every two years, a trend that has held true for the past half-century.}). Extrapolating these trends forward, he concludes that the field is poised to make a significant impact on the aircraft design process across both academia and industry. The promise of MDO is made clear in a remark that many aircraft designers would agree with today: ``In a very real sense, preliminary design is MDO.'' \cite{kroo_multidisciplinary_1997}
+    Kroo's assessment of the field is generally optimistic, though he also hedged this with some important reservations. On one hand, he notes the auspicious progress of aircraft MDO research during the preceding decades by all traditional metrics: problem size, analysis fidelity, runtime speed, and so on. He credits these successes largely to both algorithmic advances and the exponential growth of computational power over time (Moore's law\footnote{``Moore's law'' is an empirical observation that chip transistor density (a surrogate for computational power) has tended to double roughly every two years, a trend that has held true for the past half-century.}). Extrapolating these trends forward, he concludes that the field is poised to make a significant impact on the aircraft design process across both academia and industry. The promise of MDO is made clear in a remark that many aircraft designers would agree with today: ``In a very real sense, preliminary design is MDO.'' \cite{kroo_multidisciplinary_1997}
 
     On the other hand, Kroo notes that actual industry applications of aircraft MDO remained conspicuously limited as of the paper's 1997 publication, and ``many difficulties remain in the routine application of MDO.'' \cite{kroo_multidisciplinary_1997} Other works from the early days of aircraft MDO corroborate this dearth of industry adoption. For example, in a 1982 AIAA lecture titled \textit{On Making Things the Best -- Aeronautical Uses of Optimization}, optimization advocate Holt Ashley notes the ``keen disappointment felt by many [optimization] specialists because their theories have received so little practical application.'' \cite{ashley_making_1982} Ashley goes further by conducting an exhaustive industry-wide survey to identify ``successful practical applications'' of aircraft design optimization. The survey received ``overwhelming'' industry interest and encouragement; however, ``the yield of examples which met the criterion of having been incorporated into a vehicle that actually operates in the Earth's atmosphere was painfully, perhaps shockingly small.''
 
-    Perhaps the reason for Ashley's pain is that, even at the time, aircraft designers in industry widely recognized the immense potential of MDO tools to fundamentally transform engineering design workflows. As two Lockheed engineers stated in 1998 \cite{radovcich_f22_1998}, ``The technical community knows the power of MDO and not having a cradle-to-grave example has been a continual source of frustration, as voiced by AIAA MDO technical committee members [for] years.'' Similarly, a 2002 Boeing paper identifies MDO as one of four key technologies poised to define the next generation of aircraft design\footnote{With the others being computational simulation, small uncrewed aircraft, and newly-emphasized design considerations such as environmental footprint and operations optimization.} \cite{mcmasters_airplane_2002}.
+    Perhaps the reason why Ashley's disappointment was so poignant is that, even at the time, aircraft designers in industry widely recognized the immense potential of MDO tools to fundamentally transform engineering design workflows. As two Lockheed engineers stated in 1998 \cite{radovcich_f22_1998}, ``The technical community knows the power of MDO and not having a cradle-to-grave example has been a continual source of frustration, as voiced by AIAA MDO technical committee members [for] years.'' Similarly, a 2002 Boeing paper identifies MDO as one of four key technologies poised to define the next generation of aircraft design\footnote{With the others being computational simulation, small uncrewed aircraft, and newly-emphasized design considerations such as environmental footprint and operations optimization.} \cite{mcmasters_airplane_2002}.
 
     Motivated by this gap between promise and practice, Kroo and other luminaries offer several reasons for the lack of industry adoption of MDO technologies:
 
@@ -132,7 +126,7 @@
 
     Kroo primarily attributes these early barriers to practical industry adoption to the limited computational power of the era, noting: ``This convergence between computational capability and computational requirements for interesting design problems is one of the reasons that MDO is considered to be such a promising technology, despite the limited acceptance of pioneering MDO efforts.'' A contemporaneous review by Sobieski and Haftka agreed, identifying ``very high computational demands'' as a ``major [obstacle] to realizing the full potential of MDO''. \cite{haftka_multidisciplinary_1997}
 
-    However, some works recognized that not all challenges would recede with increasing computational power. A 2002 review paper by a Boeing Technical Fellow in \textit{Journal of Aircraft} \cite{mcmasters_airplane_2002} cautions: ``New [MDO] strategies need to be developed\dots which take advantage of the assumptions and techniques that airplane designers use, rather than letting a computer churn away and come up with theoretically possible, but practically impossible, configurations.'' Likewise, Kroo, Sobeiski, and Haftka all cite ``managing complexity'' as a growing challenge of MDO \cite{kroo_multidisciplinary_1997, haftka_multidisciplinary_1997}. Drela's aptly-titled 1998 work \textit{Pros \& Cons of Airfoil Optimization} also demonstrates a similar issue \cite{drela_pros_1998}. Here, Drela demonstrates that even seemingly-simple design optimization problems will only yield practical results if the problem formulation, assumptions, and results are all precisely understood by an expert designer. These works presciently foreshadow modern concerns around MDO interpretability and other user frictions, urging the development of human-centered MDO approaches that synthesize mathematical optimization with designer intuition.
+    However, some works recognized that not all challenges would recede with increasing computational power. A 2002 review paper by a Boeing Technical Fellow in \textit{Journal of Aircraft} \cite{mcmasters_airplane_2002} cautions: ``New [MDO] strategies need to be developed\dots which take advantage of the assumptions and techniques that airplane designers use, rather than letting a computer churn away and come up with theoretically possible, but practically impossible, configurations.'' Likewise, Kroo, Sobeiski, and Haftka all cite ``managing complexity'' as a growing challenge of MDO \cite{kroo_multidisciplinary_1997, haftka_multidisciplinary_1997}, which hints at a human-computer interface problem, rather than simply a need for more CPU cycles. Drela's aptly-titled 1998 work \textit{Pros \& Cons of Airfoil Optimization} also demonstrates a similar issue \cite{drela_pros_1998}. Here, Drela shows that even seemingly-simple aerospace design optimization problems will only yield practical results if the problem formulation, assumptions, and results are all precisely understood by an expert designer. These works presciently foreshadow modern concerns around MDO interpretability and other user frictions, urging the development of human-centered MDO approaches that synthesize mathematical optimization with designer intuition.
 
     In summary, while computational limits were a clear early barrier, foundational challenges around managing complexity and aligning optimization with real-world design constraints were already emerging. These issues would become increasingly central as MDO research rapidly expanded in scope.
 
@@ -145,11 +139,11 @@
 
     However, many of the barriers to practical industry use Kroo identified have not disappeared; to the contrary, as computational power increases, the challenges of interpretability and managing complexity ring even truer today. As a result, this gap between academic research and practical industry adoption has not closed, and in some ways is wider than ever before. A 2010 review paper \cite{agte_mdo_2010} concludes that ``the actual use of genuine MDO methods within industry at large\dots is still rather limited.'' In 2013, Hoburg and Abbeel lamented that ``despite remarkable progress in MDO, the complexity and diversity of modern aerospace design tools and teams makes fully coordinated system-level optimization a monumental undertaking.'' \cite{hoburg_geometric_2014} As recently as 2017, a team of Airbus engineers and MDO researchers concurred: ``While the field of MDO techniques has tremendously grown since [the 1980s] in the scientific community, its application in industry is still often limited[\dots]\ A major challenge remains to apply MDO techniques to industrial design processes.'' \cite{gazaix_industrialization_2017}
 
-%     The field has also seen the development of several general-purpose MDO frameworks, including OpenMDAO \cite{gray_openmdao_2019}, GPKit \cite{gpkit}, and AeroSandbox \cite{sharpe_aerosandbox_2021}.
+%     The field has also seen the development of several general-purpose MDO frameworks, including OpenMDAO \cite{gray_openmdao_2019}, GPkit \cite{gpkit}, and AeroSandbox \cite{sharpe_aerosandbox_2021}.
 
-    Despite the prevalence of on-paper design studies using MDO, it remains somewhat rare to see \textit{built-and-flown} airplanes developed with documented, significant use of MDO methodologies. Indeed, the industry norm for aircraft conceptual design remains largely unchanged: expert-driven manual design guided primarily by point analyses and parametric surveys. Here, the human designer informally fulfills an optimizer-like role, but the requirements are never explicitly translated into a formal mathematical optimization problem\footnote{i.e., with a precisely specified objective, defined variables, and enumerated constraints}. High-quality aircraft design case studies that implement this expert-driven manual approach successfully are those of the Joby Aviation S2 eVTOL \cite{stoll_conceptual_2014} and Perdix micro-UAV \cite{tao_design_2012} aircraft. Anecdotally, the industry conceptual designer's computational weapon of choice is still more often an Excel spreadsheet than a formalized MDO framework.
+    Despite the prevalence of on-paper design studies using MDO, it remains somewhat rare to see \textit{built-and-flown} airplanes developed with documented, significant use of MDO methodologies. Indeed, the industry norm for aircraft conceptual design remains largely unchanged: expert-driven manual design guided primarily by point analyses and parametric surveys. Here, the human designer informally fulfills an optimizer-like role, but the requirements are never explicitly translated into a formal mathematical optimization problem\footnote{i.e., with a precisely specified objective, defined variables, and enumerated constraints}. High-quality aircraft design case studies that implement this expert-driven manual approach successfully are those of the Joby Aviation S2 eVTOL \cite{stoll_conceptual_2014} and Perdix micro-UAV \cite{tao_design_2012} aircraft. Anecdotally, the \textit{industry} conceptual designer's computational weapon of choice is still more often an Excel spreadsheet than a formalized MDO framework.
 
-    To quantify this gulf between academic and industry use of MDO, we surveyed industry literature and design reviews to identify aircraft development programs showing three minimal criteria:
+    To assess the magnitude of this gulf between academic and industry use of MDO, we surveyed industry literature and design reviews to identify aircraft development programs showing three minimal criteria:
     \begin{enumerate}[noitemsep]
         \item A design optimization problem for a complete aircraft coupling at least three disciplines (e.g., aerodynamics, structures, and propulsion) that is solved computationally.
         \item Evidence that the optimization result (or at least, some insight gained from it) was used to inform the design of aircraft.
@@ -160,17 +154,19 @@
 
 %    We find that relatively few programs meet these criteria. This is broadly consistent with previous surveys and reviews \cite{kroo_multidisciplinary_1997, agte_mdo_2010, ashley_making_1982, haftka_multidisciplinary_1997,gazaix_industrialization_2017}, although
 
-    Consistent with previous surveys and reviews \cite{kroo_multidisciplinary_1997, agte_mdo_2010, ashley_making_1982, haftka_multidisciplinary_1997,gazaix_industrialization_2017}, we find that relatively few programs meet these criteria; here, we make note of some that do. The Lockheed Martin F-22 Raptor program was one of the first programs to leverage an MDO-like process for a complete, flown aircraft design, as reported by Radovcich and Layton \cite{radovcich_f22_1998}. However, the workflow documented in this 1998 work differs significantly from modern MDO processes in that it was remarkably manual -- a fusion of traditional and MDO-based design processes. While some disciplines (aerodynamics, structures, and control law design) are coupled computationally, many other disciplines (low-observability, manufacturability, etc.) are coupled in by querying teams of subject-matter experts at iterates within the optimization loop itself, essentially serving as a black-box function call. When contrasted with more-typical MDO processes where all interdisciplinary communication is computational, this manual approach has some pros and cons. One one hand, intermediate optimization iterates are continuously human-reviewed, potentially boosting trust. On the other hand, it also sharply increases the optimization runtime, from hours to months. Even allowing for this broader definition of MDO, however, the authors note the rarity of their experience in industry: ``Documented experiences of MDO applications during the engineering, manufacturing, and design phases of fighter aircraft programs are not numerous. Documentation is even rarer for aircraft that have flown.''
+    Consistent with previous surveys and reviews \cite{kroo_multidisciplinary_1997, agte_mdo_2010, ashley_making_1982, haftka_multidisciplinary_1997,gazaix_industrialization_2017}, we find that relatively few programs meet these criteria; here, we make note of some that do. The Lockheed Martin F-22 Raptor program was one of the first programs to leverage an MDO-like process for a complete, flown aircraft design, as reported by Radovcich and Layton \cite{radovcich_f22_1998}. However, the workflow documented in this 1998 work differs significantly from modern MDO processes in that it was remarkably manual -- a fusion of traditional and MDO-based design processes. While some disciplines (aerodynamics, structures, and control law design) are coupled computationally, many other disciplines (low-observability, manufacturability, etc.) are coupled in by querying teams of subject-matter experts at iterates within the optimization loop itself, essentially serving as a black-box function call. When contrasted with more-typical MDO processes where all interdisciplinary communication is computational, this manual approach has some pros and cons. One one hand, intermediate optimization iterates are continuously human-reviewed, which could cause a poorly-posed problem to be identified as such more quickly. On the other hand, it also sharply increases the optimization runtime, which may take months instead of hours. Even allowing for this broader definition of MDO, however, the authors note the rarity of their experience in industry: ``Documented experiences of MDO applications during the engineering, manufacturing, and design phases of fighter aircraft programs are not numerous. Documentation is even rarer for aircraft that have flown.''
 
     The Lockheed Martin X-59 Quiet Supersonic Transport (QueSST) is another program that leveraged an MDO-based design process throughout aircraft development, unifying aerodynamics, acoustics, and structural analyses for outer mold line design and composite ply scheduling \cite{x59_nasa_nas, x59_nasa_sc19, x59_compositeworld}. (Although the X-59 has not yet met the ``flown'' criterion at the time of writing, industry reports credibly suggest this is imminent with no remaining obvious barriers.) The X-59 program builds upon several decades of successful MDO research for sonic-boom-minimization problems, a topic where computational shape optimization has proven particularly useful due to the non-intuitive and sensitive nature of the design problem \cite{choi_multifidelity_2008}.
 
-    The Airbus \textit{Vahana}, a single-seat eVTOL demonstrator flown in 2018, is perhaps one of the most recent public examples of an MDO-based process used to develop a flown aircraft \cite{vahana_1, vahana_2, vahana_code}. The initial sizing study considered aerodynamics, structures, propulsion, and cost analysis to drive conceptual trade studies between various vehicle configurations. Practical constraints and margins, such as reserve mission energy, battery cycle life, and engine-out safety (by enforcing either autorotation capability, motor redundancy, or a mass allocation for a ballistic parachute, depending on configuration), were included.
+    The Airbus \textit{Vahana}, a single-seat eVTOL demonstrator flown in 2018, is perhaps one of the most recent public examples of an MDO-based process used to develop a flown aircraft \cite{vahana_1, vahana_2, vahana_code}. The initial sizing study considered aerodynamics, structures, propulsion, and cost analysis to drive conceptual trade studies between various vehicle configurations. This study included practical constraints and margins, such as reserve mission energy, battery cycle life, and engine-out safety (by enforcing either autorotation capability, motor redundancy, or a mass allocation for a ballistic parachute, depending on configuration).
 
     Several other programs have built and flown uncrewed research aircraft with MDO use, such as the Facebook \textit{Aquila} solar-powered UAV \cite{fbhale}, the MIT \textit{Jungle Hawk Owl} long-endurance UAV \cite{jho}, and the X-48B blended-wing-body demonstrator \cite{wakayama_2000_blended, liebeck_blendedwingbody_1998, liebeck2004design}. Other programs document MDO usage for narrower subsystem- or component-level design, as in the detailed design of the Boeing 787 Dreamliner \cite{agte_mdo_2010}.
 
-    Aside from this, documented industrial use of MDO for complete-aircraft design remains relatively uncommon, especially in light of its widely-recognized potential utility. This lack of use can be partially explained as a lag effect stemming from long timelines of new aircraft development programs; it takes time for new tools to proliferate due to sunk-costs on design pipelines for existing programs. Indeed, the present literature review finds that documented industry use of MDO, while still uncommon, appears somewhat less scarce than previous surveys indicate \cite{kroo_multidisciplinary_1997, agte_mdo_2010, ashley_making_1982, haftka_multidisciplinary_1997, gazaix_industrialization_2017}; this suggests that industry use may be gradually increasing. However, as aircraft MDO research and substantial industry interest in optimization dates back roughly forty years \cite{vanderplaats_automated_1976, ashley_making_1982}, this lag effect alone does not constitute a complete explanation.
+    Outside of these cases, documented \textit{industrial} use of MDO for complete-aircraft conceptual design remains rare, relative to the vast number of industry programs conducted in the past few decades. This observation is especially surprising in light of the widely-recognized potential utility of MDO in industry.
 
-    Ashley considers another possible explanation for the lack of visible MDO use in industry: that of ``military classification or company proprietary considerations.'' \cite{ashley_making_1982} However, after exhaustive correspondence with dozens of aircraft design industry contacts, Ashley concludes that this limitation was only occasional and ``not to an extent that would affect the principal conclusions.'' Even after decades, industry usage of formal mathematical optimization processes for aircraft design remains fairly limited, and, when used, often leverages only a small fraction of the field's research advances.
+    One compelling partial explanation for this lack of use is a lag effect stemming from long timelines of new aircraft development programs -- it takes time for new tools (such as MDO methods) to proliferate throughout industry, due to sunk-costs on design pipelines for existing programs. Indeed, although the present literature review finds that documented industry use of MDO is scarce, the situation appears somewhat less dire than older surveys indicate \cite{kroo_multidisciplinary_1997, agte_mdo_2010, ashley_making_1982, haftka_multidisciplinary_1997, gazaix_industrialization_2017}; this suggests that industry use may be gradually increasing. However, considering that aircraft MDO research and industry interest in optimization has existed for over forty years \cite{vanderplaats_automated_1976, ashley_making_1982}, this lag effect alone does not constitute a complete explanation for the lack of adoption.
+
+    Ashley considers another possible explanation for the lack of visible MDO use in industry: that of ``military classification or company proprietary considerations.'' \cite{ashley_making_1982} However, after exhaustive correspondence with dozens of aircraft design industry contacts, Ashley concludes that this limitation was only occasional and ``not to an extent that would affect the principal conclusions.'' Therefore, it seems that the limited observations of formal mathematical optimization processes in industrial aircraft design are genuine, representing a missed opportunity for the field to make an practical impact.
 
 
     \section{Pivotal Advances in Design Optimization Research}
@@ -178,27 +174,27 @@
 
     On a more optimistic note, MDO's substantial academia-industry gap is equally attributable to academia's remarkable advances in design optimization research over recent decades. This progress is readily apparent from analyzing trends in academic literature. As shown in Figure \ref{fig:mdo_citation_counts}, the fraction of aircraft design publications directly referencing MDO has grown from near-zero in 1985 to 10\% today.
 
-    However, this statistic alone understates the true magnitude of MDO's impact. Arguably the most pivotal contribution of MDO research to aircraft design has been to catalyze a shift towards an \textit{optimization mindset}: the recognition that optimization is not only a useful tool, but also a principled mathematical framework that can represent complete design problems. Figure \ref{fig:mdo_citation_counts} shows that this mindset is a relatively recent development -- the fraction of aircraft design publications mentioning optimization in any form has tripled since the advent of MDO, reaching a majority share today.
-
     \begin{figure}[h]
         \centering
         \ifdraft{}{\includegraphics{../figures/mdo_citation_counts}}
-        \caption{Prevalance of optimization-related keywords in academic literature with the keyword ``aircraft design''. Data from Google Scholar; includes industry-standard texts such as AIAA journals and conference proceedings. MDO-specific keywords (red line) include any of: ``multidisciplinary design optimization'', ``MDO'', and ``MDAO''. Blue line adds the keyword ``optimization'' to this list.}
+        \caption{Prevalance of optimization-related keywords in academic literature with the keyword ``aircraft design''. Data from Google Scholar; includes industry-standard texts such as AIAA journals and conference proceedings. MDO-specific keywords (red line) include any of: ``multidisciplinary design optimization'', ``MDO'', and ``MDAO''. The blue line adds the keyword ``optimization'' to this list.}
         \label{fig:mdo_citation_counts}
     \end{figure}
 
-    These optimization-based design processes have shown several benefits when used to augment traditional design methods such as point analyses, parametric surveys, and carpet plots \cite{torenbeek_advanced_2013}. Most obviously, formal optimization methods can lead to improved design results and allow the consideration of many more design variables. Optimization can also help human designers discover clever cross-discipline synergies that might otherwise be overlooked \cite{drela_pros_1998}, and its rigor can reduce the likelihood of biased decisions \cite{torenbeek_advanced_2013}. In cases where designer intuition is exhausted, such as with unconventional configurations, optimization provides a means to identifying useful directions for further exploration \cite{drela_pros_1998}. Torenbeek argues that an optimization-based design process can respond more quickly to unexpected changes in program requirements, whereas manual processes often require substantial redesign effort \cite{torenbeek_advanced_2013}. Finally, even the exercise of translating given requirements into a quantified optimization problem can prove useful -- this can help a team of designers align on goals and expose subtle discrepancies in perceived requirements\footnote{For example, is the objective to minimize fuel burn, or to maximize range? Is operating cost a quantity that should be strictly capped (a constraint), or instead only penalized (an objective)?}.
+    Moreover, this statistic alone understates the true magnitude of MDO's impact. Arguably the most pivotal contribution of MDO research to aircraft design has been to catalyze a shift towards an \textit{optimization mindset}: the recognition that optimization is not only a useful tool, but also a principled mathematical framework that can represent complete design problems. Figure \ref{fig:mdo_citation_counts} shows that this mindset is a relatively recent development -- the fraction of aircraft design publications mentioning optimization in any form has tripled since the advent of MDO, reaching a majority share today.
 
-    Another important area where MDO research has made significant progress is in defining the relationship between the human designer and the optimizer. Several early aircraft design optimization works from the 1970s, with titles such as ``Automating the Design Process'' \cite{heldenfels_automating_1973, heldenfels_automation_1974, vanderplaats_automated_1976}, speculated that optimization would eventually advance to the point that computational tools could yield complete, production-ready designs with minimal human oversight. Over time, this has largely given way to a more balanced view: although the optimization solve itself may be well-served by computational means, this forms only one small part of the larger design process. Inputting the engineer's design intent into the optimizer accurately (``problem specification'') and extracting intuition from the results (``interpretation'') are challenges in their own right, and best addressed by iterative human-computer teams. As described by Drela in a 1998 optimization study \cite{drela_pros_1998}, ``[Engineering optimization] is still an iterative cut-and-try undertaking. But compared to [traditional] techniques, the cutting-and-trying is not on the geometry, but rather on the precise formulation of the optimization problem.''
+    These optimization-based design processes have shown several benefits when used to augment traditional design methods such as point analyses, parametric surveys, and carpet plots \cite{torenbeek_advanced_2013}. Most obviously, formal optimization methods can lead to improved design results and allow the consideration of many more design variables. Optimization can also help human designers discover clever cross-discipline synergies that might otherwise be overlooked \cite{drela_pros_1998}, and its rigor can reduce the likelihood of biased decisions \cite{torenbeek_advanced_2013}. In cases where designer intuition is exhausted, such as with unconventional configurations, optimization provides a means to identifying useful directions for further exploration \cite{drela_pros_1998}. Torenbeek argues that an optimization-based design process can respond more quickly to unexpected changes in program requirements, whereas manual processes often require substantial redesign effort \cite{torenbeek_advanced_2013}. Finally, the optimization mindset itself has benefits, even beyond the results of an optimization study. for example, discussions about problem formulation (how to translate given requirements into a quantified optimization problem) can help a team of engineers align on design goals and expose subtle discrepancies in perceived requirements\footnote{For example, is the objective to minimize fuel burn, or to maximize range? Is operating cost a quantity that should be strictly capped (a constraint), or instead only penalized (an objective)?}.
+
+    Another important area where MDO research has made significant progress is in defining the relationship between the human designer and the optimizer. The prevailing view in the early days of aircraft design optimization was that optimization would eventually advance to the point that computational tools could yield complete, production-ready designs with minimal human oversight -- as evidenced by encouraging titles such as ``Automating the Design Process'' \cite{heldenfels_automating_1973, heldenfels_automation_1974, vanderplaats_automated_1976}. Over time, this has largely given way to a more balanced view: although the optimization solve itself may be well-served by computational means, this forms only one small part of the larger design process. Inputting the engineer's design intent into the optimizer accurately (``problem specification'') and extracting intuition from the results (``interpretation'') are challenges in their own right, and best addressed by iterative human-computer teams. As described by Drela in a 1998 optimization study \cite{drela_pros_1998}, ``[Engineering optimization] is still an iterative cut-and-try undertaking. But compared to [traditional] techniques, the cutting-and-trying is not on the geometry, but rather on the precise formulation of the optimization problem.''
 
     When considering this full design process (i.e., from initial requirements to product delivery), the scope of challenges becomes even broader. Indeed, industry adoption of MDO is often limited by non-computational user frictions \cite{salas_framework_1998, gpkit, martins_engineering_2021}. In the present work, we deliberately term these user frictions ``costs'', borrowing optimization nomenclature to emphasize that minimizing these frictions is an implied part of the objective function of any optimization-driven design process.
 
     Figure \ref{fig:birds_eye_view} summarizes a variety of design literature to present a holistic view of this complete process as applied to aircraft design \cite{torenbeek_advanced_2013, martins_engineering_2021, yang_observations_2009, torenbeek_synthesis_1976, roskam_airplane_1989, nicolai_fundamentals_2010, salas_framework_1998}. Frictions that a designer may experience from a computational optimization framework at each step are shown in \textcolor[HTML]{BB5045}{red}.
 
-    \begin{figure}[H]
+    \begin{figure}[h]
         \centering
         \ifdraft{}{\includegraphics[width=\textwidth]{../figures/design_optimization_process_birds_eye_view}}
-        \caption{A high-level overview of the optimization-driven design process, as applied to aircraft design. ``Costs'' (user frictions to be minimized) associated with each step are shown in \textcolor[HTML]{BB5045}{red}.} % says red, but hex code BB5045
+        \caption{A high-level overview of the optimization-driven design process, as applied to aircraft design. ``Costs'' (user frictions to be minimized) associated with each step are shown in \textcolor[HTML]{BB5045}{red}.}
         \label{fig:birds_eye_view}
     \end{figure}
 
@@ -208,6 +204,44 @@
 
     \subsection{Two Directions: ``Wide'' vs. ``Deep'' MDO}
     \label{sec:wide_vs_deep}
+
+    Before proceeding further, it is important to clarify the scope of aircraft design optimization problems that are of interest in this thesis, as the definition of ``MDO'' is somewhat overloaded. More precisely, the modern field of MDO can be decomposed into two related but distinct subfields which have developed different strategies and mindsets to address different design needs. Figure \ref{fig:mdo_overloaded_term} illustrates this distinction.
+
+    \begin{figure}[h]
+        \centering
+        \ifdraft{}{\includegraphics[width=\textwidth]{../figures/mdo_overloaded_term}}
+        \caption{Multiple definitions of the term ``multidisciplinary design optimization''.}
+        \label{fig:mdo_overloaded_term}
+    \end{figure}
+
+    The first subfield, and the subject of the present work, is that of \textbf{conceptual}, or \textbf{``wide'' MDO}. This is essentially a formalization of the conceptual sizing problem and typically involves casting a wide net to capture as many first-order dependencies as possible. The intended use case is often clean-sheet design of a complete aircraft, and the end goals are often initial identification of strong design drivers and assessment of concept feasibility. Sensitivity analysis is also a key desired output of a wide MDO process.
+
+    These goals requires an enormous breadth of models to be considered, as practical aircraft designs are shaped by an enormous number of constraints that do not appear in first-principles performance analysis (e.g., the Breguet range equation). For example, a drag reduction of the vertical stabilizer is of little interest if engine-out performance constraints preclude certification; likewise, a more efficient engine is of little interest if acoustic constraints preclude customer acceptance. This need for analysis breadth can lead to design problems with many hundreds of models spanning anywhere from five to twenty relevant disciplines. To illustrate this breadth, consider the following non-exhaustive list of example disciplines that might be included:
+
+    \begin{multicols}{2}
+        \begin{itemize}[noitemsep]
+            \item Aerodynamics
+            \item Structures and weights estimation
+            \item Propulsion
+            \item Power systems and thermal management
+            \item Flight dynamics (trim, stability, and control)
+            \item Internal geometry and packaging
+            \item Mission design (concept of operations) and trajectory optimization
+            \item Takeoff and landing field length analysis
+            \item Certifiability, safety, and engine-out performance
+            \item Life-cycle emissions
+            \item Cost modeling and manufacturability
+            \item Acoustic signature
+            \item Ride quality
+            \item Survivability and stealth
+        \end{itemize}
+    \end{multicols}
+
+    Each of these disciplines might include dozens of submodels \cite{cruz_weight_1989}. To keep problems tractable despite their large scope, these models are typically low-fidelity; often, they are either derived from first principles physics with appropriate simplifications or regressions to statistical data. Despite the reduced accuracy of these models, they fulfill two critical functions. First, they apply \textit{optimization pressure} to steer the optimizer towards realistic designs, often in subtle, interdisciplinary ways. For example, increasing fuselage length requires increased landing gear length and mass to maintain a proper takeoff rotation angle, reducing the attractiveness of such design changes. Secondly, these low-fidelity models provide information on which constraints might be active near the optimum, allowing computational resources to be devoted to fidelity improvement only where it is needed. Often, these wide MDO problems are posed as large single-level optimization problems, which allows the large number of cross-disciplinary constraints to be computationally represented in a shared namespace \cite{hoburg_geometric_2014}.
+
+    The second subfield of MDO is that of \textbf{preliminary}, or \textbf{``deep'' MDO}. Here, the goal is often to provide detailed design refinement of a very close initial guess. Because the low-hanging fruit has often been picked by this stage, the design problem is often more local in nature, and the number of models is typically smaller than in wide MDO. Likewise, continued improvement from a good initial guess requires high-fidelity models, since the objective function tends to be relatively flat near the optimum and hence highly sensitive to model inaccuracy. For example, RANS-based CFD\footnote{Reynolds-averaged Navier-Stokes; Computational fluid dynamics} models are often used for aerodynamics, at significant cost: optimization runtimes of 1,000 to 100,000 CPU-hours are not uncommon \cite{kenway_multipoint_2014}. To maintain tractability, relatively few disciplines are considered -- often only aerodynamics and structures. The intended use case is often detailed design of a single component or subsystem, such as a wing. Due to computational challenges that tend to be more prevalent in high-fidelity models (e.g., PDE-constrained optimization, adjoint-based gradients, numerical stiffness of models, and convergence of models that use iterative solvers), the subfield of ``deep'' MDO has placed a large focus on MDO architectures that allow multi-level decomposition of the original optimization problem \cite{martins_multidisciplinary_2013}.
+
+    While both subfields share broad similarities, they are fundamentally attacking different problems: wide MDO is aimed at clean-sheet design, while deep MDO tends to aim at refinement of an existing design. Historically, this schism began to emerge roughly in the 1990s and 2000s, as various research groups began ``spending'' their increasing computational budgets in either model depth or model breadth.
 
     \subsection{Advances in Optimization Algorithms}
 
@@ -226,9 +260,9 @@
 
 
     % Importance of geometry - CPACS, Haimes work
+    A recent notable shift in aircraft design optimization perspectives has been a renewed focus on geometry representation and parameterization. For example, Haimes and Drela \cite{haimes_construction_2012} contended in 2012 that ``constructive solid geometry (CSG) is the natural foundation for [aircraft design optimization]''. This publication extended prior work by Lazzara, Haimes, and Willcox \cite{lazzara_haimes_willcox_multifidelity_geometry_2009} that introduced the concept of ``multifidelity geometry''. Together, these works advocated for accurate 3D outer mold line representations from the earliest stages of conceptual design, with degenerate representations of this central geometry used to drive individual discipline analyses. Furthermore, they recognized the fundamental limitations of general-purpose (e.g., Parasolid-based) CAD tools in aircraft design optimization: because aerospace geometries tend to use complex, lofted surfaces, the resulting CAD models can be brittle with respect to parameter changes. This observation, along with later developments such as differentiable discretization techniques \cite{esp}, led to renewed research on how aircraft geometry should be parameterized for optimization. For example, in recent years aircraft-specific geometry tools like OpenVSP \cite{mcdonald_open_2022} and Engineering Sketch Pad \cite{esp} have been developed for design optimization workflows, a trend that arguably stems from this line of research.
 
-
-    A notable area where computational methods for aircraft design have long made inroads to industry is in inverse design tools. (As an aerodynamic example, the inverse approach used by the XFoil airfoil design code \cite{drela_xfoil_1989} and others \cite{liebeck_blendedwingbody_1998} to recover a shape from a specified pressure distribution.) These tools can be seen as an alternative workflow to optimization approaches\footnote{Interestingly, inverse design tools can be viewed mathematically as a subset of nonlinear optimization, where the feasible space is a single point and there is no objective function.}, in that they aim to create a mapping from ``performance specification space'' back to the ``design space''. Drela \cite{drela_pros_1998} and others
+    A notable area where computational methods for aircraft design have long made inroads to industry is in inverse design tools. (An example of successful industry adoption in aerodynamics the inverse approach used by the XFoil airfoil design code \cite{drela_xfoil_1989} and others \cite{liebeck_blendedwingbody_1998} to recover a shape from a specified pressure distribution.) Like optimization methods, these inverse methods can aid designers because they offer fundamentally different capabilities than traditional design methods (e.g., carpet plots). While traditional methods focus on the ``forward problem'' (design $\rightarrow$ performance), inverse methods and optimization methods both focus on the ``inverse problem'' (performance $\rightarrow$ design). Drela \cite{drela_pros_1998} shows that this inverse approach can lead to more robust designs than optimization, if the user is not familiar with the risks of an improperly-specified optimization problem.
 
 %    \subsection{Emerging Trends and Opportunities}
 %
@@ -236,6 +270,24 @@
 %    It would be remiss to discuss the last decade of optimization advances (and in particular, the growing recognition of the \textit{interpretability problem} of large-scale computational tools) without discussing the explosion of interest in machine learning. Learning is inherently an optimization problem to develop a generalized regressor model from given observations.
 %
 %    Indeed, a major criticism of generative AI in the present day is that it yields results that appear plausible on the surface level but may be deeply flawed in ways that are difficult to detect. In many ways, it is not the incorrectness, but rather the difficulty of detecting incorrectness that poses the largest threat of breaching trust. This is a problem that is not unique to AI, but rather is a fundamental challenge of large-scale computational tools in general.
+
+    \subsection{Advances in Numerical Methods}
+
+    \subsubsection{Automatic Differentiation}
+
+    Here, we review literature on \textit{automatic differentiation}, an advanced technique borne out of the machine learning community that fundamentally accelerates gradient-based optimization algorithms. A complete survey is available by Baydin et al. \cite{baydin_automatic_2018}
+
+    As previously discussed, gradient-based optimization methods
+
+
+    In the adjacent field of machine learning, application of these techniques\footnote{in particular, automatic differentiation and backend-agnostic computing enabling GPU acceleration} have ignited a revolution of progress \cite{baydin_automatic_2018}. Rackauckas in 2021 \cite{rackauckas_generalizing_2021} states: ``[Automatic differentiation] has become the pervasive backbone behind all of the machine learning libraries.''
+
+    \subsubsection{Automatic Sparsity Detection and Jacobian Coloring}
+
+    \subsubsection{Other Numerical Advances}
+
+
+    \section{Motivation for Improving Industry Access to Design Optimization}
 
 
     \chapter{Thesis Approach, Methodology, and Contributions}
@@ -326,6 +378,8 @@
         \end{itemize}
     \end{enumerate}
 
+    % Severability
+
     \subsection{Code Transformation Paradigm}
 
     The thesis will introduce the idea of \textit{code transformations} as a new computational paradigm on top of which an MDO framework can be built. Here, code transformations are defined as a generalized set of computational techniques that intercept the original optimization problem posed by the user (at runtime), apply some improvement based on analysis of the code itself, and then solve a modified optimization problem instead. This encompasses a variety of recent advanced techniques in scientific computing, such as:
@@ -345,90 +399,43 @@
 
     If code transformation techniques can be applied to engineering design optimization, they offer order-of-magnitude speedups over the black-box optimization methods that form the vast majority of industry use today \cite{martins_engineering_2021, lavin_simulation_2022}. These achievable speeds are comparable to those of state-of-the-art optimization methods in academia, such as disciplined optimization methods\footnote{such as geometric programming and disciplined convex programming} \cite{grant_disciplined_2006, gpkit, boyd_convex_2004, agrawal_disciplined_2019} and gradient-based methods using user-provided analytic gradients\footnote{sometimes referred to as ``adjoint methods'' in reference to a common method for manually deriving these gradients for more-complex analyses} \cite{gray_openmdao_2019, kenway_effective_2019, innes_don_2019}.
 
-    However, code transformations offer a key advantage over these state-of-the-art methods in that they can be applied \textit{automatically} -- most of the benefits of these advanced techniques can be gained without additional effort (or mathematical expertise) from the user. This ease-of-use is a critical requirement to overcome the ``expertise barrier'' described by Grant \cite{grant_disciplined_2006}. Table \ref{tab:paradigm_comparison} compares code transformations to existing MDO paradigms across three key practical metrics. In short, code transformations offer the best of both worlds: the computational speed of latest academic methods with the ease-of-use of methods already accepted by industry today.
+    However, code transformations offer a key advantage over these state-of-the-art methods in that they can be applied \textit{automatically} -- most of the benefits of these advanced techniques can be gained without requiring any additional effort (or mathematical expertise) from the user. This ease-of-use is critical for practicality -- Grant notes that existing paradigms are hamstrung by a ``expertise barrier'' of existing methods, as described by Grant \cite{grant_disciplined_2006}. Table \ref{tab:paradigm_comparison} compares code transformations to existing MDO paradigms across three key practical metrics. In short, code transformations offer the best of both worlds: the computational speed of latest academic methods with the ease-of-use of methods already accepted by industry today.
 
     \begin{table}[H]
+
+        \newcolumntype{M}{>{\raggedright\arraybackslash}m{0.23\textwidth}}
+        \newcolumntype{E}{>{\raggedright\arraybackslash}m{0.19\textwidth}}
+        \newcolumntype{I}{>{\centering\arraybackslash}m{0.21\textwidth}}
+        \newcolumntype{S}{>{\centering\arraybackslash}m{0.21\textwidth}}
+        \newcolumntype{Q}{>{\centering\arraybackslash}m{0.16\textwidth}}
+
+        \definecolor{q1}{HTML}{EC0505}
+        \definecolor{q2}{HTML}{458505}
+        \definecolor{q3}{HTML}{068383}
+        \definecolor{q4}{HTML}{0C6CFD}
+
+        \newcommand{\bad}{\textcolor{q1}{\large\textbf{Limited}}}
+        \newcommand{\good}{\textcolor{q2}{\large\textbf{Good}}}
+        \newcommand{\great}{\textcolor{q3}{\large\textbf{Great}}}
+        \newcommand{\best}{\textcolor{q4}{\large\textbf{Best}}}
+
         \centering
         \caption{A subjective comparison of tradeoffs between existing MDO framework paradigms and the proposed \textit{code transformation} paradigm. The industrial state-of-the-art is largely \textit{black-box optimization}. The academic state-of-the-art has two major branches: \textit{gradient-based methods with analytical gradients}, and \textit{disciplined optimization methods}. More detailed discussion of these assessments, including definitions and reasoning, is given in Appendix \ref{sec:paradigm_comparison}.}
         \label{tab:paradigm_comparison}
 
         \begin{adjustbox}{width=\textwidth}
+            \begin{tabular}{M E I S Q}
+                \toprule
+                \textbf{MDO Framework Paradigm}                 & \textbf{Example Frameworks and Tools}                                                                                                                                                                                                       & \textbf{Ease of \mbox{Implementation}}\ (idea-to-code) & \textbf{Runtime Speed and Scalability}\ (code-to-result) & \textbf{Modeling Flexibility} \\ \toprule
+                \textbf{Black-box Optimization}                 & SUAVE \cite{SUAVE2017}, OpenMDAO$^*$ \cite{gray_openmdao_2019}, TASOPT \cite{drela_tasopt_2010}, PASS \cite{antoine_framework_2005}, FAST \cite{fast_ga_code}, FLOPS \cite{flops}, FBHALE \cite{fbhale}, \textbf{almost all industry codes} & \great & \bad & \best \\ \midrule
+                \textbf{Gradient-based with Analytic Gradients} & MACH-Aero \cite{he_aerodynamic_2018}, OpenMDAO$^*$ \cite{gray_openmdao_2019}, OpenConcept \cite{brelje_multidisciplinary_2021} & \bad & \best & \great \\ \midrule
+                \textbf{Disciplined Optimization}               & GPkit \cite{gpkit}, other convex methods \cite{karcher_method_2023, boyd_convex_2004, grant_disciplined_2006}, most algebraic modeling languages & \good & \good & \bad \\ \midrule
+                \textbf{Code \mbox{Transformations}}            & AeroSandbox$^\dag$ \cite{sharpe_aerosandbox_2021}, JAX$^\ddag$ \cite{jax}, ModelingToolkit.jl$^\ddag$ \cite{ma_modelingtoolkit_2021} & \good & \great & \good \\
+                \bottomrule
 
-%\begin{tabular}{l|cccc}
-%\textbf{Fundamental Paradigm} &
-%  \textbf{\begin{tabular}[c]{@{}c@{}}Black-box\\ Optimization\end{tabular}} &
-%  \textbf{\begin{tabular}[c]{@{}c@{}}Gradient-based with\\ Analytic Gradients\end{tabular}} &
-%  \textbf{\begin{tabular}[c]{@{}c@{}}Disciplined\\ Optimization\end{tabular}} &
-%  \textbf{\begin{tabular}[c]{@{}c@{}}Code\\ Transformations\end{tabular}} \\ \hline
-%Example Frameworks &
-%  \begin{tabular}[c]{@{}c@{}}SUAVE,\\ OpenMDAO*,\\ TASOPT,\\ Most industry\\ codes today\end{tabular} &
-%  \begin{tabular}[c]{@{}c@{}}MACH-Aero,\\ OpenMDAO*,\\ EGADS\end{tabular} &
-%  \begin{tabular}[c]{@{}c@{}}GPKit,\\ Most algebraic\\ modeling languages\end{tabular} &
-%  \begin{tabular}[c]{@{}c@{}}AeroSandbox,\\ JAX*,\\ ModelingToolkit.jl\end{tabular} \\ \hline
-%Ease of Implementation   & 4* & 1   & 4 & 4 \\
-%Computational Speed      & 1  & 5   & 4 & 4 \\
-%Mathematical Flexibility & 5  & 4.5 & 1 & 4
-%\end{tabular}
-
-
-            \begin{tabular}{ccccc}
-                \multicolumn{1}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}
-                                                MDO Framework\\ Paradigm
-                \end{tabular}}} &
-                \textbf{\begin{tabular}[c]{@{}c@{}}
-                            Example\\ Frameworks\\ and Tools
-                \end{tabular}} &
-                \textbf{\begin{tabular}[c]{@{}c@{}}
-                            Ease of\\ Implementation
-                \end{tabular}} &
-                \textbf{\begin{tabular}[c]{@{}c@{}}
-                            Computational\\ Speed and \\ Scalability
-                \end{tabular}} &
-                \textbf{\begin{tabular}[c]{@{}c@{}}
-                            Mathematical\\ Flexibility
-                \end{tabular}} \\ \hline
-                \multicolumn{1}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}
-                                                Black-box\\ Optimization
-                \end{tabular}}} &
-                \begin{tabular}[c]{@{}c@{}}
-                    SUAVE \cite{SUAVE2017},\\ OpenMDAO$^*$ \cite{gray_openmdao_2019},\\ TASOPT \cite{drela_tasopt_2010},\\ Most industry\\ codes today
-                \end{tabular} &
-                    {\color[HTML]{3166FF} \textbf{Best}} &
-                    {\color[HTML]{CB0000} \textbf{Poor}} &
-                    {\color[HTML]{3166FF} \textbf{Best}} \\ \hline
-                \multicolumn{1}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}
-                                                Gradient-based with\\ Analytic Gradients
-                \end{tabular}}} &
-                \begin{tabular}[c]{@{}c@{}}
-                    MACH-Aero \cite{he_aerodynamic_2018},\\ OpenMDAO$^*$ \cite{gray_openmdao_2019},
-                \end{tabular} &
-                    {\color[HTML]{CB0000} \textbf{Poor}} &
-                    {\color[HTML]{3166FF} \textbf{Best}} &
-                    {\color[HTML]{329A9D} \textbf{Great}} \\ \hline
-                \multicolumn{1}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}
-                                                Disciplined\\ Optimization
-                \end{tabular}}} &
-                \begin{tabular}[c]{@{}c@{}}
-                    GPKit \cite{gpkit},\\ Most algebraic\\ modeling languages
-                \end{tabular} &
-                    {\color[HTML]{009901} \textbf{Good}} &
-                    {\color[HTML]{009901} \textbf{Good}} &
-                    {\color[HTML]{CB0000} \textbf{Poor}} \\ \hline
-                \multicolumn{1}{c|}{\textbf{\begin{tabular}[c]{@{}c@{}}
-                                                Code\\ Transformations
-                \end{tabular}}} &
-                \begin{tabular}[c]{@{}c@{}}
-                    AeroSandbox$^\dag$ \cite{sharpe_aerosandbox_2021},\\ JAX$^\ddag$ \cite{jax},\\ ModelingToolkit.jl$^\ddag$ \cite{ma_modelingtoolkit_2021}
-                \end{tabular} &
-                    {\color[HTML]{329A9D} \textbf{Great}} &
-                    {\color[HTML]{329A9D} \textbf{Great}} &
-                    {\color[HTML]{009901} \textbf{Good}} \\
-                \multicolumn{5}{l}{\begin{tabular}[c]{@{}l@{}}
-                                       \\
-                                       $^*$ Can use either paradigm, depending on user implementation\\
-                                       $^\dag$ Part of the present work, as detailed in Section \ref{sec:results}\\
-                                       $^\ddag$ These are computational tools to facilitate code transformations, rather than frameworks themselves
-                \end{tabular}}
+                \multicolumn{5}{p{1\textwidth}}{$^*$ Can use either paradigm, depending on user's implementation} \\
+                \multicolumn{5}{p{1\textwidth}}{$^\dag$ Part of the present work, as detailed in Section \ref{sec:results}} \\
+                \multicolumn{5}{p{1\textwidth}}{$^\ddag$ These are computational tools to facilitate code transformations, rather than frameworks themselves}
             \end{tabular}
         \end{adjustbox}
 
@@ -445,11 +452,11 @@
     The broad motivation stems from the observation that ``ease-of-implementation'' has historically proven to be one of the most important factors for determining whether an MDO paradigm can achieve use in industry. More specifically, the goals of this contribution are to:
 
     \begin{enumerate}
-        \item Stress-test the feasibility of code transformations in practice -- How much added user effort and expertise is required to bring typical engineering analyses into a code-transformations-based MDO tool? To what extent can existing code be used as-is? Finally, we aim to identify any specific computational elements that cause ``pain points'' when attempting to make an analysis traceable.
+        \item Stress-test the feasibility of code transformations in practice -- How much added user effort and expertise is required to bring typical engineering analyses into a code-transformations-based MDO tool? To what extent can existing code be used as-is? Finally, the thesis aims to identify any specific computational elements that cause ``pain points'' when attempting to make an analysis traceable.
         \item Jump-start future applied research by providing a set of modular, plug-and-play analyses that can be used to quickly build a variety of aircraft design optimization problems. Since the long-term goal of this research direction is to establish whether the proposed MDO paradigm improves practicality, it follows that many practical aircraft design problems must be posed. By creating the building blocks for such problems, we aim to accelerate future research.
     \end{enumerate}
 
-    To achieve these goals, the thesis will contribute, at minimum, first implementations of the following common aircraft design analyses within a traceable framework. This minimal set of analyses was deliberately chosen to be diverse in terms of numerical considerations, aiming to stress-test a wide variety of engineering code patterns.
+    To achieve these goals, the thesis will contribute the first traceable implementations of the common aircraft design analyses given in Table \ref{tab:models_to_contribute}. This set of analyses was deliberately chosen to be diverse, spanning a wide range of common computational attributes. The types of attributes that each analysis is intended to stress-test are given in the right-most column of Table \ref{tab:models_to_contribute}. By contributing this breadth of analyses within a traceable paradigm, we aim to cover a wide and representative gamut of engineering code patterns.
 
     \begin{table}[H]
         \newcolumntype{M}{>{\raggedright\arraybackslash}m{0.4\textwidth}}
@@ -457,33 +464,37 @@
         \newcolumntype{D}{>{\raggedright\arraybackslash}m{0.5\textwidth}}
 
         \centering
-        \caption{}
-        \label{tab:}
+        \caption{A list of aircraft design analyses that the thesis will implement within a code transformations framework. The middle column lists the non-traceable tools for each analysis that are commonly used in industry today. The right-most column lists the computational attributes that each analysis is intended to stress-test.}
+        \label{tab:models_to_contribute}
 
         \begin{adjustbox}{width=\textwidth}
 
             \begin{tabularx}{1.2\textwidth}{M E D}
                 \toprule
-                \textbf{Model}                                   & \textbf{Non-Traceable Analogue}                                     & \textbf{Tests tracing through...}                                                                                  \\ \toprule
-                \textbf{Vortex-Lattice Method}                   & AVL \cite{avl}                                                      & A geometry engine and discretization; large, vectorized matrix methods, like linear solves.                        \\ \midrule
-                \textbf{Nonlinear and Quasi-Linear Lifting Line} & Phillips \& Snyder \cite{phillips_modern_2000}, Reid \cite{reid_general_2020}       & Nonlinear systems of equations (i.e., implicit), which cannot directly be reduced to a static computational graph. \\ \midrule
-                \textbf{Workbook-style Aerodynamics Buildup}     & USAF Digital DATCOM \cite{datcom}                                   & Tests tracing table lookups, performance of tracing on scalar-heavy code                                           \\ \midrule
-                \textbf{6-DoF Euler-Bernoulli Beam Model}        & ASWING (structures) \cite{aswing}                                   & Better                                                                                                             \\ \midrule
-                \textbf{Rigid-Body Equations of Motion}          &                                                                     & Tests traceability through differential equations, which have unique challenges in stiff ODEs.                     \\ \midrule
-                \textbf{Linearized Stability Mode Decomposition} & AVL \cite{avl}                                                      & Tests traceability through more advanced matrix methods, such as an eigenvalue decomposition                       \\
+                \textbf{Analysis To Contribute}                            & \textbf{Non-Traceable Analogue}                                               & \textbf{Tests tracing through...}                                                                                                  \\ \toprule
+                \textbf{Vortex-Lattice Method Aerodynamics Analysis}       & AVL \cite{avl}                                                                & An aerospace geometry engine and discretization; large, vectorized matrix methods, like linear solves.                             \\ \midrule
+                \textbf{Nonlinear Lifting Line Aerodynamics Analysis}      & Phillips \& Snyder \cite{phillips_modern_2000}, Reid \cite{reid_general_2020} & Nonlinear systems of equations (i.e., implicit), which often lead to value-dependent computational graphs (via convergence loops). \\ \midrule
+                \textbf{Workbook-style Aerodynamics Buildup}               & USAF Digital DATCOM \cite{datcom}                                             & Table lookups, large amounts of conditional logic (yielding a wide, branching graph), and scalar-heavy math                        \\ \midrule
+%                \textbf{6-DoF Euler-Bernoulli Tube-Spar Beam Model}        & ASWING (structures) \cite{aswing}                                             & Better                                                                                                             \\ \midrule
+                \textbf{Rigid-Body Equations of Motion}                    & ASWING (dynamics) \cite{aswing}                                               & Ordinary differential equations, which are often implemented in a loop-heavy way (yielding a deep graph)                           \\ \midrule
+                \textbf{Linearized Aircraft Stability Modal Decomposition} & AVL \cite{avl}                                                                & More advanced matrix methods, such as an eigenvalue decomposition                                                                  \\
                 \bottomrule
             \end{tabularx}
 
         \end{adjustbox}
     \end{table}
 
+    These traceable implementations offer value within the context of the thesis itself (in stress-testing the practicality of code transformations), but they also have value as a standalone contribution to the aircraft design community -- even outside of design optimization. For example, a traceable workbook-style aerodynamics buildup would seamlessly enable GPU-accelerated evaluations and automatic vectorization, offering significant speedups; an example application might be real-time performance estimation for model predictive controllers.
+
     \subsection{Sparsity Tracing via NaN-Propagation}
 
-    \subsection{Strategies for Black-Box Functions}
+    The third contribution of the thesis will be a novel idea about how to trace sparsity through black-box numerical analyses.
 
-    \subsection{Identifying Framework Requirements for Interpretability}
+    \subsection{Physics-Informed Machine Learning Surrogates for Black-Box Functions}
 
-    An important distinction is that the primary goal of this thesis is not to create the single ``end-all'' framework for aircraft conceptual MDO - these frameworks naturally come and go over the years as programming languages and optimization algorithms evolve. Rather, the overarching goal is about guiding framework architectures: ``What features and paradigms should framework designers consider to mitigate the interpretability challenges of large-scale engineering design optimization?''.
+%    \subsection{Identifying Framework Requirements for Interpretability}
+%
+%    An important distinction is that the primary goal of this thesis is not to create the single ``end-all'' framework for aircraft conceptual MDO - these frameworks naturally come and go over the years as programming languages and optimization algorithms evolve. Rather, the overarching goal is about guiding framework architectures: ``What features and paradigms should framework designers consider to mitigate the interpretability challenges of large-scale engineering design optimization?''.
 
     \subsection{Aircraft System Identification from Minimal Sensor Data}
 
@@ -497,7 +508,6 @@
 
     \subsection{Code Transformation Paradigm}
 
-    In the adjacent field of machine learning, application of these techniques\footnote{in particular, automatic differentiation and backend-agnostic computing enabling GPU acceleration} have ignited a revolution of progress \cite{baydin_automatic_2018}. Rackauckas in 2021 \cite{rackauckas_generalizing_2021} states: ``[Automatic differentiation] has become the pervasive backbone behind all of the machine learning libraries.''
 
     In machine learning, traceability has largely been achieved through the rise of domain-specific languages (DSLs): a sub-language implemented within a programming language. These DSLs, such as Theano, TensorFlow, PyTorch, JAX, and others, have quickly become ubiquitous, empirically demonstrating that DSLs are a viable path to industry adoption. However, there are several downsides if machine-learning-oriented DSLs are applied to engineering design as-is. DSLs tend to differ substantially in syntax from their underlying language, which adds a barrier for new users, and more importantly, requires existing engineering analysis code to be rewritten. DSLs for machine learning also make architectural choices that tend to be ill-suited for typical engineering problems. For example, most deep learning applications consist predominantly of highly-vectorized mathematical operations on large tensors, with a high amount of compute per operator. Engineering analysis, by contrast, tends to be much more scalar-heavy, with many more intermediate steps and a lower amount of compute per operator.
 
@@ -535,7 +545,7 @@
         \end{itemize}
     \end{itemize}
 
-    \noindent The program of study was approved by the committee at the Apr. 2023 meeting, with no further coursework recommendations made. All listed classes have been completed for credit with A/A+ grades, satisfying requirements.
+    \noindent The program of study was approved by the committee at the Apr. 2023 meeting, with no further coursework recommendations made. All listed classes have been completed for credit with A/A+ grades, satisfying grade requirements. The Doctoral Research and Communication Seminar course (16.995) has been completed, satisfying the department prerequisite for the thesis proposal defense.
 
 
     \section{Degree Milestones}
@@ -547,18 +557,18 @@
         \caption{Tentative planned timeline for PhD degree milestones.}
         \label{tab:timeline}
         \begin{tabular}{c r l}
-            Complete?  & Date                    & Milestone                       \\
-            \midrule
-            \checkmark & Fall 2019               & Began studies at MIT            \\
-            \checkmark & Summer 2021             & S.M. thesis submitted           \\
-            \checkmark & Summer 2021             & S.M. degree awarded             \\
-            \checkmark & Fall 2022               & Formation of doctoral committee \\
-            \checkmark & Spring 2023             & Committee Meeting \#1           \\
-            {}         & Fall 2023               & Ph.D. Thesis Proposal Defense   \\
-            {}         & Spring 2024             & Committee Meeting \#2           \\
-            {}         & Fall 2024               & Committee Meeting \#3           \\
-            {}         & Winter 2024/Spring 2025 & Ph.D. Thesis Defense            \\
-
+            \toprule
+            \textbf{Complete?} & \textbf{Date} & \textbf{Milestone}              \\ \toprule
+            \checkmark         & Fall 2019     & Began studies at MIT            \\
+            \checkmark         & Summer 2021   & S.M. thesis submitted           \\
+            \checkmark         & Summer 2021   & S.M. degree awarded             \\
+            \checkmark         & Fall 2022     & Formation of doctoral committee \\
+            \checkmark         & Spring 2023   & Committee Meeting \#1           \\
+            {}                 & Fall 2023     & Ph.D. Thesis Proposal Defense   \\
+            {}                 & Spring 2024   & Committee Meeting \#2           \\
+            {}                 & Fall 2024     & Committee Meeting \#3           \\
+            {}                 & Winter 2024   & Ph.D. Thesis Defense            \\
+            \bottomrule
         \end{tabular}
     \end{table}
 
@@ -579,7 +589,7 @@
                 \item Long-haul liquid-hydrogen-powered transport aircraft design, which was studied and developed for MIT 16.886 in Fall 2022 and MIT 16.885 in Fall 2023 \cite{gaubatz_estimating_2023, transport_aircraft}.
             \end{itemize}
 %            (e.g., the NASA Common Research Model) and more realistic problems (e.g., the D8.8). The goal is to have a set of problems that can be used to evaluate the framework's performance across a range of problem sizes and complexities.
-            \item Implement the benchmark problem in several frameworks that are representative of state-of-the-art and/or industry-standard paradigms: AeroSandbox, OpenMDAO, GPKit, and a ``optimizer wrapped around black-box analysis'' method\footnote{Typical of industry methods, such as those seen in the development of the Facebook HALE aircraft development effort\cite{fbhale}}.
+            \item Implement the benchmark problem in several frameworks that are representative of state-of-the-art and/or industry-standard paradigms: AeroSandbox, OpenMDAO, GPkit, and a ``optimizer wrapped around black-box analysis'' method\footnote{Typical of industry methods, such as those seen in the development of the Facebook HALE aircraft development effort\cite{fbhale}}.
             \item Compare the implementations on the basis of the three framework-level metrics identified in Section \ref{sec:contributions}: runtime speed, problem implementation speed, and mathematical flexibility. Document this thoroughly. Use this exercise as a jumping-off point to write a thesis chapter on how specific framework design choices affect each of these three metrics.
             \item Show that the thesis framework makes large-scale optimization practical to implement at the conceptual design stage.
         \end{enumerate}
@@ -596,7 +606,7 @@
     \subsection*{Fall 2024}
 
     \begin{enumerate}
-        \item Present the idea that implicit model assumptions and constraint-satisfaction information as ``metadata'' that should be
+        \item Present the idea that implicit model assumptions and constraint-satisfaction information as ``metadata'' that should be % TODO
     \end{enumerate}
 
 
@@ -611,6 +621,19 @@
     \begin{appendices}
         \chapter{Comparison of MDO Framework Paradigms}
         \label{sec:paradigm_comparison}
+
+        This appendix aims to provide more detailed discussion of the comparisons made in Table \ref{tab:paradigm_comparison}.
+
+        In this Table, three qualitative metrics are defined over which MDO framework paradigms are enabled. These metrics represent framework needs derived from the barriers to industry adoption that are identified in Section \ref{sec:technical-gap}. The metrics are:
+
+        \begin{enumerate}
+            \item \textbf{Ease of implementation:} How much effort is required to implement a typical aircraft design problem (from ``concept idea'' to ``working code'') in this paradigm? How much optimization or programming expertise is required, beyond the basics needed to write engineering analysis code?
+            \item \textbf{Computational speed and scalability:} How fast is the resulting design optimization problem to run, and how does this scale with problem size and number of disciplines? Are there other fundamental limits to scaling up analysis fidelity?
+            \item \textbf{Mathematical Flexibility:} What kinds of restrictions are present on the mathematical form of the optimization problem? This has important follow-on effects for backwards-compatability, as highly-restrictive frameworks preclude the use of existing engineering code and instead require from-scratch rewrites.
+        \end{enumerate}
+
+        Black-box optimization refers to the common industry approach of wrapping % TODO continue
+
 
     \end{appendices}
 

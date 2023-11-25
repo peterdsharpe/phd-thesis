@@ -1,0 +1,34 @@
+\begin{tikzpicture}
+
+    \definecolor{c1}{HTML}{64ACBE}
+
+    \tikzstyle{fmt} = [
+    thick,
+    rectangle, rounded corners, minimum height=2em,
+    draw=c1,  fill=c1!20,
+    text width=11em, text centered,
+    ]
+
+    \node [fmt] (a1) {Aerodynamics};
+    \node [fmt,right=of a1] (a2) {Structures};
+    \node [fmt,right=of a2] (a3) {Propulsion};
+
+    \node [fmt,right=of a3] (a4) {Power Systems / Thermal Mgmt.};
+
+    \node [fmt,below=of a1] (b1) {Flight Dynamics / Stability \& Control};
+    \node [fmt,right=of b1] (b2) {Trajectory / CONOPS / Field Lengths};
+    \node [fmt,right=of b2] (b3) {Weights / Internal Geometry Layout / Payload};
+    \node [fmt,right=of b3] (b4) {Certifiability / Regulation / Safety / Engine-Out};
+
+    \node [fmt,below=of b1] (c1) {Emissions (Life-Cycle)};
+
+    \node [fmt,right=of c1] (c2) {Cost Modeling / Manufacturability / Attritability};
+    \node [fmt,right=of c2] (c3) {Acoustic Signature};
+    \node [fmt,right=of c3] (c4) {Ride Quality / Gust Handling};
+
+    \node [fmt,below=of c1] (d1) {Survivability \& Stealth};
+    \node [fmt,right=of d1] (d2) {Mission-specific requirements};
+    \node [fmt,right=of d2] (d3) {};
+    \node [fmt,right=of d3] (d4) {};
+
+\end{tikzpicture}

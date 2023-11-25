@@ -1,12 +1,12 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Final Build" type="LATEX_RUN_CONFIGURATION" factoryName="LaTeX configuration factory" activateToolWindowBeforeRun="false">
     <texify>
-      <compiler>LUALATEX</compiler>
+      <compiler>LATEXMK</compiler>
       <compiler-path />
       <sumatra-path />
       <pdf-viewer>NONE</pdf-viewer>
       <viewer-command />
-      <compiler-arguments>-shell-escape</compiler-arguments>
+      <compiler-arguments>-shell-escape -xelatex</compiler-arguments>
       <envs />
       <main-file>$PROJECT_DIR$/TeX/main.tex</main-file>
       <output-path>$PROJECT_DIR$/out</output-path>
