@@ -51,53 +51,64 @@
 
     \chapter*{Abstract}
 
-    Design optimization has immense potential to improve aircraft conceptual design, yet practical industry adoption of advanced methods remains relatively limited despite decades of academic research. This thesis aims to address the root causes of this gap by introducing a new computational framework paradigm based on code transformations. Code transformations encompass a variety of best-practices scientific computing strategies (e.g., automatic differentiation, automatic sparsity detection, problem auto-scaling, etc.) that automatically analyze, augment, and accelerate the user's code before passing it to a modern gradient-based optimization algorithm. This paradigm offers a compelling combination of ease-of-use, computational speed, and modeling flexibility, while existing paradigms typically make sacrifices in at least one of these key areas. Because of this, code transformations offer a competitive avenue for increasing the adoption of advanced optimization techniques in industry, all without requiring significant expertise in applied mathematics or computer science from end users.
+    Design optimization has immense potential to improve aircraft conceptual design, yet practical industry adoption of advanced methods remains relatively limited despite decades of academic research. This thesis takes steps to address the root causes of this gap by introducing a new paradigm for computational design optimization frameworks called \textit{code transformations}. Code transformations encompass a variety of best-practices scientific computing strategies (e.g., automatic differentiation, automatic sparsity detection, problem auto-scaling, etc.) that automatically analyze, augment, and accelerate the user's code before passing it to a modern gradient-based optimization algorithm.
 
-    The proposed contributions of this thesis are fivefold. First, the thesis will introduce code transformations conceptually and demonstrate their feasibility through aircraft design case studies. Second, several common aircraft analyses will be newly implemented in a traceable form compatible with code transformations. Third is a novel technique to automatically trace sparsity through some kinds of external black-box functions by exploiting IEEE 754 handling of not-a-number (NaN) values. Fourth, strategies for efficiently incorporating black-box models into a code transformation framework through physics-informed machine learning surrogates are proposed; this will be demonstrated with an airfoil aerodynamics analysis case study. Finally, the thesis will show how a code transformations paradigm can simplify the formulation of other optimization-related aerospace tasks outside of design; here, an example of aircraft system identification and performance reconstruction from minimal flight data will be given. Taken holistically, these contributions aim to improve the accessibility of advanced optimization techniques while enabling large-scale multidisciplinary design optimization problems at the conceptual stage.
+    This paradigm offers a compelling combination of ease-of-use, computational speed, and modeling flexibility; existing paradigms typically make sacrifices in at least one of these key areas. Because of this, code transformations offer a competitive avenue for increasing the adoption of advanced optimization techniques in industry, all without requiring significant expertise in applied mathematics or computer science from end users.
+
+    The proposed contributions of this thesis are fivefold. First, the thesis will introduce code transformations conceptually and demonstrate their feasibility through aircraft design case studies. Second, several common aircraft analyses will be newly implemented in a traceable form compatible with code transformations. Third is a novel technique to automatically trace sparsity through some kinds of external black-box functions by exploiting IEEE 754 handling of not-a-number (NaN) values. Fourth, strategies for efficiently incorporating black-box models into a code transformation framework through physics-informed machine learning surrogates are proposed; this will be demonstrated with an airfoil aerodynamics analysis case study. Finally, the thesis will show how a code transformations paradigm can simplify the formulation of other optimization-related aerospace tasks outside of design; here, an example of aircraft system identification and performance reconstruction from minimal flight data will be given. Taken holistically, these contributions aim to improve the accessibility of advanced optimization techniques for industry engineers, making large-scale conceptual multidisciplinary design optimization more practical for real-world systems.
 
     % table of contents
     \tableofcontents
 
 
     \chapter{Introduction}
-    \label{sec:intro}
+    \label{chap:intro}
+
+    The promise of multidisciplinary design optimization (MDO) to revolutionize engineering design has motivated pioneering research into new frameworks and methods for decades. MDO saw rapid progress beginning in the late 1980s, with early works outlining visions for integrated computational design tools that couple analyses across engineering disciplines \cite{ashley_making_1982, vanderplaats_automated_1976, haftka_multidisciplinary_1997}. However, contemporaneous warnings also highlighted the limited adoption of these methods by industry practitioners up to that point \cite{kroo_multidisciplinary_1997, drela_pros_1998}.
+
+    Surveys assessing the state of aircraft MDO years later reveal a persisting gap between MDO’s promise and practice. Documented examples of complete aircraft designed with MDO remain relatively uncommon in industry, even as exponential growth in computational power has mitigated other technical barriers. Expert commentary affirms this observation, noting that the use of advanced optimization techniques often stops at the academic proof-of-concept stage \cite{mcmasters_airplane_2002, kroo_multidisciplinary_1997, agte_mdo_2010, ashley_making_1982, haftka_multidisciplinary_1997,gazaix_industrialization_2017}.
+
+    The core remaining barriers to widespread adoption of conceptual-level MDO relate strongly to practical limitations at the human-optimizer interface, rather than purely on traditional metrics of computational speed \cite{gpkit}. The complexity intrinsic to coordinating numerous coupled models across disciplines poses inherent difficulties for design interpretation, method credibility, and managing tradeoffs. Modern scientific computing capabilities enable unprecedented problem scale, but push human limitations in complexity management. The central difficulty is leveraging advanced techniques in scientific computing without requiring end-users to be joint experts across applied mathematics, computer science, and engineering domain knowledge \cite{ma_modelingtoolkit_2021}.
+
+    The path forward lies in a deliberate focus on the practical human interface with optimization tools. Technical advances must synthesize with pragmatic methods (e.g., syntax) to address open challenges around complexity and usability. The overarching motivation is to address this industry gap, allowing the benefits of advanced conceptual design optimization to be more readily accessed by industry. This grounds the proposed research directions on fundamentally human-centered principles in addition to technical ones.
+
+%    Before defining specific contributions, we first survey key developments in MDO algorithms, architectures, and strategies over recent decades. Reviewing progress to date allows us to contextualize remaining barriers to real-world impact. We ultimately find that formidable capability now exists, but practical open problems persist nearly unchanged since the genesis of MDO research.
 
 
     \section{Project Definition and Thesis Overview}
     \label{sec:definition}
 
-
+    To address the above challenges, this thesis proposes five novel contributions. These contributions are summarized below at a high level, and individually expanded upon in Section \ref{sec:contributions}:
 
     \begin{enumerate}
-        \item \textbf{Code Transformation Paradigm:} Introduce a new computational paradigm for MDO frameworks that offers most of the benefits of state-of-the-art paradigms with significantly fewer user frictions.
-        \item \textbf{Differentiable Physics Models:} Provide the first implementations of several key aerospace physics models that are amenable to code transformations.
-        \item \textbf{Sparsity Tracing via NaN-Propagation:} Introduce the new idea of ``NaN-propagation'' as a method to trace sparsity through black-box numerical analyses, accelerating gradient-based optimization.
-        \item \textbf{Strategies for Black-Box Functions:} Demonstrate that physics-informed machine learning surrogates provide a viable method of incorporating aerospace-related black box functions into a code-transformation-based design framework.
-        \item \textbf{Framework Requirements for Interpretability:} Identify the set of features that a design optimization framework must provide to enable the \textit{interpretability} and \textit{reviewability} of large-scale engineering design optimization problems. Implement these features in a \textit{code transformation} design optimization framework.
-        \item \textbf{System Identification }
-        \item Build a computational framework for engineering design optimization based on the paradigm of \textit{code transformations}, which enables the use of modern techniques in computer science and applied math (detailed more in Section TODO). This framework will act as a ``proving ground'' on top of which subsequent research objectives will be implemented and evaluated.
-        \item Demonstrate that this \textit{code transformation} paradigm enables the formulation of large-scale engineering design optimization problems at the conceptual stage, to an extent that is not otherwise possible with existing public aircraft design frameworks. To satisfy this objective, the framework will demonstrate (on at least one applied aircraft design case study) performance equaling-or-exceeding the state-of-the-art across the following metrics:
-        \begin{itemize}
-            \item Runtime speed (i.e., scalability of computational resources, and runtimes compatible with human-in-the-loop interactive design).
-            \item Problem implementation and re-implementation speed (i.e., scalability of engineering time resources).
-            \item Mathematical flexibility: the ability to achieve the above metrics without imposing restrictions on user models that can force undue deviations from physical reality (e.g., log-convexity).
-        \end{itemize}
-        \item Demonstrate the double-edged sword of the large-scale conceptual design optimization capabilities enabled by this framework:
-        \begin{enumerate}
-            \item \textbf{Benefit:} Demonstrate that enabling large-scale engineering design at the conceptual stage offers measurable performance gains in the resulting aircraft designs compared to those produced with existing methods. Specifically, the thesis will present at least one applied aircraft design case study, which is then solved with two separate approaches:
-            \begin{enumerate}
-                \item A first-order sizing study where an aircraft is designed by coupling only ``core'' aircraft design disciplines (aerodynamics, structures, and propulsion) and traditional sizing relations (e.g., $W/S$ and $T/W$ diagrams)
-                \item A higher-order sizing study where more ``non-core'' disciplines (e.g., stability and control, trajectory and mission optimization, cost analysis, field lengths, noise, manufacturability) are added to the aircraft design problem. Geometric flexibility, as measured by the number of design variables describing the aircraft geometry, will also be increased.
-            \end{enumerate}
-            The resulting designs from these two studies will then be compared (post-optimality) to assess their performance on both stated objectives (to assess how much large-scale modeling expands the feasible design space) and secondary metrics (to assess how well core disciplines act as a surrogate for non-core disciplines).
-            \item \textbf{Risk:} Demonstrate the major pitfall of the new large-scale conceptual design optimization: the lack of result \textit{interpretability}. Show that the system complexity enabled by large-scale optimization leads to results are more difficult to communicate, interpret, review, and trust.
-        \end{enumerate}
-        \item
-        \item Identify framework features and characteristics that aid in the \textit{interpretability} and \textit{reviewability} of large-scale engineering design optimization problems. This should be based on a combination of literature review, aircraft design case studies, and (as resources allow) discussions with framework users and aircraft designers. Fundamentally, this is more a communication question than a technical one: setting up a large-scale optimization problem is doable with state-of-the-art aircraft design optimization tools, but TODO (``how do we communicate whether we can trust the results of a design optimization study?'').
-        \item Implement some of these practical This should include, at minimum:
-        \begin{itemize}
-            \item A constraint activity log, which
-        \end{itemize}
+        \item \textbf{Code Transformation Paradigm:} Conceptually introduce a new computational paradigm for MDO frameworks that offers most of the benefits of state-of-the-art paradigms with significantly fewer user frictions. Provide a proof-of-concept implementation of this paradigm in the open-source \textit{AeroSandbox} \cite{sharpe_aerosandbox_2021} framework, and compare this implementation with existing frameworks on a set of practical aircraft design problems.
+        \item \textbf{Differentiable Physics Models:} Provide the first implementations of several key aerospace physics models that are purpose-built to take advantage of code transformations. These aim to both stress-test the code transformation paradigm on common analysis code patterns and jump-start future applied research with a set of modular analyses.
+        \item \textbf{Sparsity Tracing via NaN-Propagation:} Conceptually introduce the novel idea of ``NaN-propagation'' as a method to trace sparsity through black-box numerical analyses by exploiting floating-point math handling. This opens up a path to including such models in a code transformations framework while still retaining some (but not all) of the speed advantages over current black-box optimization methods.
+        \item \textbf{Physics-Informed Machine Learning Surrogates for Black-Box Models:} Explore strategies to incorporate black-box models into a code transformation framework, expanding the practicality of the paradigm for users who require use of black-box code. As an example, a physics-informed machine learning surrogate model for airfoil aerodynamics analysis will be presented. This demonstrates that accurate surrogates can be constructed to stand in for complex analyses while retaining compatibility with code transformations, and without sacrificing mathematical flexibility.
+        \item \textbf{Aircraft System Identification from Minimal Sensor Data:} Demonstrate that the code transformation paradigm enables straightforward formulation of optimization problems beyond just design optimization. As an example, the thesis will show an application to aircraft system identification and performance reconstruction from minimal flight data. Here, physics-based corrections are used alongside statistical inference techniques to accurately estimate aircraft performance characteristics from a single short test flight. This approach is enabled by the flexibility of the code transformation framework.
+%        \item Build a computational framework for engineering design optimization based on the paradigm of \textit{code transformations}, which enables the use of modern techniques in computer science and applied math (detailed more in Section TODO). This framework will act as a ``proving ground'' on top of which subsequent research objectives will be implemented and evaluated.
+%        \item Demonstrate that this \textit{code transformation} paradigm enables the formulation of large-scale engineering design optimization problems at the conceptual stage, to an extent that is not otherwise possible with existing public aircraft design frameworks. To satisfy this objective, the framework will demonstrate (on at least one applied aircraft design case study) performance equaling-or-exceeding the state-of-the-art across the following metrics:
+%        \begin{itemize}
+%            \item Runtime speed (i.e., scalability of computational resources, and runtimes compatible with human-in-the-loop interactive design).
+%            \item Problem implementation and re-implementation speed (i.e., scalability of engineering time resources).
+%            \item Mathematical flexibility: the ability to achieve the above metrics without imposing restrictions on user models that can force undue deviations from physical reality (e.g., log-convexity).
+%        \end{itemize}
+%        \item Demonstrate the double-edged sword of the large-scale conceptual design optimization capabilities enabled by this framework:
+%        \begin{enumerate}
+%            \item \textbf{Benefit:} Demonstrate that enabling large-scale engineering design at the conceptual stage offers measurable performance gains in the resulting aircraft designs compared to those produced with existing methods. Specifically, the thesis will present at least one applied aircraft design case study, which is then solved with two separate approaches:
+%            \begin{enumerate}
+%                \item A first-order sizing study where an aircraft is designed by coupling only ``core'' aircraft design disciplines (aerodynamics, structures, and propulsion) and traditional sizing relations (e.g., $W/S$ and $T/W$ diagrams)
+%                \item A higher-order sizing study where more ``non-core'' disciplines (e.g., stability and control, trajectory and mission optimization, cost analysis, field lengths, noise, manufacturability) are added to the aircraft design problem. Geometric flexibility, as measured by the number of design variables describing the aircraft geometry, will also be increased.
+%            \end{enumerate}
+%            The resulting designs from these two studies will then be compared (post-optimality) to assess their performance on both stated objectives (to assess how much large-scale modeling expands the feasible design space) and secondary metrics (to assess how well core disciplines act as a surrogate for non-core disciplines).
+%            \item \textbf{Risk:} Demonstrate the major pitfall of the new large-scale conceptual design optimization: the lack of result \textit{interpretability}. Show that the system complexity enabled by large-scale optimization leads to results are more difficult to communicate, interpret, review, and trust.
+%        \end{enumerate}
+%        \item
+%        \item Identify framework features and characteristics that aid in the \textit{interpretability} and \textit{reviewability} of large-scale engineering design optimization problems. This should be based on a combination of literature review, aircraft design case studies, and (as resources allow) discussions with framework users and aircraft designers. Fundamentally, this is more a communication question than a technical one: setting up a large-scale optimization problem is doable with state-of-the-art aircraft design optimization tools, but TODO (``how do we communicate whether we can trust the results of a design optimization study?'').
+%        \item Implement some of these practical This should include, at minimum:
+%        \begin{itemize}
+%            \item A constraint activity log, which
+%        \end{itemize}
     \end{enumerate}
 
     % TODO
@@ -116,8 +127,8 @@
         \begin{tabular}{p{10cm}|p{4cm}}
             Requirement                                                                                      & Section                                               \\
             \hline
-            A clear, specific statement of the technical problem and the objectives of the proposed research & Section \ref{sec:definition}, \ref{sec:technical-gap} \\
-            A thorough, adequately referenced, summary of previous work done on the problem                  & Section \ref{sec:literature}                          \\
+            A clear, specific statement of the technical problem and the objectives of the proposed research & Chapter \ref{chap:intro} \\
+            A thorough, adequately referenced, summary of previous work done on the problem                  & Chapter \ref{chap:literature}                          \\
             A plan for the initial approach to the problem                                                   & Section \ref{sec:contributions}                       \\
             An outline of the major foreseeable steps to a solution of the problem                           & Section \ref{sec:contributions}, \ref{sec:schedule}   \\
             An estimate of the time that might be required                                                   & Section \ref{sec:schedule}                            \\
@@ -128,7 +139,7 @@
 
 
     \chapter{A Review of Aircraft Design Optimization}
-    \label{sec:literature}
+    \label{chap:literature}
 
 
     \section{Early Promises, Predictions, and Pitfalls}
@@ -269,11 +280,11 @@
         \end{itemize}
     \end{multicols}
 
-    Each of these disciplines might include dozens of submodels \cite{cruz_weight_1989}. To keep problems tractable despite their large scope, these models are typically low-fidelity; often, they are either derived from first principles physics with appropriate simplifications or regressions to statistical data. Despite the reduced accuracy of these models, they fulfill two critical functions. First, they apply \textit{optimization pressure} to steer the optimizer towards realistic designs, often in subtle, interdisciplinary ways. For example, increasing fuselage length requires increased landing gear length and mass to maintain a proper takeoff rotation angle, reducing the attractiveness of such design changes. Secondly, these low-fidelity models provide information on which constraints might be active near the optimum, allowing computational resources to be devoted to fidelity improvement only where it is needed. Often, these wide MDO problems are posed as large single-level optimization problems, which allows the large number of cross-disciplinary constraints to be computationally represented in a shared namespace \cite{hoburg_geometric_2014}.
+    Each of these disciplines might include dozens of submodels \cite{cruz_weight_1989, torenbeek_synthesis_1976, torenbeek_advanced_2013, drela_tasopt_2010}. To keep problems tractable despite their large scope, these models are typically low-fidelity; often, they are either derived from first principles physics with appropriate simplifications or regressions to statistical data. Despite the reduced accuracy of these models, they fulfill two critical functions. First, they apply \textit{optimization pressure} to steer the optimizer towards realistic designs, often in subtle, interdisciplinary ways. For example, increasing fuselage length requires increased landing gear length and mass to maintain a proper takeoff rotation angle, reducing the attractiveness of such design changes. Secondly, these low-fidelity models provide information on which constraints might be active near the optimum, allowing computational resources to be devoted to fidelity improvement only where it is needed. Often, these wide MDO problems are posed as large single-level optimization problems, which allows the large number of cross-disciplinary constraints to be computationally represented in a shared namespace \cite{hoburg_geometric_2014}.
 
     The second subfield of MDO is that of \textbf{preliminary}, or \textbf{``deep'' MDO}. Here, the goal is often to provide detailed design refinement of a very close initial guess. Because the low-hanging fruit has often been picked by this stage, the design problem is often more local in nature, and the number of models is typically smaller than in wide MDO. Likewise, continued improvement from a good initial guess requires high-fidelity models, since the objective function tends to be relatively flat near the optimum and hence highly sensitive to model inaccuracy. For example, RANS-based CFD\footnote{Reynolds-averaged Navier-Stokes; Computational fluid dynamics} models are often used for aerodynamics, at significant cost: optimization runtimes of 1,000 to 100,000 CPU-hours are not uncommon \cite{kenway_multipoint_2014}. To maintain tractability, relatively few disciplines are considered -- often only aerodynamics and structures. The intended use case is often detailed design of a single component or subsystem, such as a wing. Due to computational challenges that tend to be more prevalent in high-fidelity models (e.g., PDE-constrained optimization, adjoint-based gradients, numerical stiffness of models, and convergence of models that use iterative solvers), the subfield of ``deep'' MDO has placed a large focus on MDO architectures that allow multi-level decomposition of the original optimization problem \cite{martins_multidisciplinary_2013}. Frameworks that tend to specialize on this deep MDO subfield are MACH-Aero \cite{he_aerodynamic_2018}, and, to some extent, OpenMDAO \cite{gray_openmdao_2019}.
 
-    While both subfields share broad similarities and provide useful design insight, they are fundamentally attacking different problems: wide MDO is aimed at clean-sheet conceptual design, while deep MDO tends to aim at refinement of an existing design. Historically, this schism became increasingly apparent roughly in the 1990s and 2000s, as various research groups began ``spending'' their increasing computational budgets in different ways: either model breadth or model depth. Examples of wide MDO research efforts in the time since this divergence include PASS \cite{antoine_framework_2005} by Kroo, TASOPT \cite{drela_tasopt_2010} by Drela, and various GPkit-based \cite{hoburg_geometric_2014} aircraft design codes. Modern ideas around deep MDO research can trace their origins to high-fidelity adjoint-based aerodynamic shape optimization studies by Alonso, Martins, and other contemporaries \cite{alonso_pymdo_2004, martins_coupledadjoint_2005, choi_multifidelity_2008}.
+    While both subfields share broad similarities and provide useful design insight, they are fundamentally attacking different problems: wide MDO is aimed at clean-sheet conceptual design, while deep MDO tends to aim at detailed refinement of a close initial design. Historically, this schism became increasingly apparent roughly in the 1990s and 2000s, as various research groups began ``spending'' their increasing computational budgets in different ways: either model breadth or model depth. Examples of wide MDO research efforts in the time since this divergence include PASS \cite{antoine_framework_2005} by Kroo, TASOPT \cite{drela_tasopt_2010} by Drela, and various GPkit-based \cite{hoburg_geometric_2014} aircraft design codes. Modern ideas around deep MDO research can trace their origins to high-fidelity adjoint-based aerodynamic shape optimization studies by Alonso, Martins, and other contemporaries \cite{alonso_pymdo_2004, martins_coupledadjoint_2005, choi_multifidelity_2008}.
 
     \subsection{Advances in Optimization Algorithms}
 
@@ -317,6 +328,8 @@
     In the adjacent field of machine learning, application of these techniques\footnote{in particular, automatic differentiation and backend-agnostic computing enabling GPU acceleration} have ignited a revolution of progress \cite{baydin_automatic_2018}. Rackauckas in 2021 \cite{rackauckas_generalizing_2021} states: ``[Automatic differentiation] has become the pervasive backbone behind all of the machine learning libraries.''
 
     \subsubsection{Automatic Sparsity Detection and Jacobian Coloring}
+
+    \cite{gebremedhin_what_2005, gebremedhin_efficient_2009, martins_engineering_2021}
 
     \subsubsection{Other Numerical Advances}
 
@@ -584,9 +597,36 @@
 
     \subsection{Sparsity Tracing via NaN-Propagation}
 
-    The third contribution of the thesis will be a novel idea about how to trace sparsity through black-box numerical analyses.
+    A key challenge in applying code transformations is handling external black-box (i.e., non-traceable) function calls within the analysis graph. While code transformations can apply techniques like automatic differentiation and automated sparsity detection to accelerate traceable code, these efficiency gains are lost when opaque black-box functions are present. Here, gradient calculation methods must invariable fall back to slower techniques, such as finite-differencing or complex-step derivative computation \cite{martins_complexstep_2003}. However, significant speedups are still achievable if the sparsity pattern of dependencies between inputs and outputs can be determined, as this allows Jacobian compression via coloring \cite{gebremedhin_efficient_2009, gebremedhin_what_2005}.
 
-    \subsection{Physics-Informed Machine Learning Surrogates for Black-Box Functions}
+    This thesis contribution proposes a novel technique that we call \textit{NaN propagation} to trace these input-output dependencies through black-box functions. The approach exploits the fact that Not-a-Number (NaN) values are universally propagated through most floating-point numerical computations via the IEEE 754 standard. Because most floating-point math libraries since the 1970s follow this standard, this presents a fascinating way to potentially trace sparsity independent of math library or programming language. By systematically contaminating inputs to a black-box function with NaN values and observing which outputs become NaN, the sparsity graph can be reconstructed.
+
+    Concretely, the technique proceeds as follows:
+
+    \begin{enumerate}
+        \item Evaluate the black-box function on an initial input.
+        \item Re-evaluate the function with a single input replaced by NaN. Outputs that newly become NaN are downstream of that input.
+        \item Repeat for each input to trace all dependencies.
+    \end{enumerate}
+    This simple procedure yields the complete bipartite graph between inputs and outputs (the \textit{sparsity pattern}). The sparsity pattern enables gradient computation accelerations via simultaneous evaluation, since the sparsity of the Jacobian is known to be a strict subset of the result of this procedure. Crucially, no internal knowledge of the black-box function is required, which in theory compatibility with arbitrary external code.
+
+    Further accelerations are possible. One proposed acceleration, which we term ``chunking'', seeds multiple adjacent elements of the input vector with NaN values simultaneously. As an example: if pairs of adjacent inputs are seeded, this has the benefit of halving the number of function calls, at the detriment of providing overly-conservative sparsity information\footnote{as one cannot determine which NaN input caused a given output to return NaN, so neither can be ruled out}. This exploits the fact that a conservative sparsity pattern can still provide a significant speedup, depending on the sparsity pattern. It also exploits the fact that human-written code tends to have a high degree of locality\footnote{in other words, humans tend to code Discipline A in its entirety before implementing analyses for Discipline B} (e.g., inputs 10 and 11 are much more likely to share a sparsity pattern than inputs 10 and 100), and hence these chunked sparsities can be surprisingly accurate in practice. This and other heuristics can significantly reduce the number of black-box function evaluations required to trace the sparsity pattern.
+
+    There are several subtleties to address for robustness across numerical code. First, some functions may internally handle NaN values via exceptions, preventing contamination and hence precluding this strategy. However, NaN propagation is common in most numerical libraries. Second, conditional logic can complicate tracing, but most libraries propagate NaNs through static conditional statements (i.e., a flattened if-else statement where both branches are fused). Overall, NaN propagation shows promise for automated sparsity detection through common black-box functions. Integrating this technique into the code transformation paradigm could expand its applicability.
+
+    \subsection{Physics-Informed Machine Learning Surrogates for Black-Box Models}
+
+    The flexibility afforded by code transformations enables the straightforward formulation of challenging inverse optimization problems in aerospace beyond just aircraft design. As an example application, this section will summarize ongoing work that demonstrates the use of code transformations to accurately infer aircraft performance characteristics from minimal flight data.
+
+    Here, physics-based corrections are used alongside statistical inference techniques to estimate an aircraft's power curve, aerodynamic polar, and propulsive efficiency curve simultaneously from a single short test flight. The key insight is that by framing aircraft performance modeling as an optimization problem, one can simultaneously fit models to data while also using those models to correct the raw data for unsteady effects. This coupled data-model inference approach draws parallels to techniques used in system identification, but it is enabled by the flexibility of the code transformation framework.
+
+    Concretely, conservation of energy\footnote{including both unsteady altitude and airspeed terms} is used to construct an instantaneous aircraft power balance equation, with drag and propulsive efficiency initially modeled as unknown functions. By posing this as an optimization problem to minimize residuals, optimal function fits to the data are obtained. These fitted functions are then used to re-process the data, correcting for climbed, accelerated flight segments. The corrected steady-level-flight data can then be easily post-processed to reconstruct performance curves. Additionally, by wrapping this optimization problem in a bootstrap resampling loop of the flight data samples, uncertainty bounds are obtained from an unbiased estimator.
+
+    Remarkably, this physics-informed regression approach shows excellent accuracy reconstructing the true performance curves from real-world noisy data, even when the raw data has significant contamination from unsteady flight effects. In the example result presented, performance curves are reconstructed using only 260 seconds of flight data. Uncertainty bounds are sufficiently tight for the power curve to clearly reject a naive curve fit.
+
+    The proposed technique offers substantial advantages over traditional quasi-steady flight testing, including: (1) Performance estimates from significantly less flight time/data, (2) Rigorous uncertainty quantification, (3) The ability to incorporate data from non-steady flight segments, reducing wasted data, and (4) Reduced pilot workload. Taken together, these benefits can greatly reduce the time, instrumentation cost, and risk required to characterize the performance of an unproven aircraft design.
+
+    This example application demonstrates the flexibility of code transformation frameworks to tackle challenging inverse problems beyond just design optimization. It also shows the value of framing inference problems in terms of optimization when possible. These insights may have relevance even for problems not traditionally considered as candidates for optimization techniques.
 
 %    \subsection{Identifying Framework Requirements for Interpretability}
 %
@@ -772,7 +812,10 @@
     \end{appendices}
 
     % Bibliography
-    \include{biblio}
+    \clearpage % or \cleardoublepage
+    \addcontentsline{toc}{chapter}{Bibliography}
+    \bibliography{../TeX/main, C:/Users/peter/Documents/Zotero/library, C:/Users/peter/Documents/Zotero/library-zotero}
+    \bibliographystyle{ieeetr}
 
 
 \end{document}
