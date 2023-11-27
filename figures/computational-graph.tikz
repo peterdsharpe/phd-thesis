@@ -1,0 +1,52 @@
+\begin{tikzpicture}[
+    auto,
+    node distance=0.8cm
+]
+    \tikzstyle{var} = [
+    draw = c1, fill = c1!20,
+    minimum height = 1cm,
+    rectangle, rounded corners, thick,
+    text width = 1cm, text centered,
+    ]
+
+    \tikzstyle{num} = [
+    var,
+    draw=c1!15!gray, fill=c1!15!gray!20
+    ]
+
+    \tikzstyle{func} = [
+    var,
+    draw = c2, fill = c2!20,
+    ellipse
+    ]
+
+    \tikzstyle{line} = [draw, thick, ->, shorten >=2pt, shorten <=2pt]
+
+    \node[text centered, align=center, text width = 5cm](label) {
+        A computational graph for $f(a,b) = 2ab + \sin(a)$
+    };
+
+    \node[below=of label](start) {};
+
+    \node[var, left=of start](a) {$a$};
+    \node[num, right=of a](2) {$2$};
+    \node[func, below=of 2](times1) {$\times$};
+    \node[var, below=of a](b) {$b$};
+    \node[func, below=of times1](times2) {$\times$};
+    \node[func, below=of times2](sum) {$+$};
+    \node[func, left=of times2](sin) {$\sin()$};
+    \node[num, right=of sum, text width = 1.5cm](f) {$f(a, b)$};
+
+    \begin{scope} [every path/.style=line]
+        \path (a) -- (times1);
+        \path (2) -- (times1);
+        \path (times1) -- (times2);
+        \path (b) -- (times2);
+        \path (times2) -- (sum);
+        \path (a) edge[out=-135, in=135] (sin);
+        \path (sin) -- (sum);
+        \path (sum) -- (f);
+
+    \end{scope}
+
+\end{tikzpicture}

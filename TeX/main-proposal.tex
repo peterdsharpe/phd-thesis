@@ -68,7 +68,7 @@
 
     Surveys assessing the state of aircraft MDO years later reveal a persisting gap between MDO’s promise and practice. Documented examples of complete aircraft designed with MDO remain relatively uncommon in industry, even as exponential growth in computational power has mitigated other technical barriers. Expert commentary affirms this observation, noting that the use of advanced optimization techniques often stops at the academic proof-of-concept stage \cite{mcmasters_airplane_2002, kroo_multidisciplinary_1997, agte_mdo_2010, ashley_making_1982, haftka_multidisciplinary_1997,gazaix_industrialization_2017}.
 
-    The core remaining barriers to widespread adoption of conceptual-level MDO relate strongly to practical limitations at the human-optimizer interface, rather than purely on traditional metrics of computational speed \cite{gpkit}. The complexity intrinsic to coordinating numerous coupled models across disciplines poses inherent difficulties for design interpretation, method credibility, and managing tradeoffs. Modern scientific computing capabilities enable unprecedented problem scale, but push human limitations in complexity management. The central difficulty is leveraging advanced techniques in scientific computing without requiring end-users to be joint experts across applied mathematics, computer science, and engineering domain knowledge \cite{ma_modelingtoolkit_2021}.
+    The core remaining barriers to widespread adoption of conceptual-level MDO relate strongly to practical limitations at the human-optimizer interface, rather than purely on traditional metrics of computational speed \cite{gpkit}. The complexity intrinsic to coordinating numerous coupled models across disciplines poses inherent difficulties for design interpretation, method credibility, and managing tradeoffs \cite{salas_framework_1998}. Modern scientific computing capabilities enable unprecedented problem scale, but push human limitations in complexity management. The central difficulty is leveraging advanced techniques in scientific computing -- which offer enormous performance improvements -- without requiring end-users to be joint experts in applied mathematics and computer science on top of their engineering domain expertise \cite{ma_modelingtoolkit_2021}.
 
     The path forward lies in a deliberate focus on the practical human interface with optimization tools. Technical advances must synthesize with pragmatic methods (e.g., syntax) to address open challenges around complexity and usability. The overarching motivation is to address this industry gap, allowing the benefits of advanced conceptual design optimization to be more readily accessed by industry. This grounds the proposed research directions on fundamentally human-centered principles in addition to technical ones.
 
@@ -78,7 +78,7 @@
     \section{Project Definition and Thesis Overview}
     \label{sec:definition}
 
-    To address the above challenges, this thesis proposes five novel contributions. These contributions are summarized below at a high level, and individually expanded upon in Section \ref{sec:contributions}:
+    To address the above challenges, this thesis proposes five novel contributions. These contributions are summarized below at a high level, and individually expanded upon in Chapter \ref{chap:contributions}:
 
     \begin{enumerate}
         \item \textbf{Code Transformation Paradigm:} Conceptually introduce a new computational paradigm for MDO frameworks that offers most of the benefits of state-of-the-art paradigms with significantly fewer user frictions. Provide a proof-of-concept implementation of this paradigm in the open-source \textit{AeroSandbox} \cite{sharpe_aerosandbox_2021} framework, and compare this implementation with existing frameworks on a set of practical aircraft design problems.
@@ -119,20 +119,22 @@
     The latest doctoral handbook for the MIT Department of Aeronautics and Astronautics \cite{mit_aa_doctoral_handbook} requires the following elements in a PhD proposal, which, for reader convenience, are mapped to specific portions of this document:
 
     \begingroup
-    \renewcommand{\arraystretch}{1.5} % Default value: 1
+    \renewcommand{\arraystretch}{1.8} % Default value: 1
     \begin{table}[H]
         \centering
         \caption{Requirement-to-section mapping for the PhD proposal document.}
         \label{tab:toc}
-        \begin{tabular}{p{10cm}|p{4cm}}
-            Requirement                                                                                      & Section                                               \\
-            \hline
+        \begin{tabular}{m{10cm} m{4cm}}
+            \toprule
+            \textbf{Proposal Document Requirement}                                                           & \textbf{Section}                                               \\
+            \midrule
             A clear, specific statement of the technical problem and the objectives of the proposed research & Chapter \ref{chap:intro} \\
-            A thorough, adequately referenced, summary of previous work done on the problem                  & Chapter \ref{chap:literature}                          \\
-            A plan for the initial approach to the problem                                                   & Section \ref{sec:contributions}                       \\
-            An outline of the major foreseeable steps to a solution of the problem                           & Section \ref{sec:contributions}, \ref{sec:schedule}   \\
-            An estimate of the time that might be required                                                   & Section \ref{sec:schedule}                            \\
-            A list of the facilities needed                                                                  & Section \ref{sec:facilities}                          \\
+            A thorough, adequately referenced, summary of previous work done on the problem                  & Chapter \ref{chap:literature}                                  \\
+            A plan for the initial approach to the problem                                                   & Chapter \ref{chap:contributions}                               \\
+            An outline of the major foreseeable steps to a solution of the problem                           & Chapter \ref{chap:contributions} \& Section \ref{sec:schedule} \\
+            An estimate of the time that might be required                                                   & Section \ref{sec:schedule}                                     \\
+            A list of the facilities needed                                                                  & Section \ref{sec:facilities}                                   \\
+            \bottomrule
         \end{tabular}
     \end{table}
     \endgroup
@@ -248,11 +250,11 @@
     \subsection{Two Directions: ``Wide'' vs. ``Deep'' MDO}
     \label{sec:wide_vs_deep}
 
-    Before proceeding further, it is important to clarify the scope of aircraft design optimization problems that are of interest in this thesis, as the definition of ``MDO'' is somewhat overloaded. More precisely, the modern field of MDO can be decomposed into two related but distinct subfields which have developed different strategies and mindsets to address different design needs. Figure \ref{fig:mdo_overloaded_term} illustrates this distinction.
+    Before proceeding further, it is important to clarify the scope of aircraft design optimization problems that are of interest in this thesis, as the definition of ``MDO'' is somewhat overloaded. More precisely, the modern field of MDO can be decomposed into two related but distinct subfields which have developed different strategies and mindsets to address different design needs. Figure \ref{fig:mdo_overloaded_term} illustrates this distinction, showing how the term ``MDO'' can refer to separate tasks at different stages of the aircraft design process.
 
     \begin{figure}[h]
         \centering
-        \ifdraft{}{\includegraphics[width=\textwidth]{../figures/mdo_overloaded_term}}
+        \ifdraft{}{\includegraphics[trim=0cm 1.1cm 0cm 3cm, clip, width=\textwidth]{../figures/mdo_overloaded_term}}
         \caption{Multiple definitions of the term ``multidisciplinary design optimization''. Here, conceptual, or ``wide'' MDO is contrasted against preliminary, or ``deep'' MDO.}
         \label{fig:mdo_overloaded_term}
     \end{figure}
@@ -288,13 +290,17 @@
 
     \subsection{Advances in Optimization Algorithms}
 
+    The current academic state-of-the-art for MDO paradigms has largely centered on two approaches: gradient-based methods with analytical gradients, and disciplined optimization methods. The former tends to be more popular in deep MDO applications, while the latter tends to be more popular in wide MDO applications; however, exceptions exist. These two existing approaches are discussed in turn below. Pros and cons of these existing approaches, as compared to the proposed new paradigm, are summarized in Table \ref{tab:paradigm_comparison} of the subsequent chapter and discussed fully in Appendix \ref{chap:paradigm_comparison}.
+
     \subsubsection{Gradient-Based Methods with Analytical Gradients}
 
-    % TODO
+    Gradient-based optimization offer fundamental scaling advantages over gradient-free methods, and are hence preferred for large-scale design optimization when model characteristics allow \cite{lyu_benchmarking_2014, martins_engineering_2021}. The effectiveness of gradient-based methods is highly contingent on the speed and precision of gradient calculations. To illustrate this, Kirschen and Hoburg show that gradient-based optimization gives inadequate performance on even modest engineering design problems if simple finite-differencing is used \cite{kirschen}. Likewise, Adler et al. show that the inaccuracy of finite-differenced gradients can prevent accurate optimization \cite{adler_cfd_2022}.
 
-%    OpenConcept, \cite{brelje_multidisciplinary_2021} - hand-implemented gradients
+    Because of these considerations, a leading academic approach to gradient-based MDO involves manually supplying exact analytical gradients to the optimizer for each submodel. Frameworks like OpenMDAO and MACH-Aero \cite{gray_openmdao_2019} provide example implementations of this manual-gradients approach, forming the basis for several interesting case studies \cite{yildirim_performance_2021, brelje_multidisciplinary_2021, openaerostruct, bons_highfidelity_2020}. Although this paradigm is most often applied to deep MDO problems, it has been applied to wide MDO problems in examples such as OpenConcept \cite{brelje_multidisciplinary_2021} and OpenAeroStruct \cite{openaerostruct}.
 
     \subsubsection{Disciplined Optimization Methods}
+
+    Another MDO paradigm that has become popular in recent years is that of disciplined optimization methods, borrowing nomenclature from Grant \cite{grant_disciplined_2006}, Agrawal \cite{agrawal_disciplined_2019}, and Boyd \cite{boyd_tutorial_2007, boyd_convex_2004}. These methods are considered \textit{disciplined} as they impose a strict set of rules on the optimization problem formulation, which allows the optimizer to make assumptions about the problem structure (such as convexity, or log-convexity). These assumptions allow the optimizer to make more efficient use of computational resources and provide guarantees of global optimality. Geometric programming in particular has proven to be a useful disciplined MDO paradigm for aircraft design applications, as originally observed by Hoburg \cite{hoburg_geometric_2014}. GPkit \cite{gpkit, hoburg_geometric_2014, kirschen}, a framework that demonstrates this geometric programming concept targeting engineering design applications, has led to successful case studies such as the Jungle Hawk Owl aircraft \cite{jho} and Hyperloop system studies \cite{gpkit}.
 
     \subsection{Advances in Design Optimization Practice}
 %     complexity -- motivating the idea of general-purpose \textit{MDO frameworks} to address this as opposed to problem-specific codes
@@ -307,7 +313,7 @@
     % Importance of geometry - CPACS, Haimes work
     A recent notable shift in aircraft design optimization perspectives has been a renewed focus on geometry representation and parameterization. For example, Haimes and Drela \cite{haimes_construction_2012} contended in 2012 that ``constructive solid geometry (CSG) is the natural foundation for [aircraft design optimization]''. This publication extended prior work by Lazzara, Haimes, and Willcox \cite{lazzara_haimes_willcox_multifidelity_geometry_2009} that introduced the concept of ``multifidelity geometry''. Together, these works advocated for accurate 3D outer mold line representations from the earliest stages of conceptual design, with degenerate representations of this central geometry used to drive individual discipline analyses. Furthermore, they recognized the fundamental limitations of general-purpose (e.g., Parasolid-based) CAD tools in aircraft design optimization: because aerospace geometries tend to use complex, lofted surfaces, the resulting CAD models can be brittle with respect to parameter changes. This observation, along with later developments such as differentiable discretization techniques \cite{esp}, led to renewed research on how aircraft geometry should be parameterized for optimization. For example, in recent years aircraft-specific geometry tools like OpenVSP \cite{mcdonald_open_2022} and Engineering Sketch Pad \cite{esp} have been developed for design optimization workflows, a trend that arguably stems from this line of research.
 % TODO transition
-    A notable area where computational methods for aircraft design have long made inroads to industry is in inverse design tools. (An example of successful industry adoption in aerodynamics the inverse approach used by the XFoil airfoil design code \cite{drela_xfoil_1989} and others \cite{liebeck_blendedwingbody_1998} to recover a shape from a specified pressure distribution.) Like optimization methods, these inverse methods can aid designers because they offer fundamentally different capabilities than traditional design methods (e.g., carpet plots). While traditional methods focus on the ``forward problem'' (design $\rightarrow$ performance), inverse methods and optimization methods both focus on the ``inverse problem'' (performance $\rightarrow$ design). Drela \cite{drela_pros_1998} shows that this inverse approach can lead to more robust designs than optimization, if the user is not familiar with the risks of an improperly-specified optimization problem.
+    In a broader sense, another notable area where computational methods for aircraft design have long made inroads to industry is in inverse design tools. (An example of successful industry adoption in aerodynamics the inverse approach used by the XFoil airfoil design code \cite{drela_xfoil_1989} and others \cite{liebeck_blendedwingbody_1998} to recover a shape from a specified pressure distribution.) Like optimization methods, these inverse methods can aid designers because they offer fundamentally different capabilities than traditional design methods (e.g., carpet plots). While traditional methods focus on the ``forward problem'' (design $\rightarrow$ performance), inverse methods and optimization methods both focus on the ``inverse problem'' (performance $\rightarrow$ design). Drela \cite{drela_pros_1998} shows that this more-manual inverse approach can lead to more robust designs than optimization, if the user is not familiar with the risks of an improperly-specified optimization problem.
 
 %    \subsection{Emerging Trends and Opportunities}
 %
@@ -318,23 +324,39 @@
 
     \subsection{Advances in Numerical Methods}
 
+    In the past two decades several notable scientific computing techniques have matured to the point of practical use in engineering design optimization. Two of the most significant advances are automatic differentiation and automatic sparsity detection, which are discussed in detail below. A review focusing on these two techniques is available in work from Andersson et al. \cite{casadi} and Rackauckas \cite{rackauckas_generalizing_2021}. Review of several other notable scientific computing advances, such as GPU-accelerated computing, probabilistic programming, deep learning, and uncertainty quantification, are omitted here for brevity. A wider review of state-of-the-art scientific computing techniques is available from Lavin et al. \cite{lavin_simulation_2022}
+
     \subsubsection{Automatic Differentiation}
 
-    Here, we review literature on \textit{automatic differentiation}, an advanced technique borne out of the machine learning community that fundamentally accelerates gradient-based optimization algorithms. A complete survey is available by Baydin et al. \cite{baydin_automatic_2018}
+    Here, we review literature on \textit{automatic differentiation}, an advanced technique borne out of the machine learning community that fundamentally accelerates gradient-based optimization algorithms. A comprehensive modern survey is available by Baydin et al. \cite{baydin_automatic_2018}. A 2008 textbook by Griewank and Walther \cite{griewank_evaluating_2008} provides a more in-depth review of the mathematical foundations of automatic differentiation.
 
-    As previously discussed, gradient-based optimization methods
+    Gradient-based optimization methods are computationally bottlenecked by the cost of computing gradients \cite{lyu_benchmarking_2014, martins_engineering_2021}. Existing state-of-the-art workflows have users manually derive and implement highly-efficient gradients for each model, but this is time-consuming and thus impractical for early-stage design. Automatic differentiation (AD) is an efficient and accurate way to automatically compute the gradients of a function \textit{as represented in code} at runtime. In many cases, the computational complexity of this technique is fundamentally better than traditional approaches like finite-differencing; Griewank provides concrete upper bounds on the worst-case time complexity \cite{griewank_automatic_1988}.
 
+    Automatic differentiation exploits the fact that any function can be broken into a series of simple mathematical operators, which can then be represented as a computational graph. As a practical matter, this computational graph is often created by tracing program execution with an overloaded numerics library. This graph construction process is illustrated in Figure \ref{fig:computational-graph}. The chain rule can then be applied to this graph to compute the Jacobian of the function. Various modes of automatic differentiation effectively allow this Jacobian construction to occur either column-by-column (forward-mode) or row-by-row (reverse-mode) \cite{casadi, jax, martins_engineering_2021}; depending on the shape of this Jacobian, one strategy may be enormously more efficient than the other.
 
-    In the adjacent field of machine learning, application of these techniques\footnote{in particular, automatic differentiation and backend-agnostic computing enabling GPU acceleration} have ignited a revolution of progress \cite{baydin_automatic_2018}. Rackauckas in 2021 \cite{rackauckas_generalizing_2021} states: ``[Automatic differentiation] has become the pervasive backbone behind all of the machine learning libraries.''
+    \begin{figure}[H]
+        \centering
+        \centerline{\input{../figures/computational-graph.tikz}}
+        \caption{A computational graph, as would be used for automatic differentiation. Reproduced from \cite{sharpe_aerosandbox_2021}.}
+        \label{fig:computational-graph}
+    \end{figure}
+
+    Advances in automatic differentiation (and in particular, combining this with GPU computing) are largely responsible for the revolution of practical advances in machine learning in the past decade \cite{baydin_automatic_2018}. Rackauckas in 2021 \cite{rackauckas_generalizing_2021} states: ``[Automatic differentiation] has become the pervasive backbone behind all of the machine learning libraries. If you ask what PyTorch or Flux.jl is doing that’s special, the answer is really that it’s doing automatic differentiation over some functions.'' The goal is that similar practical advances can be brought to bear in engineering design optimization, a field that has similar potential to benefit from this scientific computing technique.
 
     \subsubsection{Automatic Sparsity Detection and Jacobian Coloring}
 
-    \cite{gebremedhin_what_2005, gebremedhin_efficient_2009, martins_engineering_2021}
+    The process of gradient computation for optimization can be further accelerated if the sparsity of the constraint Jacobian is known a priori. This is because sparsity can guarantee structural independence of multiple columns\footnote{or rows, if using reverse-mode automatic differentiation} of the Jacobian, so the respective elements of the Jacobian can be evaluated simultaneously. Sparse Jacobians arise frequently in the modeling of physical systems, especially multidisciplinary ones \cite{lambe_extensions_2012}; because of this, this represents a significant opportunity in engineering design. The process of reducing the number of Jacobian evaluations by simultaneously evaluating independent columns is known as \textit{Jacobian compression} and is illustrated in Figure \ref{fig:jacobian_coloring}. To enable compression, independent columns of the Jacobian must be grouped. This process is known as \textit{Jacobian coloring}, referencing mathematical similarities to the graph coloring problem if the Jacobian's sparsity pattern is represented as a bipartite graph \cite{gebremedhin_what_2009}. This coloring problem does not readily admit exact solution for Jacobian sizes of interest; however, Gebremedhin et al. provide a comprehensive review of graph coloring heuristics that work well in practice \cite{gebremedhin_what_2005}. Martins and Ning provide a more concise summary that contextualizes this process around the backdrop of design optimization \cite{martins_engineering_2021}.
 
-    \subsubsection{Other Numerical Advances}
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=\textwidth]{../figures/gebremedhin_2005_figure}
+        \caption{A sparse Jacobian can be evaluated more quickly by simultaneously evaluating derivatives that are structurally independent, a process known as Jacobian coloring and compression. On the left of the figure is the original Jacobian; on the right is its compressed form. Figure reproduced from Gebremedhin et al. \cite{gebremedhin_what_2005}}
+        \label{fig:jacobian_coloring}
+    \end{figure}
+
+    Before Jacobian coloring and compression can be performed, the sparsity pattern of the Jacobian must be known. This is a nontrivial task and an area of active research, with the major complications summarized by Rackauckas \cite{rackauckas_generalizing_2021}. In recent years, automated sparsity detection has enabled automatic construction of sparsity patterns using a tracing approach that is quite similar to that of automatic differentiation. This bypasses many of the potential edge-case failure modes that can occur when trying to infer sparsity purely by inspecting the dense Jacobian, such as conditional branching or cancellation. Indeed, the same computational graph can be used for this process, making this a computationally-efficient addition to a code base that already leverages automatic differentiation. Andersson et al. \cite{casadi} provide an example implementation of this automated sparsity detection within the CasADi framework. Gowda et al. provide a more complete review on state-of-the-art methods in automated sparsity detection \cite{gowda_sparsity_2019}, with state-of-the-art implementations of this by Ma et al. \cite{ma_modelingtoolkit_2021}.
 
     \afterpage{\FloatBarrier}
-
 
     \section{Motivations for Improving Industry Access to Design Optimization}
 
@@ -349,7 +371,7 @@
     \begin{figure}[H]
         \centering
         \includegraphics[page=1,trim=1cm 1.3cm 1cm 5cm, clip, width=\textwidth]{../figures/motivation_for_conceptual_MDO_focus.pdf}
-        \caption{In an example from \cite{drela_development_2011}, large potential fuel savings are available for transport aircraft if cross-discipline couplings are considered early in the conceptual design process. Figure elements adapted from Drela \cite{drela_simultaneous_2010}.}
+        \caption{In an example from Drela \cite{drela_development_2011}, large potential fuel savings are available for transport aircraft if cross-discipline couplings are considered early in the conceptual design process. Figure elements reproduced from Drela \cite{drela_simultaneous_2010}.}
         \label{fig:motivation_1a}
     \end{figure}
 
@@ -358,7 +380,7 @@
     \begin{figure}[H]
         \centering
         \includegraphics[page=2,trim=1cm 1.3cm 1cm 5cm, clip, width=\textwidth]{../figures/motivation_for_conceptual_MDO_focus.pdf}
-        \caption{Design regrets may arise if conceptual MDO studies do not include all relevant disciplines. This example of contemporaneous eVTOL designs assesses aeroacoustic noise, a factor that is largely determined by conceptual design decisions made many years prior. Although noise is not traditionally included in conceptual aircraft design relations, it is crucial for certification and acceptance. Thus, including many disciplines in conceptual design -- even non-traditional ones, like acoustics -- is key to preventing major downstream design regrets.}
+        \caption{Design regrets may arise if conceptual MDO studies do not include all relevant disciplines. This example of contemporaneous eVTOL designs assesses aeroacoustic noise, a factor that is largely determined by conceptual design decisions made many years prior. Although noise is not traditionally included in conceptual aircraft design relations, it is crucial for certification and acceptance. Thus, including many disciplines in conceptual design -- even non-traditional ones, like acoustics -- is key for avoiding major downstream design regrets.}
         \label{fig:motivation_1b}
     \end{figure}
 
@@ -431,41 +453,35 @@
     \afterpage{\FloatBarrier}
 
 
-    \chapter{Thesis Approach, Methodology, and Contributions}
-    \label{sec:approach}
+    \chapter{Proposed Contributions, Approaches, and Results-To-Date}
+    \label{chap:contributions}
 
-
-    \section{The Technical Gap: Practical Limitations of MDO Frameworks in Industry}
-    \label{sec:technical-gap}
-    % TODO whole section
-
-    The stark dichotomy of MDO -- its immense potential to improve the aircraft design process contrasted with its barriers to practical adoption -- is the fundamental motivation for this thesis. The goal of this work is to identify and address the root causes of this gap between academic research and practical industry use. In particular, we will focus on the challenges of \textit{interpretability} and \textit{reviewability} of large-scale engineering design optimization problems. These challenges are not unique to MDO, but rather are a fundamental challenge of large-scale computational tools in general. The field of aircraft design optimization is no exception to this, and it is one that has been recognized for decades. However, the problem remains unsolved.
-    % TODO remove this
-
-
-    The primary remaining explanation, which has become increasingly accepted in the past decade \cite{agte_mdo_2010, torenbeek_advanced_2013, gazaix_industrialization_2017, gpkit}, is that MDO faces a set of related organizational, culture, and practical challenges that must be addressed before widespread industry adoption can occur.
-
-    Summarizing this body of work yields a list of MDO's current major challenges:
-    \begin{enumerate}
-        \item MDO can be time-consuming to set up. As stated by Torenbeek in 2013 \cite{torenbeek_advanced_2013} on contemporaneous MDO tools, ``the MDO methodology can be used at any design stage although its complexity does not justify application in the early conceptual phase.''
-        \item MDO can be time-consuming to run \cite{gpkit}.
-        \item MDO faces interpretability challenges, particularly as problem size grows. If MDO is not interpretable and
-        \item If practitioners are not experienced, it is easy to inadvertently produce designs with poor off-design performance, overly aggressive margins, and violated assumptions \cite{torenbeek_advanced_2013, drela_pros_1998, ozturk_optimal_2021}. This often leads to non-credible designs or program failures.
-        \item Most MDO frameworks are syntactically complex, requiring users to be joint experts not only in aircraft design, but also in applied math and computer science \cite{salas_framework_1998, gpkit, agte_mdo_2010}. This ``expertise barrier'', as termed by Grant \cite{grant_disciplined_2006}, is a severe impediment to widespread adoption among ``users whose focus is the application''.
-    \end{enumerate}
-
-    TODO
+%    \section{The Technical Gap: Practical Limitations of MDO Frameworks in Industry}
+%    \label{sec:technical-gap}
+%    % TODO whole section
+%    The primary remaining explanation, which has become increasingly accepted in the past decade \cite{agte_mdo_2010, torenbeek_advanced_2013, gazaix_industrialization_2017, gpkit}, is that MDO faces a set of related organizational, culture, and practical challenges that must be addressed before widespread industry adoption can occur.
+%
+%    Summarizing this body of work yields a list of MDO's current major challenges:
+%    \begin{enumerate}
+%        \item MDO can be time-consuming to set up. As stated by Torenbeek in 2013 \cite{torenbeek_advanced_2013} on contemporaneous MDO tools, ``the MDO methodology can be used at any design stage although its complexity does not justify application in the early conceptual phase.''
+%        \item MDO can be time-consuming to run \cite{gpkit}.
+%        \item MDO faces interpretability challenges, particularly as problem size grows. If MDO is not interpretable and
+%        \item If practitioners are not experienced, it is easy to inadvertently produce designs with poor off-design performance, overly aggressive margins, and violated assumptions \cite{torenbeek_advanced_2013, drela_pros_1998, ozturk_optimal_2021}. This often leads to non-credible designs or program failures.
+%        \item Most MDO frameworks are syntactically complex, requiring users to be joint experts not only in aircraft design, but also in applied math and computer science \cite{salas_framework_1998, gpkit, agte_mdo_2010}. This ``expertise barrier'', as termed by Grant \cite{grant_disciplined_2006}, is a severe impediment to widespread adoption among ``users whose focus is the application''.
+%    \end{enumerate}
+%
+%    TODO
 
 
 %    \subsection*{Current Industry Challenges}
 
-    Interestingly, many of the challenges identified by early MDO works \cite{kroo_multidisciplinary_1997, ashley_making_1982} are the same ones that the field is grappling with today.
+%    Interestingly, many of the challenges identified by early MDO works \cite{kroo_multidisciplinary_1997, ashley_making_1982} are the same ones that the field is grappling with today.
 
     % Challenges of MDO as an "invariant" over time
 
-    \cite{salas_framework_1998} % Framework Requirements for MDO Application Development
+%    \cite{salas_framework_1998} % Framework Requirements for MDO Application Development
 
-    TODO
+%    TODO
 
 %    In particular, the challenges of \textit{interpretability} and \textit{reviewability} of large-scale engineering design optimization problems are still largely unsolved.
 
@@ -476,18 +492,11 @@
 
 %    This observation that not all challenges cede to Moore's law, while made a fundamental impact on the field's direction. Papers from the 1970s with
 
-    Contemporaneous publications from leading voices in the field of aircraft design around the time of Kroo's work paint a similar story - expressing optimism about the field's growing potential while highlighting (or in some cases, urging) hesitation by industry practitioners.
+%    Contemporaneous publications from leading voices in the field of aircraft design around the time of Kroo's work paint a similar story - expressing optimism about the field's growing potential while highlighting (or in some cases, urging) hesitation by industry practitioners.
 
     % Practical optimization does not necessarily tend towards integrated design. Barnaby Wainfan, designer of the Facetmobile and Technical Fellow for Aerodynamics at Northrup Grumman: one of the under-appreciated benefits of the "conventional" configuration is that it is \textit{modifiable} -
 
-
-    \section{Proposed Contributions}
-    \label{sec:contributions}
-
-    The Ph.D. thesis will make the following novel conceptual contributions to address the technical gap described in Section \ref{sec:technical-gap}:
-
-
-    % Severability
+    The Ph.D. thesis will make five following novel conceptual contributions which to address the technical gap and motivation identified in Chapter \ref{chap:literature}. A concise list of these contributions is given in Section \ref{sec:definition}. Here, we expand upon each of these contributions in detail, discuss intended approaches to making advances here, and discuss the results to date.
 
     \subsection{Code Transformation Paradigm}
 
@@ -529,7 +538,7 @@
         \newcommand{\best}{\textcolor{q4}{\large\textbf{Best}}}
 
         \centering
-        \caption{A subjective comparison of tradeoffs between existing MDO framework paradigms and the proposed \textit{code transformation} paradigm. The industrial state-of-the-art is largely \textit{black-box optimization}. The academic state-of-the-art has two major branches: \textit{gradient-based methods with analytical gradients}, and \textit{disciplined optimization methods}. More detailed discussion of these assessments, including definitions and reasoning, is given in Appendix \ref{sec:paradigm_comparison}.}
+        \caption{A subjective comparison of tradeoffs between existing MDO framework paradigms and the proposed \textit{code transformation} paradigm. The industrial state-of-the-art is largely \textit{black-box optimization}. The academic state-of-the-art has two major branches: \textit{gradient-based methods with analytical gradients}, and \textit{disciplined optimization methods}. More detailed discussion of these assessments, including definitions and reasoning, is given in Appendix \ref{chap:paradigm_comparison}.}
         \label{tab:paradigm_comparison}
 
         \begin{adjustbox}{width=\textwidth}
@@ -550,7 +559,7 @@
 
     \end{table}
 
-    This leads to a compelling value proposition: if we can develop new methods for industry engineers to easily write traceable design code, then we gain access to an host of advanced scientific computing techniques that can significantly shrink the academia-industry MDO gap described in Section \ref{sec:technical-gap}.
+    This leads to a compelling value proposition: if we can develop new methods for industry engineers to easily write traceable design code, then we gain access to an host of advanced scientific computing techniques that can significantly shrink the academia-industry MDO gap described in Chapter \ref{chap:literature}.
 
     Thus, this contribution is twofold. First, the thesis will conceptually introduce code transformations as a new paradigm for engineering MDO frameworks. Secondly, the thesis will demonstrate strategies that allow traceability of engineering design code with minimal user effort, enabling the use of code transformations in practice.
 
@@ -606,11 +615,11 @@
     \begin{enumerate}
         \item Evaluate the black-box function on an initial input.
         \item Re-evaluate the function with a single input replaced by NaN. Outputs that newly become NaN are downstream of that input.
-        \item Repeat for each input to trace all dependencies.
+        \item Repeat for each input to trace all dependencies and (conservatively) compute the sparsity pattern of that function's Jacobian.
     \end{enumerate}
     This simple procedure yields the complete bipartite graph between inputs and outputs (the \textit{sparsity pattern}). The sparsity pattern enables gradient computation accelerations via simultaneous evaluation, since the sparsity of the Jacobian is known to be a strict subset of the result of this procedure. Crucially, no internal knowledge of the black-box function is required, which in theory compatibility with arbitrary external code.
 
-    Further accelerations are possible. One proposed acceleration, which we term ``chunking'', seeds multiple adjacent elements of the input vector with NaN values simultaneously. As an example: if pairs of adjacent inputs are seeded, this has the benefit of halving the number of function calls, at the detriment of providing overly-conservative sparsity information\footnote{as one cannot determine which NaN input caused a given output to return NaN, so neither can be ruled out}. This exploits the fact that a conservative sparsity pattern can still provide a significant speedup, depending on the sparsity pattern. It also exploits the fact that human-written code tends to have a high degree of locality\footnote{in other words, humans tend to code Discipline A in its entirety before implementing analyses for Discipline B} (e.g., inputs 10 and 11 are much more likely to share a sparsity pattern than inputs 10 and 100), and hence these chunked sparsities can be surprisingly accurate in practice. This and other heuristics can significantly reduce the number of black-box function evaluations required to trace the sparsity pattern.
+    Further accelerations are possible. One novel proposed acceleration, which we term ``chunking'', seeds multiple adjacent elements of the input vector with NaN values simultaneously. As an example: if pairs of adjacent inputs are seeded, this has the benefit of halving the number of function calls, at the detriment of providing overly-conservative sparsity information\footnote{as one cannot determine which NaN input caused a given output to return NaN, so neither can be ruled out}. This exploits the fact that a conservative sparsity pattern can still provide a significant speedup, depending on the sparsity pattern. It also exploits the fact that human-written code tends to have a high degree of locality\footnote{in other words, humans tend to code Discipline A in its entirety before implementing analyses for Discipline B} (e.g., inputs 10 and 11 are much more likely to share a sparsity pattern than inputs 10 and 100), and hence these chunked sparsities can be surprisingly accurate in practice. Thus, chunking may offer significant practical speedups by exploiting typical problem structure; a computational analogy would be how an $A^*$ graph traversal algorithm outperforms Dijkstra's algorithm in practice despite identical worst-case complexity. This and other heuristics can significantly reduce the number of black-box function evaluations required to trace the sparsity pattern.
 
     There are several subtleties to address for robustness across numerical code. First, some functions may internally handle NaN values via exceptions, preventing contamination and hence precluding this strategy. However, NaN propagation is common in most numerical libraries. Second, conditional logic can complicate tracing, but most libraries propagate NaNs through static conditional statements (i.e., a flattened if-else statement where both branches are fused). Overall, NaN propagation shows promise for automated sparsity detection through common black-box functions. Integrating this technique into the code transformation paradigm could expand its applicability.
 
@@ -755,9 +764,9 @@
 
     \begin{appendices}
         \chapter{Comparison of MDO Framework Paradigms}
-        \label{sec:paradigm_comparison}
+        \label{chap:paradigm_comparison}
 
-        This appendix aims to expand on the comparisons made in Table \ref{tab:paradigm_comparison} by providing more details on the pros and cons of various MDO paradigms. In this table, three qualitative metrics are defined over which MDO framework paradigms are evaluated. These metrics represent framework needs derived from the barriers to industry adoption that are identified in Section \ref{sec:technical-gap}. Here, we define those metrics more precisely:
+        This appendix aims to expand on the comparisons made in Table \ref{tab:paradigm_comparison} by providing more details on the pros and cons of various MDO paradigms. In this table, three qualitative metrics are defined over which MDO framework paradigms are evaluated. These metrics represent framework needs derived from the barriers to industry adoption that are identified in Chapter \ref{chap:literature}. Here, we define those metrics more precisely:
 
         \begin{enumerate}
             \item \textbf{Ease of implementation:} How much effort is required to implement a typical aircraft design problem (from ``concept idea'' to ``working code'') in this paradigm? How much optimization or programming expertise is required, beyond the basics needed to write engineering analysis code?
