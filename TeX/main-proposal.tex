@@ -1,5 +1,5 @@
 % Preamble
-\documentclass[12pt,vi,oneside]{report}
+\documentclass[12pt,vi,oneside,table]{report}
 \usepackage{subfiles}
 
 % Packages
@@ -82,7 +82,7 @@
 
     \begin{enumerate}
         \item \textbf{Code Transformation Paradigm:} Conceptually introduce a new computational paradigm for MDO frameworks that offers most of the benefits of state-of-the-art paradigms with significantly fewer user frictions. Provide a proof-of-concept implementation of this paradigm in the open-source \textit{AeroSandbox} \cite{sharpe_aerosandbox_2021} framework, and compare this implementation with existing frameworks on a set of practical aircraft design problems.
-        \item \textbf{Differentiable Physics Models:} Provide the first implementations of several key aerospace physics models that are purpose-built to take advantage of code transformations. These aim to both stress-test the code transformation paradigm on common analysis code patterns and jump-start future applied research with a set of modular analyses.
+        \item \textbf{Traceable Physics Models:} Provide the first implementations of several key aerospace physics models that are purpose-built to take advantage of code transformations. These aim to both stress-test the code transformation paradigm on common analysis code patterns and jump-start future applied research with a set of modular analyses.
         \item \textbf{Sparsity Tracing via NaN-Propagation:} Conceptually introduce the novel idea of ``NaN-propagation'' as a method to trace sparsity through black-box numerical analyses by exploiting floating-point math handling. This opens up a path to including such models in a code transformations framework while still retaining some (but not all) of the speed advantages over current black-box optimization methods.
         \item \textbf{Physics-Informed Machine Learning Surrogates for Black-Box Models:} Explore strategies to incorporate black-box models into a code transformation framework, expanding the practicality of the paradigm for users who require use of black-box code. As an example, a physics-informed machine learning surrogate model for airfoil aerodynamics analysis will be presented. This demonstrates that accurate surrogates can be constructed to stand in for complex analyses while retaining compatibility with code transformations, and without sacrificing mathematical flexibility.
         \item \textbf{Aircraft System Identification from Minimal Sensor Data:} Demonstrate that the code transformation paradigm enables straightforward formulation of optimization problems beyond just design optimization. As an example, the thesis will show an application to aircraft system identification and performance reconstruction from minimal flight data. Here, physics-based corrections are used alongside statistical inference techniques to accurately estimate aircraft performance characteristics from a single short test flight. This approach is enabled by the flexibility of the code transformation framework.
@@ -345,7 +345,7 @@
 
     \subsubsection{Automatic Sparsity Detection and Jacobian Coloring}
 
-    The process of gradient computation for optimization can be further accelerated if the sparsity of the constraint Jacobian is known a priori. This is because sparsity can guarantee structural independence of multiple columns\footnote{or rows, if using reverse-mode automatic differentiation} of the Jacobian, so the respective elements of the Jacobian can be evaluated simultaneously. Sparse Jacobians arise frequently in the modeling of physical systems, especially multidisciplinary ones \cite{lambe_extensions_2012}; because of this, this represents a significant opportunity in engineering design. The process of reducing the number of Jacobian evaluations by simultaneously evaluating independent columns is known as \textit{Jacobian compression} and is illustrated in Figure \ref{fig:jacobian_coloring}. To enable compression, independent columns of the Jacobian must be grouped. This process is known as \textit{Jacobian coloring}, referencing mathematical similarities to the graph coloring problem if the Jacobian's sparsity pattern is represented as a bipartite graph \cite{gebremedhin_what_2009}. This coloring problem does not readily admit exact solution for Jacobian sizes of interest; however, Gebremedhin et al. provide a comprehensive review of graph coloring heuristics that work well in practice \cite{gebremedhin_what_2005}. Martins and Ning provide a more concise summary that contextualizes this process around the backdrop of design optimization \cite{martins_engineering_2021}.
+    The process of gradient computation for optimization can be further accelerated if the sparsity of the constraint Jacobian is known a priori. This is because sparsity can guarantee structural independence of multiple columns\footnote{or rows, if using reverse-mode automatic differentiation} of the Jacobian, so the respective elements of the Jacobian can be evaluated simultaneously. Sparse Jacobians arise frequently in the modeling of physical systems, especially multidisciplinary ones \cite{lambe_extensions_2012}; because of this, this represents a significant opportunity in engineering design. The process of reducing the number of Jacobian evaluations by simultaneously evaluating independent columns is known as \textit{Jacobian compression} and is illustrated in Figure \ref{fig:jacobian_coloring}. To enable compression, independent columns of the Jacobian must be grouped. This process is known as \textit{Jacobian coloring}, referencing mathematical similarities to the graph coloring problem if the Jacobian's sparsity pattern is represented as a bipartite graph \cite{gebremedhin_efficient_2009}. This coloring problem does not readily admit exact solution for Jacobian sizes of interest; however, Gebremedhin et al. provide a comprehensive review of graph coloring heuristics that work well in practice \cite{gebremedhin_what_2005}. Martins and Ning provide a more concise summary that contextualizes this process around the backdrop of design optimization \cite{martins_engineering_2021}.
 
     \begin{figure}[H]
         \centering
@@ -453,7 +453,7 @@
     \afterpage{\FloatBarrier}
 
 
-    \chapter{Proposed Contributions, Approaches, and Results-To-Date}
+    \chapter{Proposed Contributions and Approaches}
     \label{chap:contributions}
 
 %    \section{The Technical Gap: Practical Limitations of MDO Frameworks in Industry}
@@ -498,7 +498,8 @@
 
     The Ph.D. thesis will make five following novel conceptual contributions which to address the technical gap and motivation identified in Chapter \ref{chap:literature}. A concise list of these contributions is given in Section \ref{sec:definition}. Here, we expand upon each of these contributions in detail, discuss intended approaches to making advances here, and discuss the results to date.
 
-    \subsection{Code Transformation Paradigm}
+    \section{Code Transformation Paradigm}
+    \label{sec:code_transformations}
 
     The thesis will introduce the idea of \textit{code transformations} as a new computational paradigm on top of which an MDO framework can be built. Here, code transformations are defined as a generalized set of computational techniques that intercept the original optimization problem posed by the user (at runtime), apply some improvement based on analysis of the code itself, and then solve a modified optimization problem instead. This encompasses a variety of recent advanced techniques in scientific computing, such as:
     \begin{itemize}[noitemsep]
@@ -552,7 +553,7 @@
                 \bottomrule
 
                 \multicolumn{5}{p{1\textwidth}}{$^*$ Can use either paradigm, depending on user's implementation} \\
-                \multicolumn{5}{p{1\textwidth}}{$^\dag$ Part of the present work, as detailed in Section \ref{sec:results}} \\
+                \multicolumn{5}{p{1\textwidth}}{$^\dag$ Part of the present work, as detailed in Section \ref{sec:code_transformations}} \\
                 \multicolumn{5}{p{1\textwidth}}{$^\ddag$ These are computational tools to facilitate code transformations, rather than frameworks themselves}
             \end{tabular}
         \end{adjustbox}
@@ -563,7 +564,8 @@
 
     Thus, this contribution is twofold. First, the thesis will conceptually introduce code transformations as a new paradigm for engineering MDO frameworks. Secondly, the thesis will demonstrate strategies that allow traceability of engineering design code with minimal user effort, enabling the use of code transformations in practice.
 
-    \subsection{Differentiable Physics Models}
+    \section{Traceable Physics Models}
+    \label{sec:physics_models}
 
     The thesis will also contribute the first computational implementations of several key physics models for aircraft design that are compatible with a code transformations paradigm (i.e., traceable).
 
@@ -604,7 +606,8 @@
 
     These traceable implementations offer value within the context of the thesis itself (in stress-testing the practicality of code transformations), but they also have value as a standalone contribution to the aircraft design community -- even outside of design optimization. For example, a traceable workbook-style aerodynamics buildup would seamlessly enable GPU-accelerated evaluations and automatic vectorization, offering significant speedups; an example application might be real-time performance estimation for model predictive controllers or flight simulation.
 
-    \subsection{Sparsity Tracing via NaN-Propagation}
+    \section{Sparsity Tracing via NaN-Propagation}
+    \label{sec:nan_propagation}
 
     A key challenge in applying code transformations is handling external black-box (i.e., non-traceable) function calls within the analysis graph. While code transformations can apply techniques like automatic differentiation and automated sparsity detection to accelerate traceable code, these efficiency gains are lost when opaque black-box functions are present. Here, gradient calculation methods must invariable fall back to slower techniques, such as finite-differencing or complex-step derivative computation \cite{martins_complexstep_2003}. However, significant speedups are still achievable if the sparsity pattern of dependencies between inputs and outputs can be determined, as this allows Jacobian compression via coloring \cite{gebremedhin_efficient_2009, gebremedhin_what_2005}.
 
@@ -623,7 +626,8 @@
 
     There are several subtleties to address for robustness across numerical code. First, some functions may internally handle NaN values via exceptions, preventing contamination and hence precluding this strategy. However, NaN propagation is common in most numerical libraries. Second, conditional logic can complicate tracing, but most libraries propagate NaNs through static conditional statements (i.e., a flattened if-else statement where both branches are fused). Overall, NaN propagation shows promise for automated sparsity detection through common black-box functions. Integrating this technique into the code transformation paradigm could expand its applicability.
 
-    \subsection{Physics-Informed Machine Learning Surrogates for Black-Box Models}
+    \section{Physics-Informed Machine Learning Surrogates for Black-Box Models}
+    \label{sec:physics_informed_ml}
 
     The flexibility afforded by code transformations enables the straightforward formulation of challenging inverse optimization problems in aerospace beyond just aircraft design. As an example application, this section will summarize ongoing work that demonstrates the use of code transformations to accurately infer aircraft performance characteristics from minimal flight data.
 
@@ -641,27 +645,27 @@
 %
 %    An important distinction is that the primary goal of this thesis is not to create the single ``end-all'' framework for aircraft conceptual MDO - these frameworks naturally come and go over the years as programming languages and optimization algorithms evolve. Rather, the overarching goal is about guiding framework architectures: ``What features and paradigms should framework designers consider to mitigate the interpretability challenges of large-scale engineering design optimization?''.
 
-    \subsection{Aircraft System Identification from Minimal Sensor Data}
+    \section{Aircraft System Identification from Minimal Sensor Data}
+    \label{sec:system_identification}
 
 
     \chapter{Status and Proposed Schedule}
     \label{sec:status}
 
-
-    \section{Results to Date}
-    \label{sec:results}
-
-    \subsection{Code Transformation Paradigm}
-
-
-    In machine learning, traceability has largely been achieved through the rise of domain-specific languages (DSLs): a sub-language implemented within a programming language. These DSLs, such as Theano, TensorFlow, PyTorch, JAX, and others, have quickly become ubiquitous, empirically demonstrating that DSLs are a viable path to industry adoption. However, there are several downsides if machine-learning-oriented DSLs are applied to engineering design as-is. DSLs tend to differ substantially in syntax from their underlying language, which adds a barrier for new users, and more importantly, requires existing engineering analysis code to be rewritten. DSLs for machine learning also make architectural choices that tend to be ill-suited for typical engineering problems. For example, most deep learning applications consist predominantly of highly-vectorized mathematical operations on large tensors, with a high amount of compute per operator. Engineering analysis, by contrast, tends to be much more scalar-heavy, with many more intermediate steps and a lower amount of compute per operator.
-
-
-    These DSLs restrict users to a narrow set of mathematical operators
-
-    Before that, algebraic modeling languages (AMLs) in the field of mathematical optimization
-
-    Which is typically achieved through type-flexible programming (through either dynamic typing or multiple dispatch)
+%    \section{Results to Date}
+%    \label{sec:results}
+%
+%    \subsection{Code Transformation Paradigm}
+%
+%
+%    In machine learning, traceability has largely been achieved through the rise of domain-specific languages (DSLs): a sub-language implemented within a programming language. These DSLs, such as Theano, TensorFlow, PyTorch, JAX, and others, have quickly become ubiquitous, empirically demonstrating that DSLs are a viable path to industry adoption. However, there are several downsides if machine-learning-oriented DSLs are applied to engineering design as-is. DSLs tend to differ substantially in syntax from their underlying language, which adds a barrier for new users, and more importantly, requires existing engineering analysis code to be rewritten. DSLs for machine learning also make architectural choices that tend to be ill-suited for typical engineering problems. For example, most deep learning applications consist predominantly of highly-vectorized mathematical operations on large tensors, with a high amount of compute per operator. Engineering analysis, by contrast, tends to be much more scalar-heavy, with many more intermediate steps and a lower amount of compute per operator.
+%
+%
+%    These DSLs restrict users to a narrow set of mathematical operators
+%
+%    Before that, algebraic modeling languages (AMLs) in the field of mathematical optimization
+%
+%    Which is typically achieved through type-flexible programming (through either dynamic typing or multiple dispatch)
 
 
     \section{Fields of Study and Coursework}
@@ -695,12 +699,12 @@
 
     \section{Degree Milestones}
 
-    Major degree milestones, both past and future, are listed in Table \ref{tab:timeline}.
+    Major degree milestones, both past and future, are listed in Table \ref{tab:degree_timeline}.
 
     \begin{table}[H]
         \centering
         \caption{Tentative planned timeline for PhD degree milestones.}
-        \label{tab:timeline}
+        \label{tab:degree_timeline}
         \begin{tabular}{c r l}
             \toprule
             \textbf{Complete?} & \textbf{Date}      & \textbf{Milestone}              \\ \toprule
@@ -721,38 +725,49 @@
     \section{Research Schedule}
     \label{sec:schedule}
 
-    \subsection*{Spring 2024}
+    \begin{table}[H]
+        \centering
+        \caption{Tentative planned timeline for PhD research milestones.}
+        \includegraphics[width=\textwidth]{../figures/timeline.pdf}
+        \label{tab:research_timeline}
+    \end{table}
 
-    \begin{enumerate}
-        \item Motivate the optimization framework developed in the thesis.
-        \begin{enumerate}
-            \item Identify or develop an aircraft design benchmark problem suitable for comparing existing frameworks and their associated paradigms. The design problem should be realistic (incorporating all core aircraft disciplines), but it should not be overly complex. Potential suitable problems could include:
-            \begin{itemize}[noitemsep]
-                \item \href{https://github.com/peterdsharpe/AeroSandbox/blob/master/tutorial/02%20-%20Design%20Optimization/03%20-%20Aircraft%20Design%20-%20SimPleAC.ipynb}{SimPleAC}, a small aircraft design problem initially proposed by Warren Hoburg \cite{hoburg_geometric_2014} and further refined by Berk Ozturk \cite{ozturk_conceptual_2018}.
-                \item The solar seaplane design problem developed and implemented as part of TA work for MIT 16.821 in Spring 2023 \cite{solar_seaplane}.
-                \item An aircraft design problem adapted from the \href{https://www.aiaa.org/get-involved/students-educators/Design-Competitions}{AIAA Graduate Aircraft Design Competition}, where the 2023-24 problem is a self-launching electric sailplane.
-                \item Long-haul liquid-hydrogen-powered transport aircraft design, which was studied and developed for MIT 16.886 in Fall 2022 and MIT 16.885 in Fall 2023 \cite{gaubatz_estimating_2023, transport_aircraft}.
-            \end{itemize}
-%            (e.g., the NASA Common Research Model) and more realistic problems (e.g., the D8.8). The goal is to have a set of problems that can be used to evaluate the framework's performance across a range of problem sizes and complexities.
-            \item Implement the benchmark problem in several frameworks that are representative of state-of-the-art and/or industry-standard paradigms: AeroSandbox, OpenMDAO, GPkit, and a ``optimizer wrapped around black-box analysis'' method\footnote{Typical of industry methods, such as those seen in the development of the Facebook HALE aircraft development effort\cite{fbhale}}.
-            \item Compare the implementations on the basis of the three framework-level metrics identified in Section \ref{sec:contributions}: runtime speed, problem implementation speed, and mathematical flexibility. Document this thoroughly. Use this exercise as a jumping-off point to write a thesis chapter on how specific framework design choices affect each of these three metrics.
-            \item Show that the thesis framework makes large-scale optimization practical to implement at the conceptual design stage.
-        \end{enumerate}
-        \item Quantitatively illustrate the performance benefit associated with large-scale optimization in conceptual-level aircraft design:
-        \begin{enumerate}
-            \item Identify or develop an aircraft design benchmark problem suitable for comparing various levels of model fidelity at the conceptual design level. The design problem should be sufficiently complex such that it can be solved with or without the inclusion of secondary disciplines. Potential suitable problems could include:
-            \begin{itemize}[nolistsep]
-                \item MIT Firefly, a rocket-propelled micro-UAV design problem coupling packaging constraints, transonic aerodynamics, trajectory design, and propulsion design.
-                \item Dawn One, a high-altitude-long-endurance solar-powered aircraft.
-            \end{itemize}
-        \end{enumerate}
-    \end{enumerate}
 
-    \subsection*{Fall 2024}
+%    \include{timeline}
 
-    \begin{enumerate}
-        \item Present the idea that implicit model assumptions and constraint-satisfaction information as ``metadata'' that should be % TODO
-    \end{enumerate}
+%
+%    \subsection*{Spring 2024}
+%
+%    \begin{enumerate}
+%        \item Motivate the optimization framework developed in the thesis.
+%        \begin{enumerate}
+%            \item Identify or develop an aircraft design benchmark problem suitable for comparing existing frameworks and their associated paradigms. The design problem should be realistic (incorporating all core aircraft disciplines), but it should not be overly complex. Potential suitable problems could include:
+%            \begin{itemize}[noitemsep]
+%                \item \href{https://github.com/peterdsharpe/AeroSandbox/blob/master/tutorial/02%20-%20Design%20Optimization/03%20-%20Aircraft%20Design%20-%20SimPleAC.ipynb}{SimPleAC}, a small aircraft design problem initially proposed by Warren Hoburg \cite{hoburg_geometric_2014} and further refined by Berk Ozturk \cite{ozturk_conceptual_2018}.
+%                \item The solar seaplane design problem developed and implemented as part of TA work for MIT 16.821 in Spring 2023 \cite{solar_seaplane}.
+%                \item An aircraft design problem adapted from the \href{https://www.aiaa.org/get-involved/students-educators/Design-Competitions}{AIAA Graduate Aircraft Design Competition}, where the 2023-24 problem is a self-launching electric sailplane.
+%                \item Long-haul liquid-hydrogen-powered transport aircraft design, which was studied and developed for MIT 16.886 in Fall 2022 and MIT 16.885 in Fall 2023 \cite{gaubatz_estimating_2023, transport_aircraft}.
+%            \end{itemize}
+%%            (e.g., the NASA Common Research Model) and more realistic problems (e.g., the D8.8). The goal is to have a set of problems that can be used to evaluate the framework's performance across a range of problem sizes and complexities.
+%            \item Implement the benchmark problem in several frameworks that are representative of state-of-the-art and/or industry-standard paradigms: AeroSandbox, OpenMDAO, GPkit, and a ``optimizer wrapped around black-box analysis'' method\footnote{Typical of industry methods, such as those seen in the development of the Facebook HALE aircraft development effort\cite{fbhale}}.
+%            \item Compare the implementations on the basis of the three framework-level metrics identified in Section \ref{sec:code_transformations}: runtime speed, problem implementation speed, and mathematical flexibility. Document this thoroughly. Use this exercise as a jumping-off point to write a thesis chapter on how specific framework design choices affect each of these three metrics.
+%            \item Show that the thesis framework makes large-scale optimization practical to implement at the conceptual design stage.
+%        \end{enumerate}
+%        \item Quantitatively illustrate the performance benefit associated with large-scale optimization in conceptual-level aircraft design:
+%        \begin{enumerate}
+%            \item Identify or develop an aircraft design benchmark problem suitable for comparing various levels of model fidelity at the conceptual design level. The design problem should be sufficiently complex such that it can be solved with or without the inclusion of secondary disciplines. Potential suitable problems could include:
+%            \begin{itemize}[nolistsep]
+%                \item MIT Firefly, a rocket-propelled micro-UAV design problem coupling packaging constraints, transonic aerodynamics, trajectory design, and propulsion design.
+%                \item Dawn One, a high-altitude-long-endurance solar-powered aircraft.
+%            \end{itemize}
+%        \end{enumerate}
+%    \end{enumerate}
+%
+%    \subsection*{Fall 2024}
+%
+%    \begin{enumerate}
+%        \item Present the idea that implicit model assumptions and constraint-satisfaction information as ``metadata'' that should be % TODO
+%    \end{enumerate}
 
     % TODO section
 
