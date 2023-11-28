@@ -86,7 +86,7 @@
         \item \textbf{Sparsity Tracing via NaN-Propagation:} Conceptually introduce the novel idea of ``NaN-propagation'' as a method to trace sparsity through black-box numerical analyses by exploiting floating-point math handling. This opens up a path to including such models in a code transformations framework while still retaining some (but not all) of the speed advantages over current black-box optimization methods.
         \item \textbf{Physics-Informed Machine Learning Surrogates for Black-Box Models:} Explore strategies to incorporate black-box models into a code transformation framework, expanding the practicality of the paradigm for users who require use of black-box code. As an example, a physics-informed machine learning surrogate model for airfoil aerodynamics analysis will be presented. This demonstrates that accurate surrogates can be constructed to stand in for complex analyses while retaining compatibility with code transformations, and without sacrificing mathematical flexibility.
         \item \textbf{Aircraft System Identification from Minimal Sensor Data:} Demonstrate that the code transformation paradigm enables straightforward formulation of optimization problems beyond just design optimization. As an example, the thesis will show an application to aircraft system identification and performance reconstruction from minimal flight data. Here, physics-based corrections are used alongside statistical inference techniques to accurately estimate aircraft performance characteristics from a single short test flight. This approach is enabled by the flexibility of the code transformation framework.
-%        \item Build a computational framework for engineering design optimization based on the paradigm of \textit{code transformations}, which enables the use of modern techniques in computer science and applied math (detailed more in Section TODO). This framework will act as a ``proving ground'' on top of which subsequent research objectives will be implemented and evaluated.
+%        \item Build a computational framework for engineering design optimization based on the paradigm of \textit{code transformations}, which enables the use of modern techniques in computer science and applied math (detailed more in Section). This framework will act as a ``proving ground'' on top of which subsequent research objectives will be implemented and evaluated.
 %        \item Demonstrate that this \textit{code transformation} paradigm enables the formulation of large-scale engineering design optimization problems at the conceptual stage, to an extent that is not otherwise possible with existing public aircraft design frameworks. To satisfy this objective, the framework will demonstrate (on at least one applied aircraft design case study) performance equaling-or-exceeding the state-of-the-art across the following metrics:
 %        \begin{itemize}
 %            \item Runtime speed (i.e., scalability of computational resources, and runtimes compatible with human-in-the-loop interactive design).
@@ -104,14 +104,12 @@
 %            \item \textbf{Risk:} Demonstrate the major pitfall of the new large-scale conceptual design optimization: the lack of result \textit{interpretability}. Show that the system complexity enabled by large-scale optimization leads to results are more difficult to communicate, interpret, review, and trust.
 %        \end{enumerate}
 %        \item
-%        \item Identify framework features and characteristics that aid in the \textit{interpretability} and \textit{reviewability} of large-scale engineering design optimization problems. This should be based on a combination of literature review, aircraft design case studies, and (as resources allow) discussions with framework users and aircraft designers. Fundamentally, this is more a communication question than a technical one: setting up a large-scale optimization problem is doable with state-of-the-art aircraft design optimization tools, but TODO (``how do we communicate whether we can trust the results of a design optimization study?'').
+%        \item Identify framework features and characteristics that aid in the \textit{interpretability} and \textit{reviewability} of large-scale engineering design optimization problems. This should be based on a combination of literature review, aircraft design case studies, and (as resources allow) discussions with framework users and aircraft designers. Fundamentally, this is more a communication question than a technical one: setting up a large-scale optimization problem is doable with state-of-the-art aircraft design optimization tools, but (``how do we communicate whether we can trust the results of a design optimization study?'').
 %        \item Implement some of these practical This should include, at minimum:
 %        \begin{itemize}
 %            \item A constraint activity log, which
 %        \end{itemize}
     \end{enumerate}
-
-    % TODO
 
 
     \section{Proposal Document Organization}
@@ -245,7 +243,7 @@
 
     For a practical aircraft development program, however, this is only the beginning. The point design must survive external validation and design review by a team of subject-matter-experts; the cost of this process is a direct function of the tools an MDO framework supplies to aid result interpretability. Even beyond this, in prototyping, flight testing, production, and deployment, the design process still imposes framework requirements. For example, an analysis and optimization framework that supports a wide range of modeling fidelities has the potential to can smoothly transition from a conceptual design tool to a digital thread \cite{niederer_scaling_2021, singh_engineering_2018}. Likewise, a design tool can be used during the production process to support manufacturing decisions, such as whether an unexpected change in a component supplier still produces a feasible design with desired margins.
 
-    The remainder of this chapter will discuss some of the most important advances in design optimization research, and how these advances can reduce the costs incurred at various steps of this holistic process.
+    The remainder of this chapter will discuss some of the most important advances in optimization, design processes, and scientific computing in recent decades, with a focus on how these advances can reduce the costs incurred at various steps of this holistic process.
 
     \subsection{Two Directions: ``Wide'' vs. ``Deep'' MDO}
     \label{sec:wide_vs_deep}
@@ -302,7 +300,7 @@
 
     Another MDO paradigm that has become popular in recent years is that of disciplined optimization methods, borrowing nomenclature from Grant \cite{grant_disciplined_2006}, Agrawal \cite{agrawal_disciplined_2019}, and Boyd \cite{boyd_tutorial_2007, boyd_convex_2004}. These methods are considered \textit{disciplined} as they impose a strict set of rules on the optimization problem formulation, which allows the optimizer to make assumptions about the problem structure (such as convexity, or log-convexity). These assumptions allow the optimizer to make more efficient use of computational resources and provide guarantees of global optimality. Geometric programming in particular has proven to be a useful disciplined MDO paradigm for aircraft design applications, as originally observed by Hoburg \cite{hoburg_geometric_2014}. GPkit \cite{gpkit, hoburg_geometric_2014, kirschen}, a framework that demonstrates this geometric programming concept targeting engineering design applications, has led to successful case studies such as the Jungle Hawk Owl aircraft \cite{jho} and Hyperloop system studies \cite{gpkit}.
 
-    \subsection{Advances in Design Optimization Practice}
+    \subsection{Other Advances in Design Optimization Practice}
 %     complexity -- motivating the idea of general-purpose \textit{MDO frameworks} to address this as opposed to problem-specific codes
 
     % Multipoint
@@ -357,6 +355,7 @@
     Before Jacobian coloring and compression can be performed, the sparsity pattern of the Jacobian must be known. This is a nontrivial task and an area of active research, with the major complications summarized by Rackauckas \cite{rackauckas_generalizing_2021}. In recent years, automated sparsity detection has enabled automatic construction of sparsity patterns using a tracing approach that is quite similar to that of automatic differentiation. This bypasses many of the potential edge-case failure modes that can occur when trying to infer sparsity purely by inspecting the dense Jacobian, such as conditional branching or cancellation. Indeed, the same computational graph can be used for this process, making this a computationally-efficient addition to a code base that already leverages automatic differentiation. Andersson et al. \cite{casadi} provide an example implementation of this automated sparsity detection within the CasADi framework. Gowda et al. provide a more complete review on state-of-the-art methods in automated sparsity detection \cite{gowda_sparsity_2019}, with state-of-the-art implementations of this by Ma et al. \cite{ma_modelingtoolkit_2021}.
 
     \afterpage{\FloatBarrier}
+
 
     \section{Motivations for Improving Industry Access to Design Optimization}
 
@@ -458,7 +457,6 @@
 
 %    \section{The Technical Gap: Practical Limitations of MDO Frameworks in Industry}
 %    \label{sec:technical-gap}
-%    % TODO whole section
 %    The primary remaining explanation, which has become increasingly accepted in the past decade \cite{agte_mdo_2010, torenbeek_advanced_2013, gazaix_industrialization_2017, gpkit}, is that MDO faces a set of related organizational, culture, and practical challenges that must be addressed before widespread industry adoption can occur.
 %
 %    Summarizing this body of work yields a list of MDO's current major challenges:
@@ -470,7 +468,6 @@
 %        \item Most MDO frameworks are syntactically complex, requiring users to be joint experts not only in aircraft design, but also in applied math and computer science \cite{salas_framework_1998, gpkit, agte_mdo_2010}. This ``expertise barrier'', as termed by Grant \cite{grant_disciplined_2006}, is a severe impediment to widespread adoption among ``users whose focus is the application''.
 %    \end{enumerate}
 %
-%    TODO
 
 
 %    \subsection*{Current Industry Challenges}
@@ -480,8 +477,6 @@
     % Challenges of MDO as an "invariant" over time
 
 %    \cite{salas_framework_1998} % Framework Requirements for MDO Application Development
-
-%    TODO
 
 %    In particular, the challenges of \textit{interpretability} and \textit{reviewability} of large-scale engineering design optimization problems are still largely unsolved.
 
@@ -497,6 +492,7 @@
     % Practical optimization does not necessarily tend towards integrated design. Barnaby Wainfan, designer of the Facetmobile and Technical Fellow for Aerodynamics at Northrup Grumman: one of the under-appreciated benefits of the "conventional" configuration is that it is \textit{modifiable} -
 
     The Ph.D. thesis will make five following novel conceptual contributions which to address the technical gap and motivation identified in Chapter \ref{chap:literature}. A concise list of these contributions is given in Section \ref{sec:definition}. Here, we expand upon each of these contributions in detail, discuss intended approaches to making advances here, and discuss the results to date.
+
 
     \section{Code Transformation Paradigm}
     \label{sec:code_transformations}
@@ -564,6 +560,7 @@
 
     Thus, this contribution is twofold. First, the thesis will conceptually introduce code transformations as a new paradigm for engineering MDO frameworks. Secondly, the thesis will demonstrate strategies that allow traceability of engineering design code with minimal user effort, enabling the use of code transformations in practice.
 
+
     \section{Traceable Physics Models}
     \label{sec:physics_models}
 
@@ -606,6 +603,7 @@
 
     These traceable implementations offer value within the context of the thesis itself (in stress-testing the practicality of code transformations), but they also have value as a standalone contribution to the aircraft design community -- even outside of design optimization. For example, a traceable workbook-style aerodynamics buildup would seamlessly enable GPU-accelerated evaluations and automatic vectorization, offering significant speedups; an example application might be real-time performance estimation for model predictive controllers or flight simulation.
 
+
     \section{Sparsity Tracing via NaN-Propagation}
     \label{sec:nan_propagation}
 
@@ -626,27 +624,79 @@
 
     There are several subtleties to address for robustness across numerical code. First, some functions may internally handle NaN values via exceptions, preventing contamination and hence precluding this strategy. However, NaN propagation is common in most numerical libraries. Second, conditional logic can complicate tracing, but most libraries propagate NaNs through static conditional statements (i.e., a flattened if-else statement where both branches are fused). Overall, NaN propagation shows promise for automated sparsity detection through common black-box functions. Integrating this technique into the code transformation paradigm could expand its applicability.
 
+
     \section{Physics-Informed Machine Learning Surrogates for Black-Box Models}
     \label{sec:physics_informed_ml}
 
-    The flexibility afforded by code transformations enables the straightforward formulation of challenging inverse optimization problems in aerospace beyond just aircraft design. As an example application, this section will summarize ongoing work that demonstrates the use of code transformations to accurately infer aircraft performance characteristics from minimal flight data.
 
-    Here, physics-based corrections are used alongside statistical inference techniques to estimate an aircraft's power curve, aerodynamic polar, and propulsive efficiency curve simultaneously from a single short test flight. The key insight is that by framing aircraft performance modeling as an optimization problem, one can simultaneously fit models to data while also using those models to correct the raw data for unsteady effects. This coupled data-model inference approach draws parallels to techniques used in system identification, but it is enabled by the flexibility of the code transformation framework.
-
-    Concretely, conservation of energy\footnote{including both unsteady altitude and airspeed terms} is used to construct an instantaneous aircraft power balance equation, with drag and propulsive efficiency initially modeled as unknown functions. By posing this as an optimization problem to minimize residuals, optimal function fits to the data are obtained. These fitted functions are then used to re-process the data, correcting for climbed, accelerated flight segments. The corrected steady-level-flight data can then be easily post-processed to reconstruct performance curves. Additionally, by wrapping this optimization problem in a bootstrap resampling loop of the flight data samples, uncertainty bounds are obtained from an unbiased estimator.
-
-    Remarkably, this physics-informed regression approach shows excellent accuracy reconstructing the true performance curves from real-world noisy data, even when the raw data has significant contamination from unsteady flight effects. In the example result presented, performance curves are reconstructed using only 260 seconds of flight data. Uncertainty bounds are sufficiently tight for the power curve to clearly reject a naive curve fit.
-
-    The proposed technique offers substantial advantages over traditional quasi-steady flight testing, including: (1) Performance estimates from significantly less flight time/data, (2) Rigorous uncertainty quantification, (3) The ability to incorporate data from non-steady flight segments, reducing wasted data, and (4) Reduced pilot workload. Taken together, these benefits can greatly reduce the time, instrumentation cost, and risk required to characterize the performance of an unproven aircraft design.
-
-    This example application demonstrates the flexibility of code transformation frameworks to tackle challenging inverse problems beyond just design optimization. It also shows the value of framing inference problems in terms of optimization when possible. These insights may have relevance even for problems not traditionally considered as candidates for optimization techniques.
+    % TODO
 
 %    \subsection{Identifying Framework Requirements for Interpretability}
 %
 %    An important distinction is that the primary goal of this thesis is not to create the single ``end-all'' framework for aircraft conceptual MDO - these frameworks naturally come and go over the years as programming languages and optimization algorithms evolve. Rather, the overarching goal is about guiding framework architectures: ``What features and paradigms should framework designers consider to mitigate the interpretability challenges of large-scale engineering design optimization?''.
 
+
     \section{Aircraft System Identification from Minimal Sensor Data}
     \label{sec:system_identification}
+
+    The flexibility afforded by code transformations enables the straightforward formulation of challenging inverse optimization problems in aerospace beyond just aircraft design. As an example application, this thesis contribution will demonstrate the use of code transformations to accurately infer aircraft performance characteristics from minimal flight data.
+
+    Here, physics-based corrections are used alongside statistical inference techniques to estimate an aircraft's power curve, aerodynamic polar, and propulsive efficiency curve simultaneously from a single short test flight. The key insight is that by framing aircraft performance reconstruction as an optimization problem over an uncertain data-generating process, one can simultaneously fit models to data while also using those models to correct the raw data for unsteady effects. This allows one to embed physical constraints on the resulting models, significantly reducing the amount of required data. This coupled data-model inference approach draws parallels to techniques used in system identification, but its practical implementation is made simpler by the flexibility of the code transformation framework.
+
+    Concretely, conservation of energy\footnote{including both unsteady altitude and airspeed terms} is used to construct an instantaneous aircraft power balance equation. The drag polar and propulsive efficiency are modeled as parametric functions (with initially-unknown parameters) informed by physical intuition or first-principles modeling. By posing this as an optimization problem to minimize residuals within some collapsed space (e.g., the airspeed-power space representing an aircraft's power curve), we simultaneously fit these unknown functions to the data while also correcting for unsteady flight effects. The resulting model is then used to reconstruct the aircraft's performance curves. Remarkably, this physics-informed regression approach shows excellent accuracy reconstructing the true performance curves from real-world noisy data, even when the raw data has significant contamination from unsteady flight effects and is quite limited. Additionally, by wrapping this optimization problem in a bootstrap resampling loop of the flight data samples, uncertainty bounds are obtained from an unbiased estimator. Figure \ref{fig:overall_procedure} broadly illustrates the toolchain for performance reconstruction used in this contribution.
+
+    \begin{figure}[!htb]
+        \centering
+        \ifdraft{}{\includegraphics[width=\textwidth, trim=1cm 1cm 1cm 1cm,clip=true]{../figures/aircraft_polar_reconstruction/figures/overall_procedure}}
+        \caption{Process for inference-based performance reconstruction from flight data}
+        \label{fig:overall_procedure}
+    \end{figure}
+
+    In a working example, key performance information (drag polar, propulsive efficiency curve, and power curve) is reconstructed from a short test flight of the \textit{Solar Surfer} aircraft. This aircraft, shown in Figure \ref{fig:solar_surfer_flight}, is a remote-controlled solar-electric seaplane design with a 14-foot wingspan and as-flown all-up mass of 9.4 kg. A 260-second-long test flight was flown in a racetrack-like pattern, as shown in Figure \ref{fig:solar_surfer_track}. Altitude, airspeed, and battery voltage and current were recorded at approximately 5 Hz. No specific attempt was made to excite the system to facilitate later system identification.
+
+    \begin{figure}[!htb]
+        \centering
+        \begin{subfigure}[b]{0.45\textwidth}
+            \ifdraft{}{\includegraphics[width=\textwidth]{../figures/aircraft_polar_reconstruction/assets/Flight1_02549.JPG}}
+            \caption{\emph{Solar Surfer} in flight}
+            \label{fig:solar_surfer_flight}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[b]{0.511\textwidth}
+            \ifdraft{}{\includegraphics[width=\textwidth]{../figures/aircraft_polar_reconstruction/assets/flight3-circuit}}
+            \caption{Recorded GPS ground track during test flight}
+            \label{fig:solar_surfer_track}
+        \end{subfigure}
+        \caption{\emph{Solar Surfer} aircraft test flight}
+        \label{fig:solar_surfer_aircraft}
+    \end{figure}
+
+    To illustrate the utility of this approach, we take the aircraft power curve (i.e., required power as a function of airspeed in steady level flight) as an example performance output of interest. Figure \ref{fig:power_curve_naive} illustrates the raw data recorded from the \textit{Solar Surfer} test flight in black, and also demonstrates the inability of naive fitting without
+
+    \begin{figure}[H]
+        \centering
+        \begin{subfigure}[b]{\textwidth}
+            \centering
+            \includegraphics[width=\textwidth]{../figures/aircraft_polar_reconstruction/figures/power_polar_naive}
+            \caption{Raw uncorrected data for the power curve, with naive curve fitting. Uncorrected data exhibits high amounts of unexplained variance. Naive curve fits extrapolate to physically-impossible conclusions and do not capture uncertainty.}
+            \label{fig:power_curve_naive}
+        \end{subfigure}
+        \begin{subfigure}[b]{\textwidth}
+            \centering
+            \ifdraft{}{\includegraphics[]{../figures/aircraft_polar_reconstruction/figures/power_curve_with_physics}}
+            \caption{Power curve with physics-informed corrections on data and model, and using noise estimator with a resampling bootstrap for uncertainty quantification.}
+            \label{fig:power_curve_with_physics}
+        \end{subfigure}
+
+        \caption{A comparison of power curve estimation for the \textit{Solar Surfer} airplane using naive vs. system identification methods for simultaneous data correction and performance estimation.}
+        \label{fig:power_curve_comparison}
+    \end{figure}
+
+    In the example result presented, performance curves are reconstructed using only 260 seconds of flight data. Uncertainty bounds are sufficiently tight for the power curve to clearly reject a naive curve fit.
+
+    The proposed technique offers substantial advantages over traditional quasi-steady flight testing, including: (1) Performance estimates from significantly less flight time/data, (2) Rigorous uncertainty quantification, (3) The ability to incorporate data from non-steady flight segments, reducing wasted data, and (4) Reduced pilot workload. Taken together, these benefits can greatly reduce the time, instrumentation cost, and risk required to characterize the performance of an unproven aircraft design.
+
+    This example application demonstrates the flexibility of code transformation frameworks to tackle challenging inverse problems beyond just design optimization. It also shows the value of framing inference problems in terms of optimization when possible. These insights may have relevance even for problems not traditionally considered as candidates for optimization techniques.
 
 
     \chapter{Status and Proposed Schedule}
@@ -766,10 +816,8 @@
 %    \subsection*{Fall 2024}
 %
 %    \begin{enumerate}
-%        \item Present the idea that implicit model assumptions and constraint-satisfaction information as ``metadata'' that should be % TODO
+%        \item Present the idea that implicit model assumptions and constraint-satisfaction information as ``metadata'' that should be
 %    \end{enumerate}
-
-    % TODO section
 
 
     \section{Facilities Required}

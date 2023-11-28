@@ -1,0 +1,1762 @@
+\documentclass[11pt]{article}
+
+    \usepackage[breakable]{tcolorbox}
+    \usepackage{parskip} % Stop auto-indenting (to mimic markdown behaviour)
+    
+
+    % Basic figure setup, for now with no caption control since it's done
+    % automatically by Pandoc (which extracts ![](path) syntax from Markdown).
+    \usepackage{graphicx}
+    % Maintain compatibility with old templates. Remove in nbconvert 6.0
+    \let\Oldincludegraphics\includegraphics
+    % Ensure that by default, figures have no caption (until we provide a
+    % proper Figure object with a Caption API and a way to capture that
+    % in the conversion process - todo).
+    \usepackage{caption}
+    \DeclareCaptionFormat{nocaption}{}
+    \captionsetup{format=nocaption,aboveskip=0pt,belowskip=0pt}
+
+    \usepackage{float}
+    \floatplacement{figure}{H} % forces figures to be placed at the correct location
+    \usepackage{xcolor} % Allow colors to be defined
+    \usepackage{enumerate} % Needed for markdown enumerations to work
+    \usepackage{geometry} % Used to adjust the document margins
+    \usepackage{amsmath} % Equations
+    \usepackage{amssymb} % Equations
+    \usepackage{textcomp} % defines textquotesingle
+    % Hack from http://tex.stackexchange.com/a/47451/13684:
+    \AtBeginDocument{%
+        \def\PYZsq{\textquotesingle}% Upright quotes in Pygmentized code
+    }
+    \usepackage{upquote} % Upright quotes for verbatim code
+    \usepackage{eurosym} % defines \euro
+
+    \usepackage{iftex}
+    \ifPDFTeX
+        \usepackage[T1]{fontenc}
+        \IfFileExists{alphabeta.sty}{
+              \usepackage{alphabeta}
+          }{
+              \usepackage[mathletters]{ucs}
+              \usepackage[utf8x]{inputenc}
+          }
+    \else
+        \usepackage{fontspec}
+        \usepackage{unicode-math}
+    \fi
+
+    \usepackage{fancyvrb} % verbatim replacement that allows latex
+    \usepackage{grffile} % extends the file name processing of package graphics
+                         % to support a larger range
+    \makeatletter % fix for old versions of grffile with XeLaTeX
+    \@ifpackagelater{grffile}{2019/11/01}
+    {
+      % Do nothing on new versions
+    }
+    {
+      \def\Gread@@xetex#1{%
+        \IfFileExists{"\Gin@base".bb}%
+        {\Gread@eps{\Gin@base.bb}}%
+        {\Gread@@xetex@aux#1}%
+      }
+    }
+    \makeatother
+    \usepackage[Export]{adjustbox} % Used to constrain images to a maximum size
+    \adjustboxset{max size={0.9\linewidth}{0.9\paperheight}}
+
+    % The hyperref package gives us a pdf with properly built
+    % internal navigation ('pdf bookmarks' for the table of contents,
+    % internal cross-reference links, web links for URLs, etc.)
+    \usepackage{hyperref}
+    % The default LaTeX title has an obnoxious amount of whitespace. By default,
+    % titling removes some of it. It also provides customization options.
+    \usepackage{titling}
+    \usepackage{longtable} % longtable support required by pandoc >1.10
+    \usepackage{booktabs}  % table support for pandoc > 1.12.2
+    \usepackage{array}     % table support for pandoc >= 2.11.3
+    \usepackage{calc}      % table minipage width calculation for pandoc >= 2.11.1
+    \usepackage[inline]{enumitem} % IRkernel/repr support (it uses the enumerate* environment)
+    \usepackage[normalem]{ulem} % ulem is needed to support strikethroughs (\sout)
+                                % normalem makes italics be italics, not underlines
+    \usepackage{mathrsfs}
+    
+
+    
+    % Colors for the hyperref package
+    \definecolor{urlcolor}{rgb}{0,.145,.698}
+    \definecolor{linkcolor}{rgb}{.71,0.21,0.01}
+    \definecolor{citecolor}{rgb}{.12,.54,.11}
+
+    % ANSI colors
+    \definecolor{ansi-black}{HTML}{3E424D}
+    \definecolor{ansi-black-intense}{HTML}{282C36}
+    \definecolor{ansi-red}{HTML}{E75C58}
+    \definecolor{ansi-red-intense}{HTML}{B22B31}
+    \definecolor{ansi-green}{HTML}{00A250}
+    \definecolor{ansi-green-intense}{HTML}{007427}
+    \definecolor{ansi-yellow}{HTML}{DDB62B}
+    \definecolor{ansi-yellow-intense}{HTML}{B27D12}
+    \definecolor{ansi-blue}{HTML}{208FFB}
+    \definecolor{ansi-blue-intense}{HTML}{0065CA}
+    \definecolor{ansi-magenta}{HTML}{D160C4}
+    \definecolor{ansi-magenta-intense}{HTML}{A03196}
+    \definecolor{ansi-cyan}{HTML}{60C6C8}
+    \definecolor{ansi-cyan-intense}{HTML}{258F8F}
+    \definecolor{ansi-white}{HTML}{C5C1B4}
+    \definecolor{ansi-white-intense}{HTML}{A1A6B2}
+    \definecolor{ansi-default-inverse-fg}{HTML}{FFFFFF}
+    \definecolor{ansi-default-inverse-bg}{HTML}{000000}
+
+    % common color for the border for error outputs.
+    \definecolor{outerrorbackground}{HTML}{FFDFDF}
+
+    % commands and environments needed by pandoc snippets
+    % extracted from the output of `pandoc -s`
+    \providecommand{\tightlist}{%
+      \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+    \DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+    % Add ',fontsize=\small' for more characters per line
+    \newenvironment{Shaded}{}{}
+    \newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{{#1}}}}
+    \newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.56,0.13,0.00}{{#1}}}
+    \newcommand{\DecValTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{{#1}}}
+    \newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{{#1}}}
+    \newcommand{\FloatTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{{#1}}}
+    \newcommand{\CharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+    \newcommand{\StringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+    \newcommand{\CommentTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textit{{#1}}}}
+    \newcommand{\OtherTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{{#1}}}
+    \newcommand{\AlertTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{{#1}}}}
+    \newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.02,0.16,0.49}{{#1}}}
+    \newcommand{\RegionMarkerTok}[1]{{#1}}
+    \newcommand{\ErrorTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{{#1}}}}
+    \newcommand{\NormalTok}[1]{{#1}}
+
+    % Additional commands for more recent versions of Pandoc
+    \newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.53,0.00,0.00}{{#1}}}
+    \newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+    \newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+    \newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.73,0.40,0.53}{{#1}}}
+    \newcommand{\ImportTok}[1]{{#1}}
+    \newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.73,0.13,0.13}{\textit{{#1}}}}
+    \newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+    \newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+    \newcommand{\VariableTok}[1]{\textcolor[rgb]{0.10,0.09,0.49}{{#1}}}
+    \newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{{#1}}}}
+    \newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.40,0.40,0.40}{{#1}}}
+    \newcommand{\BuiltInTok}[1]{{#1}}
+    \newcommand{\ExtensionTok}[1]{{#1}}
+    \newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.74,0.48,0.00}{{#1}}}
+    \newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.49,0.56,0.16}{{#1}}}
+    \newcommand{\InformationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+    \newcommand{\WarningTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+
+
+    % Define a nice break command that doesn't care if a line doesn't already
+    % exist.
+    \def\br{\hspace*{\fill} \\* }
+    % Math Jax compatibility definitions
+    \def\gt{>}
+    \def\lt{<}
+    \let\Oldtex\TeX
+    \let\Oldlatex\LaTeX
+    \renewcommand{\TeX}{\textrm{\Oldtex}}
+    \renewcommand{\LaTeX}{\textrm{\Oldlatex}}
+    % Document parameters
+    % Document title
+    \title{manuscript}
+    
+    
+    
+    
+    
+    
+    
+% Pygments definitions
+\makeatletter
+\def\PY@reset{\let\PY@it=\relax \let\PY@bf=\relax%
+    \let\PY@ul=\relax \let\PY@tc=\relax%
+    \let\PY@bc=\relax \let\PY@ff=\relax}
+\def\PY@tok#1{\csname PY@tok@#1\endcsname}
+\def\PY@toks#1+{\ifx\relax#1\empty\else%
+    \PY@tok{#1}\expandafter\PY@toks\fi}
+\def\PY@do#1{\PY@bc{\PY@tc{\PY@ul{%
+    \PY@it{\PY@bf{\PY@ff{#1}}}}}}}
+\def\PY#1#2{\PY@reset\PY@toks#1+\relax+\PY@do{#2}}
+
+\@namedef{PY@tok@w}{\def\PY@tc##1{\textcolor[rgb]{0.73,0.73,0.73}{##1}}}
+\@namedef{PY@tok@c}{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.24,0.48,0.48}{##1}}}
+\@namedef{PY@tok@cp}{\def\PY@tc##1{\textcolor[rgb]{0.61,0.40,0.00}{##1}}}
+\@namedef{PY@tok@k}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\@namedef{PY@tok@kp}{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\@namedef{PY@tok@kt}{\def\PY@tc##1{\textcolor[rgb]{0.69,0.00,0.25}{##1}}}
+\@namedef{PY@tok@o}{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\@namedef{PY@tok@ow}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.67,0.13,1.00}{##1}}}
+\@namedef{PY@tok@nb}{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\@namedef{PY@tok@nf}{\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,1.00}{##1}}}
+\@namedef{PY@tok@nc}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,1.00}{##1}}}
+\@namedef{PY@tok@nn}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,1.00}{##1}}}
+\@namedef{PY@tok@ne}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.80,0.25,0.22}{##1}}}
+\@namedef{PY@tok@nv}{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\@namedef{PY@tok@no}{\def\PY@tc##1{\textcolor[rgb]{0.53,0.00,0.00}{##1}}}
+\@namedef{PY@tok@nl}{\def\PY@tc##1{\textcolor[rgb]{0.46,0.46,0.00}{##1}}}
+\@namedef{PY@tok@ni}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.44,0.44,0.44}{##1}}}
+\@namedef{PY@tok@na}{\def\PY@tc##1{\textcolor[rgb]{0.41,0.47,0.13}{##1}}}
+\@namedef{PY@tok@nt}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\@namedef{PY@tok@nd}{\def\PY@tc##1{\textcolor[rgb]{0.67,0.13,1.00}{##1}}}
+\@namedef{PY@tok@s}{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\@namedef{PY@tok@sd}{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\@namedef{PY@tok@si}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.64,0.35,0.47}{##1}}}
+\@namedef{PY@tok@se}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.67,0.36,0.12}{##1}}}
+\@namedef{PY@tok@sr}{\def\PY@tc##1{\textcolor[rgb]{0.64,0.35,0.47}{##1}}}
+\@namedef{PY@tok@ss}{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\@namedef{PY@tok@sx}{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\@namedef{PY@tok@m}{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\@namedef{PY@tok@gh}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,0.50}{##1}}}
+\@namedef{PY@tok@gu}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.50,0.00,0.50}{##1}}}
+\@namedef{PY@tok@gd}{\def\PY@tc##1{\textcolor[rgb]{0.63,0.00,0.00}{##1}}}
+\@namedef{PY@tok@gi}{\def\PY@tc##1{\textcolor[rgb]{0.00,0.52,0.00}{##1}}}
+\@namedef{PY@tok@gr}{\def\PY@tc##1{\textcolor[rgb]{0.89,0.00,0.00}{##1}}}
+\@namedef{PY@tok@ge}{\let\PY@it=\textit}
+\@namedef{PY@tok@gs}{\let\PY@bf=\textbf}
+\@namedef{PY@tok@gp}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,0.50}{##1}}}
+\@namedef{PY@tok@go}{\def\PY@tc##1{\textcolor[rgb]{0.44,0.44,0.44}{##1}}}
+\@namedef{PY@tok@gt}{\def\PY@tc##1{\textcolor[rgb]{0.00,0.27,0.87}{##1}}}
+\@namedef{PY@tok@err}{\def\PY@bc##1{{\setlength{\fboxsep}{\string -\fboxrule}\fcolorbox[rgb]{1.00,0.00,0.00}{1,1,1}{\strut ##1}}}}
+\@namedef{PY@tok@kc}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\@namedef{PY@tok@kd}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\@namedef{PY@tok@kn}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\@namedef{PY@tok@kr}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\@namedef{PY@tok@bp}{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\@namedef{PY@tok@fm}{\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,1.00}{##1}}}
+\@namedef{PY@tok@vc}{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\@namedef{PY@tok@vg}{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\@namedef{PY@tok@vi}{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\@namedef{PY@tok@vm}{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\@namedef{PY@tok@sa}{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\@namedef{PY@tok@sb}{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\@namedef{PY@tok@sc}{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\@namedef{PY@tok@dl}{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\@namedef{PY@tok@s2}{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\@namedef{PY@tok@sh}{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\@namedef{PY@tok@s1}{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\@namedef{PY@tok@mb}{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\@namedef{PY@tok@mf}{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\@namedef{PY@tok@mh}{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\@namedef{PY@tok@mi}{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\@namedef{PY@tok@il}{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\@namedef{PY@tok@mo}{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\@namedef{PY@tok@ch}{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.24,0.48,0.48}{##1}}}
+\@namedef{PY@tok@cm}{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.24,0.48,0.48}{##1}}}
+\@namedef{PY@tok@cpf}{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.24,0.48,0.48}{##1}}}
+\@namedef{PY@tok@c1}{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.24,0.48,0.48}{##1}}}
+\@namedef{PY@tok@cs}{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.24,0.48,0.48}{##1}}}
+
+\def\PYZbs{\char`\\}
+\def\PYZus{\char`\_}
+\def\PYZob{\char`\{}
+\def\PYZcb{\char`\}}
+\def\PYZca{\char`\^}
+\def\PYZam{\char`\&}
+\def\PYZlt{\char`\<}
+\def\PYZgt{\char`\>}
+\def\PYZsh{\char`\#}
+\def\PYZpc{\char`\%}
+\def\PYZdl{\char`\$}
+\def\PYZhy{\char`\-}
+\def\PYZsq{\char`\'}
+\def\PYZdq{\char`\"}
+\def\PYZti{\char`\~}
+% for compatibility with earlier versions
+\def\PYZat{@}
+\def\PYZlb{[}
+\def\PYZrb{]}
+\makeatother
+
+
+    % For linebreaks inside Verbatim environment from package fancyvrb.
+    \makeatletter
+        \newbox\Wrappedcontinuationbox
+        \newbox\Wrappedvisiblespacebox
+        \newcommand*\Wrappedvisiblespace {\textcolor{red}{\textvisiblespace}}
+        \newcommand*\Wrappedcontinuationsymbol {\textcolor{red}{\llap{\tiny$\m@th\hookrightarrow$}}}
+        \newcommand*\Wrappedcontinuationindent {3ex }
+        \newcommand*\Wrappedafterbreak {\kern\Wrappedcontinuationindent\copy\Wrappedcontinuationbox}
+        % Take advantage of the already applied Pygments mark-up to insert
+        % potential linebreaks for TeX processing.
+        %        {, <, #, %, $, ' and ": go to next line.
+        %        _, }, ^, &, >, - and ~: stay at end of broken line.
+        % Use of \textquotesingle for straight quote.
+        \newcommand*\Wrappedbreaksatspecials {%
+            \def\PYGZus{\discretionary{\char`\_}{\Wrappedafterbreak}{\char`\_}}%
+            \def\PYGZob{\discretionary{}{\Wrappedafterbreak\char`\{}{\char`\{}}%
+            \def\PYGZcb{\discretionary{\char`\}}{\Wrappedafterbreak}{\char`\}}}%
+            \def\PYGZca{\discretionary{\char`\^}{\Wrappedafterbreak}{\char`\^}}%
+            \def\PYGZam{\discretionary{\char`\&}{\Wrappedafterbreak}{\char`\&}}%
+            \def\PYGZlt{\discretionary{}{\Wrappedafterbreak\char`\<}{\char`\<}}%
+            \def\PYGZgt{\discretionary{\char`\>}{\Wrappedafterbreak}{\char`\>}}%
+            \def\PYGZsh{\discretionary{}{\Wrappedafterbreak\char`\#}{\char`\#}}%
+            \def\PYGZpc{\discretionary{}{\Wrappedafterbreak\char`\%}{\char`\%}}%
+            \def\PYGZdl{\discretionary{}{\Wrappedafterbreak\char`\$}{\char`\$}}%
+            \def\PYGZhy{\discretionary{\char`\-}{\Wrappedafterbreak}{\char`\-}}%
+            \def\PYGZsq{\discretionary{}{\Wrappedafterbreak\textquotesingle}{\textquotesingle}}%
+            \def\PYGZdq{\discretionary{}{\Wrappedafterbreak\char`\"}{\char`\"}}%
+            \def\PYGZti{\discretionary{\char`\~}{\Wrappedafterbreak}{\char`\~}}%
+        }
+        % Some characters . , ; ? ! / are not pygmentized.
+        % This macro makes them "active" and they will insert potential linebreaks
+        \newcommand*\Wrappedbreaksatpunct {%
+            \lccode`\~`\.\lowercase{\def~}{\discretionary{\hbox{\char`\.}}{\Wrappedafterbreak}{\hbox{\char`\.}}}%
+            \lccode`\~`\,\lowercase{\def~}{\discretionary{\hbox{\char`\,}}{\Wrappedafterbreak}{\hbox{\char`\,}}}%
+            \lccode`\~`\;\lowercase{\def~}{\discretionary{\hbox{\char`\;}}{\Wrappedafterbreak}{\hbox{\char`\;}}}%
+            \lccode`\~`\:\lowercase{\def~}{\discretionary{\hbox{\char`\:}}{\Wrappedafterbreak}{\hbox{\char`\:}}}%
+            \lccode`\~`\?\lowercase{\def~}{\discretionary{\hbox{\char`\?}}{\Wrappedafterbreak}{\hbox{\char`\?}}}%
+            \lccode`\~`\!\lowercase{\def~}{\discretionary{\hbox{\char`\!}}{\Wrappedafterbreak}{\hbox{\char`\!}}}%
+            \lccode`\~`\/\lowercase{\def~}{\discretionary{\hbox{\char`\/}}{\Wrappedafterbreak}{\hbox{\char`\/}}}%
+            \catcode`\.\active
+            \catcode`\,\active
+            \catcode`\;\active
+            \catcode`\:\active
+            \catcode`\?\active
+            \catcode`\!\active
+            \catcode`\/\active
+            \lccode`\~`\~
+        }
+    \makeatother
+
+    \let\OriginalVerbatim=\Verbatim
+    \makeatletter
+    \renewcommand{\Verbatim}[1][1]{%
+        %\parskip\z@skip
+        \sbox\Wrappedcontinuationbox {\Wrappedcontinuationsymbol}%
+        \sbox\Wrappedvisiblespacebox {\FV@SetupFont\Wrappedvisiblespace}%
+        \def\FancyVerbFormatLine ##1{\hsize\linewidth
+            \vtop{\raggedright\hyphenpenalty\z@\exhyphenpenalty\z@
+                \doublehyphendemerits\z@\finalhyphendemerits\z@
+                \strut ##1\strut}%
+        }%
+        % If the linebreak is at a space, the latter will be displayed as visible
+        % space at end of first line, and a continuation symbol starts next line.
+        % Stretch/shrink are however usually zero for typewriter font.
+        \def\FV@Space {%
+            \nobreak\hskip\z@ plus\fontdimen3\font minus\fontdimen4\font
+            \discretionary{\copy\Wrappedvisiblespacebox}{\Wrappedafterbreak}
+            {\kern\fontdimen2\font}%
+        }%
+
+        % Allow breaks at special characters using \PYG... macros.
+        \Wrappedbreaksatspecials
+        % Breaks at punctuation characters . , ; ? ! and / need catcode=\active
+        \OriginalVerbatim[#1,codes*=\Wrappedbreaksatpunct]%
+    }
+    \makeatother
+
+    % Exact colors from NB
+    \definecolor{incolor}{HTML}{303F9F}
+    \definecolor{outcolor}{HTML}{D84315}
+    \definecolor{cellborder}{HTML}{CFCFCF}
+    \definecolor{cellbackground}{HTML}{F7F7F7}
+
+    % prompt
+    \makeatletter
+    \newcommand{\boxspacing}{\kern\kvtcb@left@rule\kern\kvtcb@boxsep}
+    \makeatother
+    \newcommand{\prompt}[4]{
+        {\ttfamily\llap{{\color{#2}[#3]:\hspace{3pt}#4}}\vspace{-\baselineskip}}
+    }
+    
+
+    
+    % Prevent overflowing lines due to hard-to-break entities
+    \sloppy
+    % Setup hyperref package
+    \hypersetup{
+      breaklinks=true,  % so long urls are correctly broken across lines
+      colorlinks=true,
+      urlcolor=urlcolor,
+      linkcolor=linkcolor,
+      citecolor=citecolor,
+      }
+    % Slightly bigger margins than the latex defaults
+    
+    \geometry{verbose,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
+    
+    
+
+\begin{document}
+    
+    \maketitle
+    
+    
+
+    
+    \hypertarget{physics-informed-regression-of-aircraft-performance-from-minimal-flight-data}{%
+\section{Physics-Informed Regression of Aircraft Performance from
+Minimal Flight
+Data}\label{physics-informed-regression-of-aircraft-performance-from-minimal-flight-data}}
+
+by Peter Sharpe
+
+    \hypertarget{introduction}{%
+\subsection{Introduction}\label{introduction}}
+
+One of the primary goals of an initial flight test of a new aircraft is
+to experimentally determine the aircraft's aerodynamic and propulsive
+performance characteristics.
+
+The desired output of this process typically includes: - The aircraft's
+aerodynamic polar, which gives the relationship between the aircraft's
+lift and drag coefficients. - The aircraft's power curve, which gives
+the required power to maintain level flight as a function of airspeed. -
+The aircraft's propulsive efficiency curve, which yields the overall
+propulsive efficiency, typically as a function of throttle setting
+and/or propeller advance ratio, if relevant.
+
+All three of these results represent sweeps through the aircraft's
+flight envelope, varying the aircraft's airspeed, pitch trim setting,
+and throttle setting, and measuring the resulting lift, drag, and power
+required.
+
+    \hypertarget{traditional-flight-test-measurement-methods}{%
+\subsubsection{Traditional Flight Test Measurement
+Methods}\label{traditional-flight-test-measurement-methods}}
+
+Typically, these performance outputs are obtained by performing an
+extensive campaign of careful, controlled flight experiments at
+quasi-steady flight conditions.
+
+    \hypertarget{aerodynamic-polar}{%
+\paragraph{Aerodynamic Polar}\label{aerodynamic-polar}}
+
+For example, the aerodynamic polar is commonly measured by performing a
+series of long, steady power-off glides at different airspeeds. An
+implicit assumption here is that pitch trim is adjusted to maintain
+these airspeeds. Windmilling drag is also estimated and calibrated out,
+although this introduces significant uncertainty. The glide ratio (or
+equivalently, \(L/D\)) is then measured, yielding
+
+\[(L/D) = \frac{h(t_1) - h(t_2)}{V \cdot (t_2 - t_1)}\]
+
+where \(h(t)\) represents the altitude at time \(t\), and \(V\)
+represents the airspeed. The drag is then computed as \(D = W / (L/D)\),
+and \(C_L\) and \(C_D\) can be nondimensionalized from here.
+
+    \hypertarget{power-curve}{%
+\paragraph{Power Curve}\label{power-curve}}
+
+Similarly, the power curve is often measured by flying in steady level
+flight for an extended period at a given airspeed, adjusting pitch trim
+as needed. The throttle setting is required, and this is then repeated
+for various airspeeds.
+
+    \hypertarget{propulsive-efficiency}{%
+\paragraph{Propulsive Efficiency}\label{propulsive-efficiency}}
+
+The propulsive efficiency can be roughly estimated based on these
+experiments as well. One possible procedure is as follows:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  The input power to the propulsion system \(P_{\rm in}\) is measured at
+  a given throttle setting. In a liquid-fueled airplane, this can be
+  computing using the fuel flow rate at a given throttle setting (read
+  off the panel via a fuel flow meter) and the specific energy of the
+  fuel. For an electric airplane, one can measure the battery current
+  and voltage.
+\item
+  We observe the steady-state climb/sink rate of the aircraft at this
+  throttle setting and we compare this to the power-off sink rate. The
+  difference between these two sink rates represents the air power done
+  by the propulsion system. The air power can be computed as:
+\end{enumerate}
+
+\[P_{\rm air}=T \cdot V = m g \left( \frac{dh}{dt}\Big |_\text{power on} - \frac{dh}{dt}\Big |_\text{power off} \right)\]
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  Then, we can compute the propulsive efficiency as the ratio of the
+  input power to the air power:
+\end{enumerate}
+
+\[\eta = \frac{P_{\rm air}}{P_{\rm in}}\]
+
+    \hypertarget{limitations-of-traditional-methods}{%
+\subsubsection{Limitations of Traditional
+Methods}\label{limitations-of-traditional-methods}}
+
+Traditional methods for measuring aerodynamic and propulsive performance
+have several limitations. By far the biggest limitation is that they
+require vast amounts of flight time to obtain a sufficient number of
+data points to characterize the aircraft's performance. This is both
+expensive and time-consuming.
+
+Furthermore, the aircraft must be flown at precisely-controlled
+conditions. This can be frustrating and tedious for the pilot, and it
+can also be dangerous if the aircraft is flown for an extended duration
+at conditions that are close to the edge of the flight envelope (e.g.,
+behind the power curve on a not-yet-characterized experimental
+airplane).
+
+Traditional methods also make no direct estimate of sensor noise (and
+hence, uncertainty) - data is collected and averaged until the
+experimenter is satisfied that the data is ``good enough''. This is a
+subjective process, and it is difficult to quantify the uncertainty in
+the resulting performance estimates.
+
+Finally, traditional methods are not well-suited to estimating the
+performance of an aircraft that is not in steady flight. For example,
+data recorded during an aircraft's climb or descent to flight test
+altitude is typically discarded, which is wasteful; ideally, every
+single second of data should be used to refine our estimate of the
+aircraft's performance.
+
+    \hypertarget{inference-based-flight-testing-methods}{%
+\subsubsection{Inference-Based Flight Testing
+Methods}\label{inference-based-flight-testing-methods}}
+
+By contrast, we propose a (new?) method of estimating these performance
+characteristics which relies on a fundamentally different perspective
+about flight testing. Traditionally, flight testing is viewed as a
+process of \emph{pure measurement}, based only on analyzing the data
+itself. By contrast, we view the aircraft flight test as a
+\emph{data-generating process}, from which we can \emph{infer}
+performance relationships. This might sound like a small difference, but
+it allows us to recognize that we have more information than just the
+data itself:
+
+\begin{itemize}
+\tightlist
+\item
+  We know that the true state of the aircraft must follow Newtonian
+  physics. This allows us to perform relatively robust correction for
+  unsteady effects.
+\item
+  We have some priors (e.g., informed guesses) about what the aircraft's
+  aerodynamic and propulsive performance characteristics should be.
+  Incorporation of physics-based performance models embeds our physical
+  understanding of the aircraft into the estimation process, improving
+  accuracy.
+\end{itemize}
+
+Finally, we can also make advances at the level of the sensor data by
+rigorously estimating the sensor noise \emph{using the data itself},
+which allows cleaner data inputs to this entire model. The following
+figure illustrates our proposed approach:
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{k+kn}{import} \PY{n+nn}{graphviz}
+
+\PY{n}{gv\PYZus{}settings} \PY{o}{=} \PY{n+nb}{dict}\PY{p}{(}
+    \PY{n}{graph\PYZus{}attr}\PY{o}{=}\PY{n+nb}{dict}\PY{p}{(}
+        \PY{n}{rankdir}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{TB}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+        \PY{n}{nodesep}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{0.2}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+        \PY{n}{bgcolor}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{\PYZsh{}FFFFFF}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+        \PY{n}{splines}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{ortho}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+    \PY{p}{)}\PY{p}{,}
+    \PY{n}{node\PYZus{}attr}\PY{o}{=}\PY{n+nb}{dict}\PY{p}{(}
+        \PY{n}{shape}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{box}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+        \PY{n}{style}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{rounded,filled}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+        \PY{n}{fillcolor}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{\PYZsh{}E9F1F7}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+        \PY{n}{fontname}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Helvetica}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+        \PY{n}{fontsize}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{12}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+        \PY{n}{color}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{\PYZsh{}333333}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+    \PY{p}{)}\PY{p}{,}
+    \PY{n}{edge\PYZus{}attr}\PY{o}{=}\PY{n+nb}{dict}\PY{p}{(}
+        \PY{n}{arrowhead}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{vee}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+        \PY{n}{arrowtail}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{none}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+        \PY{n}{fontname}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Helvetica}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+        \PY{n}{fontsize}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{10}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+        \PY{n}{color}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{\PYZsh{}555555}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+    \PY{p}{)}\PY{p}{,}
+\PY{p}{)}
+
+\PY{n}{g} \PY{o}{=} \PY{n}{graphviz}\PY{o}{.}\PY{n}{Digraph}\PY{p}{(}\PY{o}{*}\PY{o}{*}\PY{n}{gv\PYZus{}settings}\PY{p}{)}
+
+\PY{n}{title\PYZus{}style} \PY{o}{=} \PY{n+nb}{dict}\PY{p}{(}\PY{n}{fontname}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Helvetica\PYZhy{}Bold}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{fontsize}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{16}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{shape}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{plaintext}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+\PY{n}{hidden\PYZus{}style} \PY{o}{=} \PY{n+nb}{dict}\PY{p}{(}\PY{n}{fillcolor}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{white}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+\PY{n}{model\PYZus{}style} \PY{o}{=} \PY{n+nb}{dict}\PY{p}{(}\PY{n}{fillcolor}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{\PYZsh{}F7F1E9}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+
+\PY{c+c1}{\PYZsh{} Create a node for the title}
+\PY{n}{g}\PY{o}{.}\PY{n}{attr}\PY{p}{(}
+    \PY{n}{label}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Inference\PYZhy{}Based Flight Data Reconstruction}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{n}{labelloc}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{t}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{n}{fontname}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Helvetica\PYZhy{}Bold}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{fontsize}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{18}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{shape}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{plaintext}\PY{l+s+s1}{\PYZsq{}}
+\PY{p}{)}
+
+\PY{n}{g}\PY{o}{.}\PY{n}{node}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{true}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{True data}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{o}{*}\PY{o}{*}\PY{n}{hidden\PYZus{}style}\PY{p}{)}
+\PY{n}{g}\PY{o}{.}\PY{n}{node}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{sensor}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Sensor data}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+\PY{n}{g}\PY{o}{.}\PY{n}{node}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{noise}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{True noise}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{o}{*}\PY{o}{*}\PY{n}{hidden\PYZus{}style}\PY{p}{)}
+\PY{n}{g}\PY{o}{.}\PY{n}{node}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{estimate}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Estimate of}\PY{l+s+se}{\PYZbs{}n}\PY{l+s+s2}{true data}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+\PY{n}{g}\PY{o}{.}\PY{n}{node}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{noise\PYZus{}estimate}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{(Explicit) Estimate of noise,}\PY{l+s+se}{\PYZbs{}n}\PY{l+s+s2}{computed from sensor data}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+
+\PY{n}{g}\PY{o}{.}\PY{n}{edge}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{true}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{sensor}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{style}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{dashed}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+\PY{n}{g}\PY{o}{.}\PY{n}{edge}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{noise}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{sensor}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{style}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{dashed}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+
+\PY{n}{g}\PY{o}{.}\PY{n}{edge}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{sensor}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{estimate}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+\PY{n}{g}\PY{o}{.}\PY{n}{edge}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{sensor}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{noise\PYZus{}estimate}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+
+\PY{n}{g}\PY{o}{.}\PY{n}{node}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{model\PYZus{}unsolved}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Aerodynamic / Propulsive model}\PY{l+s+se}{\PYZbs{}n}\PY{l+s+s2}{with unknown coefficients}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{o}{*}\PY{o}{*}\PY{n}{model\PYZus{}style}\PY{p}{)}
+\PY{n}{g}\PY{o}{.}\PY{n}{node}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{newton}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Newtonian dynamics}\PY{l+s+se}{\PYZbs{}n}\PY{l+s+s2}{for unsteady corrections}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{o}{*}\PY{o}{*}\PY{n}{model\PYZus{}style}\PY{p}{)}
+
+\PY{n}{g}\PY{o}{.}\PY{n}{node}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{energy\PYZus{}balance}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Energy\PYZhy{}balance reconstruction}\PY{l+s+se}{\PYZbs{}n}\PY{l+s+s2}{(compute energy residuals)}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+
+\PY{n}{g}\PY{o}{.}\PY{n}{node}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{opti}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Optimization}\PY{l+s+se}{\PYZbs{}n}\PY{l+s+s2}{(minimize residuals)}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{o}{*}\PY{o}{*}\PY{n}{model\PYZus{}style}\PY{p}{)}
+
+\PY{n}{g}\PY{o}{.}\PY{n}{node}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{model\PYZus{}solved}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Aerodynamic / Propulsive model}\PY{l+s+se}{\PYZbs{}n}\PY{l+s+s2}{with known coefficients}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{o}{*}\PY{o}{*}\PY{n}{model\PYZus{}style}\PY{p}{)}
+
+\PY{n}{g}\PY{o}{.}\PY{n}{edge}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{newton}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{energy\PYZus{}balance}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+\PY{n}{g}\PY{o}{.}\PY{n}{edge}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{estimate}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{energy\PYZus{}balance}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+\PY{n}{g}\PY{o}{.}\PY{n}{edge}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{model\PYZus{}unsolved}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{energy\PYZus{}balance}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+
+\PY{n}{g}\PY{o}{.}\PY{n}{edge}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{energy\PYZus{}balance}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{opti}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+
+\PY{n}{g}\PY{o}{.}\PY{n}{edge}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{opti}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{model\PYZus{}solved}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+
+\PY{n}{g}
+\end{Verbatim}
+\end{tcolorbox}
+ 
+            
+\prompt{Out}{outcolor}{1}{}
+    
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_8_0.pdf}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+
+    A fair point of hesitancy here might be the fact that applying these
+corrections to recover useful insights from noisy, limited, unsteady
+data takes a significant amount of algorithmic development and
+mathematical complexity. However, algorithms are cheap, and more
+importantly, \emph{repeatable} - so, once a workflow is established, it
+can easily be applied to a large number of flight test campaigns. By
+contrast, flight-test hours and improved instrumentation is
+extraordinarily expensive - so, it is worth investing in the development
+of algorithms that can extract the maximum amount of information from
+the data that we do collect.
+
+    \hypertarget{a-minimal-flight-test-dataset}{%
+\subsection{A Minimal Flight Test
+Dataset}\label{a-minimal-flight-test-dataset}}
+
+    To illustrate our proposed flight test procedure, this manuscript will
+use example data from a flight test conducted during MIT 16.821: Flight
+Vehicle Development, a senior-level aircraft design/build/fly capstone
+course at MIT AeroAstro. The flown aircraft, named \emph{Solar Surfer},
+is a remote-controlled solar-electric seaplane design with a 14-foot
+wingspan. The as-flown all-up mass is 9.4 kg.
+
+    
+
+    General specifications of the aircraft can be found in the early design
+drawing that is reproduced below. While this drawing does not reflect
+as-built weights or various planform adjustments that were made during
+preliminary design and construction, the overall configuration and
+performance numbers are representative of the aircraft that was flown.
+
+    
+
+    The aircraft was flown in the vicinity of the Charles river basin near
+Cambridge, MA. Five tests were conducted on the morning of May 3, 2023,
+of which two were airborne flight tests. The final airborne flight test
+lasted approximately 260 seconds (4.3 minutes), beginning and ending
+with a successful water takeoff and landing.
+
+A simple racetrack-like pattern was flown, as shown in the figure below.
+Winds were calm at roughly 1.5 m/s from the south.
+
+\begin{verbatim}
+<img src="./assets/flight3-circuit.png" alt="path" style="max-width:60%;">
+\end{verbatim}
+
+The following relevant sensors were on-board the aircraft: * A 9-DOF IMU
+(accelerometer, gyroscope, magnetometer), logging at 2 Hz * A
+pitot-static probe, logging at 5 Hz * A barometric altimeter, logging at
+5 Hz * A GPS, logging at approximately 2 Hz, with a few delayed or
+missed samples * A battery voltage and current monitor, logging at 5 Hz
+
+    Below is an example view of the raw data from the sensors during the
+flight:
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{2}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Set up general imports and locate data sources}
+
+\PY{k+kn}{import} \PY{n+nn}{aerosandbox}\PY{n+nn}{.}\PY{n+nn}{numpy} \PY{k}{as} \PY{n+nn}{np}
+\PY{k+kn}{import} \PY{n+nn}{matplotlib}\PY{n+nn}{.}\PY{n+nn}{pyplot} \PY{k}{as} \PY{n+nn}{plt}
+\PY{k+kn}{import} \PY{n+nn}{aerosandbox}\PY{n+nn}{.}\PY{n+nn}{tools}\PY{n+nn}{.}\PY{n+nn}{pretty\PYZus{}plots} \PY{k}{as} \PY{n+nn}{p}
+\PY{k+kn}{import} \PY{n+nn}{pandas} \PY{k}{as} \PY{n+nn}{pd}
+\PY{k+kn}{from} \PY{n+nn}{scipy} \PY{k+kn}{import} \PY{n}{interpolate}
+
+\PY{n}{timestamp\PYZus{}0} \PY{o}{=} \PY{l+m+mi}{539330432}
+
+\PY{n}{raw\PYZus{}time\PYZus{}takeoff} \PY{o}{=} \PY{l+m+mi}{577}
+\PY{n}{raw\PYZus{}time\PYZus{}landing} \PY{o}{=} \PY{l+m+mi}{840}
+
+\PY{n}{t\PYZus{}max} \PY{o}{=} \PY{n}{raw\PYZus{}time\PYZus{}landing} \PY{o}{\PYZhy{}} \PY{n}{raw\PYZus{}time\PYZus{}takeoff}
+
+\PY{n}{data\PYZus{}sources} \PY{o}{=} \PY{p}{\PYZob{}}
+    \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{airspeed}\PY{l+s+s2}{\PYZdq{}}  \PY{p}{:} \PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{./data/flight3\PYZus{}airspeed\PYZus{}validated\PYZus{}0.csv}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{calibrated\PYZus{}airspeed\PYZus{}m\PYZus{}s}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}\PY{p}{,}
+    \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{barometer}\PY{l+s+s2}{\PYZdq{}} \PY{p}{:} \PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{./data/flight3\PYZus{}sensor\PYZus{}baro\PYZus{}0.csv}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{pressure}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}\PY{p}{,}
+    \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{baro\PYZus{}alt}\PY{l+s+s2}{\PYZdq{}}  \PY{p}{:} \PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{./data/flight3\PYZus{}vehicle\PYZus{}air\PYZus{}data\PYZus{}0.csv}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{baro\PYZus{}alt\PYZus{}meter}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}\PY{p}{,}
+    \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{gps\PYZus{}alt\PYZus{}mm}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:} \PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{./data/flight3\PYZus{}vehicle\PYZus{}gps\PYZus{}position\PYZus{}0.csv}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{alt}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}\PY{p}{,}
+    \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{voltage}\PY{l+s+s2}{\PYZdq{}}   \PY{p}{:} \PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{./data/flight3\PYZus{}battery\PYZus{}status\PYZus{}1.csv}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{voltage\PYZus{}v}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}\PY{p}{,}
+    \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{current}\PY{l+s+s2}{\PYZdq{}}   \PY{p}{:} \PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{./data/flight3\PYZus{}battery\PYZus{}status\PYZus{}1.csv}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{current\PYZus{}a}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}\PY{p}{,}
+\PY{p}{\PYZcb{}}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{3}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n}{fig}\PY{p}{,} \PY{n}{ax} \PY{o}{=} \PY{n}{plt}\PY{o}{.}\PY{n}{subplots}\PY{p}{(}\PY{n}{figsize}\PY{o}{=}\PY{p}{(}\PY{l+m+mi}{7}\PY{p}{,} \PY{l+m+mf}{6.4}\PY{p}{)}\PY{p}{)}
+
+\PY{n}{speed\PYZus{}color} \PY{o}{=} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{darkgreen}\PY{l+s+s2}{\PYZdq{}}
+\PY{n}{alt\PYZus{}color} \PY{o}{=} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{navy}\PY{l+s+s2}{\PYZdq{}}
+\PY{n}{voltage\PYZus{}color} \PY{o}{=} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{red}\PY{l+s+s2}{\PYZdq{}}
+\PY{n}{current\PYZus{}color} \PY{o}{=} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{darkgoldenrod}\PY{l+s+s2}{\PYZdq{}}
+
+
+\PY{k}{def} \PY{n+nf}{simple\PYZus{}read}\PY{p}{(}\PY{n}{name}\PY{p}{)}\PY{p}{:}
+    \PY{n}{source} \PY{o}{=} \PY{n}{data\PYZus{}sources}\PY{p}{[}\PY{n}{name}\PY{p}{]}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}
+    \PY{n}{colname} \PY{o}{=} \PY{n}{data\PYZus{}sources}\PY{p}{[}\PY{n}{name}\PY{p}{]}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}
+
+    \PY{n}{df} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{read\PYZus{}csv}\PY{p}{(}\PY{n}{source}\PY{p}{)}
+
+    \PY{n}{raw\PYZus{}time} \PY{o}{=} \PY{p}{(}\PY{n}{df}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{timestamp}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{o}{.}\PY{n}{values} \PY{o}{\PYZhy{}} \PY{n}{timestamp\PYZus{}0}\PY{p}{)} \PY{o}{/} \PY{l+m+mf}{1e6}
+    \PY{n}{data} \PY{o}{=} \PY{n}{df}\PY{p}{[}\PY{n}{colname}\PY{p}{]}\PY{o}{.}\PY{n}{values}
+
+    \PY{n}{mask} \PY{o}{=} \PY{p}{(}\PY{n}{raw\PYZus{}time} \PY{o}{\PYZgt{}} \PY{n}{raw\PYZus{}time\PYZus{}takeoff}\PY{p}{)} \PY{o}{\PYZam{}} \PY{p}{(}\PY{n}{raw\PYZus{}time} \PY{o}{\PYZlt{}} \PY{n}{raw\PYZus{}time\PYZus{}landing}\PY{p}{)}
+
+    \PY{n}{time} \PY{o}{=} \PY{n}{raw\PYZus{}time}\PY{p}{[}\PY{n}{mask}\PY{p}{]} \PY{o}{\PYZhy{}} \PY{n}{raw\PYZus{}time\PYZus{}takeoff}
+    \PY{n}{data} \PY{o}{=} \PY{n}{data}\PY{p}{[}\PY{n}{mask}\PY{p}{]}
+
+    \PY{k}{return} \PY{n}{time}\PY{p}{,} \PY{n}{data}
+
+
+\PY{n}{plt}\PY{o}{.}\PY{n}{plot}\PY{p}{(}
+    \PY{o}{*}\PY{n}{simple\PYZus{}read}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{airspeed}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}\PY{p}{,}
+    \PY{n}{color}\PY{o}{=}\PY{n}{speed\PYZus{}color}\PY{p}{,} \PY{n}{alpha}\PY{o}{=}\PY{l+m+mf}{0.5}\PY{p}{,}
+    \PY{n}{label}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Airspeed [m/s]}\PY{l+s+s2}{\PYZdq{}}
+\PY{p}{)}
+\PY{n}{baro\PYZus{}data} \PY{o}{=} \PY{n}{simple\PYZus{}read}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{baro\PYZus{}alt}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+\PY{n}{baro\PYZus{}altitude\PYZus{}at\PYZus{}takeoff} \PY{o}{=} \PY{n}{baro\PYZus{}data}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}
+\PY{n}{plt}\PY{o}{.}\PY{n}{plot}\PY{p}{(}
+    \PY{n}{baro\PYZus{}data}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{p}{,} \PY{n}{baro\PYZus{}data}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]} \PY{o}{\PYZhy{}} \PY{n}{baro\PYZus{}altitude\PYZus{}at\PYZus{}takeoff}\PY{p}{,}
+    \PY{n}{color}\PY{o}{=}\PY{n}{alt\PYZus{}color}\PY{p}{,} \PY{n}{alpha}\PY{o}{=}\PY{l+m+mf}{0.5}\PY{p}{,}
+    \PY{n}{label}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Altitude AGL (from barometer) [m]}\PY{l+s+s2}{\PYZdq{}}
+\PY{p}{)}
+\PY{n}{plt}\PY{o}{.}\PY{n}{plot}\PY{p}{(}
+    \PY{o}{*}\PY{n}{simple\PYZus{}read}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{voltage}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}\PY{p}{,}
+    \PY{n}{color}\PY{o}{=}\PY{n}{voltage\PYZus{}color}\PY{p}{,} \PY{n}{alpha}\PY{o}{=}\PY{l+m+mf}{0.5}\PY{p}{,}
+    \PY{n}{label}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Battery Voltage [V]}\PY{l+s+s2}{\PYZdq{}}
+\PY{p}{)}
+\PY{n}{plt}\PY{o}{.}\PY{n}{plot}\PY{p}{(}
+    \PY{o}{*}\PY{n}{simple\PYZus{}read}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{current}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}\PY{p}{,}
+    \PY{n}{color}\PY{o}{=}\PY{n}{current\PYZus{}color}\PY{p}{,} \PY{n}{alpha}\PY{o}{=}\PY{l+m+mf}{0.5}\PY{p}{,}
+    \PY{n}{label}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Battery Current [A]}\PY{l+s+s2}{\PYZdq{}}
+\PY{p}{)}
+
+\PY{n}{plt}\PY{o}{.}\PY{n}{xlabel}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Time after Takeoff [seconds]}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+\PY{n}{plt}\PY{o}{.}\PY{n}{ylabel}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Value (see legend)}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+\PY{n}{plt}\PY{o}{.}\PY{n}{title}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Raw Sensor Data}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+\PY{n}{p}\PY{o}{.}\PY{n}{set\PYZus{}ticks}\PY{p}{(}\PY{l+m+mi}{20}\PY{p}{,} \PY{l+m+mi}{5}\PY{p}{,} \PY{l+m+mi}{5}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{)}
+\PY{n}{plt}\PY{o}{.}\PY{n}{xlim}\PY{p}{(}\PY{o}{\PYZhy{}}\PY{l+m+mi}{1}\PY{p}{,} \PY{n}{t\PYZus{}max} \PY{o}{+} \PY{l+m+mi}{1}\PY{p}{)}
+\PY{n}{plt}\PY{o}{.}\PY{n}{ylim}\PY{p}{(}\PY{n}{bottom}\PY{o}{=}\PY{o}{\PYZhy{}}\PY{l+m+mi}{2}\PY{p}{)}
+\PY{n}{p}\PY{o}{.}\PY{n}{show\PYZus{}plot}\PY{p}{(}
+    \PY{n}{dpi}\PY{o}{=}\PY{l+m+mi}{300}
+\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_18_0.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    Overall, the data is reasonable, and we can clearly identify takeoff and
+landing by the strong increase in barometric altimeter noise near
+\(t=0\ \rm sec\) and \(t=263\ \rm sec\). We can also identify several
+flight phases: a high-speed pass that was conducted near
+\(t=150\ \rm sec\), and gliding periods near \(t=40\ \rm sec\),
+\(t=210\ \rm sec\), and \(t=250\ \rm sec\).
+
+There are two primary problems with the data we have. Firstly, all of
+the data sources, and in particular the airspeed sensor, yield noisy
+measurements. The unsteady corrections that we will later implement
+require taking the derivative of this data; this is a problem, because
+taking the derivative of noisy data tends to amplify the noise further.
+
+Secondly, the total amount of data is extremely limited, both in
+duration and sample rate. For example, there are only
+\textasciitilde1,200 data points \textbf{in total} for each of the
+plotted sensor traces, and this is before eliminating noise. After
+eliminating noise (which effectively acts as a low-pass filter on our
+data, as noise tends to be relatively high-frequency), the effective
+amount of information we have from the sensors is extremely low. While
+1,200 data points might be sufficient to characterize the aircraft
+flight performance at a single operating point (i.e., a single power
+setting and airspeed), it is typically a vastly insufficient quantity of
+data to characterize any substantial portion of the flight envelope.
+
+Consider that even the most sophisticated techniques for system
+identification via statistical inference require the system to be
+observable in some form - no amount of math can recover a signal that is
+simply not present in the data. This is difficult, because after noise
+removal, the data really no more than perhaps a half-dozen ``system
+excitations'' from which we can infer aircraft performance. As a more
+intuitive analogy, consider that even the world's best test pilot can't
+accurately characterize the handling qualities of the aircraft without
+observing at least a few flight maneuvers.
+
+    For these reasons, this dataset makes a good example case for what kinds
+of flight data reconstruction are possible with very limited, noisy data
+using statistical inference techniques and corrections from unsteady
+flight physics.
+
+    \hypertarget{before-picture}{%
+\subsubsection{``Before'' Picture}\label{before-picture}}
+
+    To give us an idea of what we're working with, let's
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{4}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n}{\PYZus{}}\PY{p}{,} \PY{n}{airspeed} \PY{o}{=} \PY{n}{simple\PYZus{}read}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{airspeed}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+\PY{n}{\PYZus{}}\PY{p}{,} \PY{n}{baro\PYZus{}alt} \PY{o}{=} \PY{n}{simple\PYZus{}read}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{baro\PYZus{}alt}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+\PY{n}{\PYZus{}}\PY{p}{,} \PY{n}{voltage} \PY{o}{=} \PY{n}{simple\PYZus{}read}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{voltage}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+\PY{n}{\PYZus{}}\PY{p}{,} \PY{n}{current} \PY{o}{=} \PY{n}{simple\PYZus{}read}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{current}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+
+\PY{k+kn}{from} \PY{n+nn}{aerosandbox}\PY{n+nn}{.}\PY{n+nn}{tools}\PY{n+nn}{.}\PY{n+nn}{statistics} \PY{k+kn}{import} \PY{n}{time\PYZus{}series\PYZus{}uncertainty\PYZus{}quantification} \PY{k}{as} \PY{n}{tsuq}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{19}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n}{fig}\PY{p}{,} \PY{n}{ax} \PY{o}{=} \PY{n}{plt}\PY{o}{.}\PY{n}{subplots}\PY{p}{(}\PY{p}{)}
+
+\PY{n}{np}\PY{o}{.}\PY{n}{savez}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{raw\PYZus{}data.npz}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{airspeed}\PY{o}{=}\PY{n}{airspeed}\PY{p}{,} \PY{n}{baro\PYZus{}alt}\PY{o}{=}\PY{n}{baro\PYZus{}alt}\PY{p}{,} \PY{n}{voltage}\PY{o}{=}\PY{n}{voltage}\PY{p}{,} \PY{n}{current}\PY{o}{=}\PY{n}{current}\PY{p}{)}
+
+\PY{n}{p}\PY{o}{.}\PY{n}{plot\PYZus{}with\PYZus{}bootstrapped\PYZus{}uncertainty}\PY{p}{(}
+    \PY{n}{airspeed}\PY{p}{,} \PY{p}{(}\PY{n}{voltage}\PY{o}{*}\PY{n}{current}\PY{p}{)}\PY{p}{,}
+    \PY{n}{x\PYZus{}stdev} \PY{o}{=} \PY{k+kc}{None}\PY{p}{,}
+    \PY{n}{y\PYZus{}stdev} \PY{o}{=} \PY{k+kc}{None}\PY{p}{,}
+    \PY{n}{ci}\PY{o}{=}\PY{p}{[}\PY{l+m+mf}{0.5}\PY{p}{,} \PY{l+m+mf}{0.75}\PY{p}{,} \PY{l+m+mf}{0.95}\PY{p}{]}\PY{p}{,}
+    \PY{n}{color}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{red}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{n}{n\PYZus{}bootstraps}\PY{o}{=}\PY{l+m+mi}{100}\PY{p}{,}
+\PY{p}{)}
+\PY{n}{plt}\PY{o}{.}\PY{n}{ylim}\PY{p}{(}\PY{o}{\PYZhy{}}\PY{l+m+mi}{10}\PY{p}{,} \PY{l+m+mi}{800}\PY{p}{)}
+\PY{n}{p}\PY{o}{.}\PY{n}{show\PYZus{}plot}\PY{p}{(}
+    \PY{n}{xlabel}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Airspeed [m/s]}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{n}{ylabel}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Power [W]}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{n}{title}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Raw Data}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{n}{dpi}\PY{o}{=}\PY{l+m+mi}{300}
+\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+Estimated x standard deviation: 0.26614729326103154
+Estimated y standard deviation: 6.563188911834445
+    \end{Verbatim}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+Bootstrapping: 100\%|██████████| 100/100 [00:00<00:00, 238.89 samples/s]
+C:\textbackslash{}Users\textbackslash{}peter\textbackslash{}miniconda3\textbackslash{}lib\textbackslash{}site-packages\textbackslash{}numpy\textbackslash{}lib\textbackslash{}nanfunctions.py:1577:
+RuntimeWarning: All-NaN slice encountered
+  result = np.apply\_along\_axis(\_nanquantile\_1d, axis, a, q,
+    \end{Verbatim}
+
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_24_2.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \hypertarget{sensor-data-pre-processing}{%
+\subsection{Sensor Data
+Pre-Processing}\label{sensor-data-pre-processing}}
+
+    The first contribution here is to develop a (new?) means of
+pre-processing the sensor data. Traditionally, noise is removed by
+simple averaging; after this process is complete, any uncertainty in the
+data is typically not considered, and the average is regarded as the
+ground truth. This works fine for traditional steady analysis where
+there is a wealth of data that we can average over.
+
+However, in cases where data is limited, we're strongly encouraged to
+find a way to extract some amount of information from unsteady data.
+This is difficult, because it forces us to directly deal with the sensor
+noise (and embed priors about the bias-variance tradeoff of data),
+rather than hand-waving it away by averaging.
+
+As an illustrative example, imagine that we wish to reconstruct a
+\emph{truth} estimate of the airspeed from the example dataset. This
+truth value is not directly observable, although data from an associated
+airspeed sensor is. However, this sensor data has noise; hence, any
+attempt to reconstruct the truth value must adopt a strategy to
+separating the noise from the data.
+
+However, there are (literally) an infinite number of possible strategies
+that one can use to do this noise removal, depending on our embedded
+assumptions about how sensor noise is entering our data-generating
+process. For example, which of the following three possible curves best
+estimates the true underlying state of the vehicle?
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{6}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n}{t}\PY{p}{,} \PY{n}{a} \PY{o}{=} \PY{n}{simple\PYZus{}read}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{airspeed}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+
+\PY{n}{assumed\PYZus{}stdev} \PY{o}{=} \PY{p}{[}
+    \PY{l+m+mi}{0}\PY{p}{,}
+    \PY{n}{np}\PY{o}{.}\PY{n}{std}\PY{p}{(}\PY{n}{np}\PY{o}{.}\PY{n}{diff}\PY{p}{(}\PY{n}{np}\PY{o}{.}\PY{n}{diff}\PY{p}{(}\PY{n}{a}\PY{p}{)}\PY{p}{)}\PY{p}{)} \PY{o}{/} \PY{n}{np}\PY{o}{.}\PY{n}{sqrt}\PY{p}{(}\PY{l+m+mi}{6}\PY{p}{)}\PY{p}{,}
+    \PY{l+m+mf}{0.8}
+\PY{p}{]}
+\PY{n}{colors} \PY{o}{=} \PY{p}{[}
+    \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{tomato}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{teal}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{darkviolet}\PY{l+s+s2}{\PYZdq{}}
+\PY{p}{]}
+\PY{n}{names} \PY{o}{=} \PY{p}{[}
+    \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Overfitted}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Our Method}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Underfitted}\PY{l+s+s2}{\PYZdq{}}
+\PY{p}{]}
+
+\PY{n}{estimators} \PY{o}{=} \PY{p}{[}
+    \PY{n}{interpolate}\PY{o}{.}\PY{n}{UnivariateSpline}\PY{p}{(}
+        \PY{n}{x}\PY{o}{=}\PY{n}{t}\PY{p}{,}
+        \PY{n}{y}\PY{o}{=}\PY{n}{a}\PY{p}{,}
+        \PY{n}{k}\PY{o}{=}\PY{l+m+mi}{5}\PY{p}{,}
+        \PY{n}{w}\PY{o}{=}\PY{l+m+mi}{1} \PY{o}{/} \PY{n}{s} \PY{o}{*} \PY{n}{np}\PY{o}{.}\PY{n}{ones\PYZus{}like}\PY{p}{(}\PY{n}{a}\PY{p}{)} \PY{k}{if} \PY{n}{s} \PY{o}{\PYZgt{}} \PY{l+m+mi}{0} \PY{k}{else} \PY{k+kc}{None}\PY{p}{,}
+        \PY{n}{s}\PY{o}{=}\PY{n+nb}{len}\PY{p}{(}\PY{n}{a}\PY{p}{)} \PY{k}{if} \PY{n}{s} \PY{o}{\PYZgt{}} \PY{l+m+mi}{0} \PY{k}{else} \PY{l+m+mi}{0}\PY{p}{,}
+        \PY{n}{check\PYZus{}finite}\PY{o}{=}\PY{k+kc}{True}\PY{p}{,}
+        \PY{n}{ext}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{raise}\PY{l+s+s1}{\PYZsq{}}
+    \PY{p}{)}
+    \PY{k}{for} \PY{n}{s} \PY{o+ow}{in} \PY{n}{assumed\PYZus{}stdev}
+\PY{p}{]}
+
+\PY{n}{fig}\PY{p}{,} \PY{n}{ax} \PY{o}{=} \PY{n}{plt}\PY{o}{.}\PY{n}{subplots}\PY{p}{(}
+    \PY{l+m+mi}{1}\PY{p}{,} \PY{n+nb}{len}\PY{p}{(}\PY{n}{assumed\PYZus{}stdev}\PY{p}{)}\PY{p}{,} \PY{n}{figsize}\PY{o}{=}\PY{p}{(}\PY{l+m+mi}{7}\PY{p}{,} \PY{l+m+mf}{6.4}\PY{p}{)}\PY{p}{,}
+    \PY{n}{sharey}\PY{o}{=}\PY{k+kc}{True}
+\PY{p}{)}
+
+\PY{k}{for} \PY{n}{i} \PY{o+ow}{in} \PY{n+nb}{range}\PY{p}{(}\PY{n+nb}{len}\PY{p}{(}\PY{n}{assumed\PYZus{}stdev}\PY{p}{)}\PY{p}{)}\PY{p}{:}
+    \PY{n}{plt}\PY{o}{.}\PY{n}{sca}\PY{p}{(}\PY{n}{ax}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{p}{)}
+    \PY{n}{plt}\PY{o}{.}\PY{n}{plot}\PY{p}{(}
+        \PY{n}{t}\PY{p}{,} \PY{n}{a}\PY{p}{,}
+        \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{.k}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+        \PY{n}{label}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Raw Data}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+        \PY{n}{alpha}\PY{o}{=}\PY{l+m+mf}{0.5}\PY{p}{,}
+        \PY{n}{markersize}\PY{o}{=}\PY{l+m+mi}{6}\PY{p}{,}
+        \PY{n}{markeredgewidth}\PY{o}{=}\PY{l+m+mi}{0}
+    \PY{p}{)}
+
+    \PY{n}{n} \PY{o}{=} \PY{n}{names}\PY{p}{[}\PY{n}{i}\PY{p}{]}
+    \PY{n}{t\PYZus{}plot} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{linspace}\PY{p}{(}\PY{n}{t}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{p}{,} \PY{n}{t}\PY{p}{[}\PY{o}{\PYZhy{}}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{,} \PY{l+m+mi}{5000}\PY{p}{)}
+    \PY{n}{plt}\PY{o}{.}\PY{n}{plot}\PY{p}{(}
+        \PY{n}{t\PYZus{}plot}\PY{p}{,}
+        \PY{n}{estimators}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{p}{(}\PY{n}{t\PYZus{}plot}\PY{p}{)}\PY{p}{,}
+        \PY{n}{label}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Estimated Truth}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+        \PY{n}{alpha}\PY{o}{=}\PY{l+m+mf}{0.9}\PY{p}{,}
+        \PY{n}{color}\PY{o}{=}\PY{n}{colors}\PY{p}{[}\PY{n}{i}\PY{p}{]}
+    \PY{p}{)}
+
+    \PY{n}{xlim} \PY{o}{=} \PY{p}{(}\PY{l+m+mi}{60}\PY{p}{,} \PY{l+m+mi}{90}\PY{p}{)}
+    \PY{n}{plt}\PY{o}{.}\PY{n}{xlim}\PY{p}{(}\PY{o}{*}\PY{n}{xlim}\PY{p}{)}
+    \PY{n}{plt}\PY{o}{.}\PY{n}{ylim}\PY{p}{(}\PY{l+m+mi}{6}\PY{p}{,} \PY{l+m+mi}{13}\PY{p}{)}
+    \PY{n}{plt}\PY{o}{.}\PY{n}{title}\PY{p}{(}\PY{n}{n}\PY{p}{)}
+    \PY{n}{plt}\PY{o}{.}\PY{n}{xlabel}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Time after Takeoff [sec]}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+    \PY{k}{if} \PY{n}{i} \PY{o}{==} \PY{l+m+mi}{0}\PY{p}{:}
+        \PY{n}{plt}\PY{o}{.}\PY{n}{ylabel}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Airspeed [m/s]}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+    \PY{n}{p}\PY{o}{.}\PY{n}{set\PYZus{}ticks}\PY{p}{(}\PY{l+m+mi}{10}\PY{p}{,} \PY{l+m+mi}{2}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{,} \PY{l+m+mf}{0.2}\PY{p}{)}
+    \PY{k}{if} \PY{n}{i} \PY{o}{==} \PY{l+m+mi}{1}\PY{p}{:}
+        \PY{n}{plt}\PY{o}{.}\PY{n}{legend}\PY{p}{(}\PY{p}{)}
+
+\PY{n}{plt}\PY{o}{.}\PY{n}{suptitle}\PY{p}{(}\PY{l+s+sa}{f}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{One Dataset, Many Possible Interpretations:}\PY{l+s+se}{\PYZbs{}n}\PY{l+s+s2}{Airspeed data, zoomed to \PYZdl{}t }\PY{l+s+s2}{\PYZbs{}}\PY{l+s+s2}{in }\PY{l+s+si}{\PYZob{}}\PY{n}{xlim}\PY{l+s+si}{\PYZcb{}}\PY{l+s+s2}{\PYZdl{}}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+
+\PY{n}{p}\PY{o}{.}\PY{n}{show\PYZus{}plot}\PY{p}{(}
+    \PY{n}{legend}\PY{o}{=}\PY{k+kc}{False}\PY{p}{,}
+    \PY{n}{dpi}\PY{o}{=}\PY{l+m+mi}{300}\PY{p}{,}
+\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_27_0.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    Ultimately, all three charts represent different \emph{interpretations
+of the ground truth based on the data}. If we didn't have any more
+information about the problem, all three could be equally justifiable
+given the right contexts - but, in fact, we do have more information,
+since we know this data originates from a physical system.
+
+The chart on the left is clearly overfitted (i.e., tracks the data too
+closely) based on engineering intuition. Essentially, we are assuming
+that each sample is the true data, and that each sample has no noise;
+hence, the ``truth'' curve exhibits extremely high variance (strong
+wiggles). There's no \emph{mathematical} reason why this interpretation
+can't be correct (it's theoretically possible that the sensor is giving
+perfect information), but of course it is \emph{physically} implausible
+for our system. If this interpretation were true, it would imply that
+the vehicle is achieving velocity-vector-aligned-accelerations on the
+order of:
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{7}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n+nb}{print}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Peak instantaneous x\PYZhy{}acceleration:}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+      \PY{l+s+sa}{f}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+si}{\PYZob{}}\PY{n}{np}\PY{o}{.}\PY{n}{abs}\PY{p}{(}\PY{n}{estimators}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{o}{.}\PY{n}{derivative}\PY{p}{(}\PY{p}{)}\PY{p}{(}\PY{n}{t}\PY{p}{)}\PY{p}{)}\PY{o}{.}\PY{n}{max}\PY{p}{(}\PY{p}{)}\PY{+w}{ }\PY{o}{/}\PY{+w}{ }\PY{l+m+mf}{9.81}\PY{l+s+si}{:}\PY{l+s+s2}{.2f}\PY{l+s+si}{\PYZcb{}}\PY{l+s+s2}{ G}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+Peak instantaneous x-acceleration: 2.42 G
+    \end{Verbatim}
+
+    which is obviously not physically possible.
+
+    The chart on the right is clearly underfitted (i.e., tracks the data too
+slowly), as there are large regions where the estimator has a consistent
+bias (e.g., consistently too high or low) with respect to the underlying
+data. It might seem like there are no contexts where such an
+interpretation would be reasonable, but that is not necessarily the
+case. For example, if the sensor noise at each sample was not
+independent, but rather correlated with noise from the previous samples,
+we might not be able to rule out this interpretation of reality.
+
+    Of course, a quick glance at the three charts above would tell us ``the
+middle one looks about right'' - but why? What is it about the middle
+chart that makes it look more reasonable than the other two?
+
+    \hypertarget{optimal-sensor-data-reconstruction-using-data-driven-noise-estimates}{%
+\subsubsection{Optimal Sensor Data Reconstruction using Data-Driven
+Noise
+Estimates}\label{optimal-sensor-data-reconstruction-using-data-driven-noise-estimates}}
+
+The key difference is that the middle chart embeds certain intuitive
+assumptions that we ``just know'' about our data into its
+reconstruction. Specifically, the middle chart is an optimal
+reconstruction of the data assuming that: - The noise in each sample is
+independent (i.e., uncorrelated with previous samples) and
+normally-distributed - The noise is unbiased (i.e., there are no
+systematic errors in the data, only random ones) - The noise is
+homoscedastic (i.e., the standard deviation of the noise is constant
+across the entire dataset) - The sample rate is significantly higher
+than the underlying dynamics of the system that we're aiming to recover
+(i.e., the system is ``slow'' relative to the sample rate).
+
+Under these assumptions above, the probabilistic properties of the noise
+reduce to a single parameter: the variance (that is, the square of the
+standard deviation, \(\sigma^2\)) of the noise. Thus, by constructing an
+estimator for this statistic, we can recover the probability
+distribution of the noise and hence an optimal estimator of the data.
+
+    \hypertarget{motivation-for-finding-the-variance-of-the-noise}{%
+\paragraph{Motivation for Finding the Variance of the
+Noise}\label{motivation-for-finding-the-variance-of-the-noise}}
+
+Because we're just one parameter away from having a probabalistic model
+of the sensor noise, we're strongly motivated to estimate this noise
+variance. Once we estimate the variance, we can begin to make optimal
+choices about the bias-variance tradeoff \emph{with a rigorous
+definition of what optimal means} here.
+
+There is a second factor that motivates us to estimate the variance of
+the noise. It turns out that computing an optimal smoothing spline for a
+time-series dataset is a well-studied problem, but only if we know the
+variance of the noise. So, if we can obtain an estimate of the variance
+of the noise, we've done most of the work required to compute an optimal
+data reconstructor.
+
+In an ideal world, we would estimate this variance of the noise by
+taking a large number of samples while the vehicle is at some fixed,
+steady, known condition. For example, to estimate the airspeed data
+noise, we might place the aircraft in a wind tunnel at some constant
+speed. If we ran that experiment for an extended duration, we would know
+that the true underlying data was constant, and hence any observed
+variance in the samples would be due to the variance of the sensor
+noise.
+
+If we want to reconstruct data from unsteady measurement, however, we
+need to find a way to estimate the variance of the noise using the
+unsteady data itself, which is much more tricky.
+
+    \hypertarget{initial-approach-and-a-first-order-data-based-noise-estimator}{%
+\paragraph{Initial Approach and a First-Order Data-Based Noise
+Estimator}\label{initial-approach-and-a-first-order-data-based-noise-estimator}}
+
+One way to do this is by assuming that the data is ``slow'' relative to
+the sample rate. If this is true, then subsequent samples will
+effectively have the same underlying truth value, but with noise drawn
+independently from the same underlying distribution.
+
+Quantitatively, if our true data is \(x(t)\), and the noise of the
+sample \(n(t)\) is drawn from \(\mathcal{N}(0, \sigma^2)\), then our
+observed sensor data \(s(t)\) will be:
+
+\[s(t_1) = x(t_1) + n(t_1)\]
+
+\[s(t_2) = x(t_2) + n(t_2)\]
+
+If \(t_1 \approx t_2\) (as would be the case if we're looking at
+subsequent samples), then \(x(t_1) \approx x(t_2)\), and hence:
+
+\[s(t_2) - s(t_1) \approx n(t_2) - n(t_1)\]
+
+    In other words, the difference of two subsequent observed samples will
+be approximately equal to the difference of two independent draws from
+the same noise distribution. This means that we can estimate the
+variance of the noise by looking at the variance of the differences
+between subsequent samples.
+
+From the properties of the difference of two independent random normal
+variables, we can then say:
+
+\[n(t_2) - n(t_1) \sim \mathcal{N}(0, 2\sigma^2)\]
+
+where \(\sigma^2\) is the variance of the sensor noise. So, the
+following is then approximately true:
+
+\[s(t_2) - s(t_1) \sim \mathcal{N}(0, 2\sigma^2)\]
+
+    Therefore, by taking the mean difference across all of the adjacent
+pairs of sample data, we can reconstruct the variance of the noise as:
+
+\[\sigma^2 = \frac{1}{2 \cdot (N-1)} \sum_{i=1}^{N-1} \Big( s(t_{i+1}) - s(t_i) \Big)^2\]
+
+where \(N\) is the number of samples in the dataset. Note that this
+calculation essentially uses a population standard deviation of the
+differences of subsequent sensor samples, then corrects it by a
+denominator to get the variance of the noise.
+
+    \hypertarget{numerical-demonstration-of-the-first-order-noise-estimator}{%
+\paragraph{Numerical Demonstration of the First-Order Noise
+Estimator}\label{numerical-demonstration-of-the-first-order-noise-estimator}}
+
+We can demonstrate that this works in practice and is convergent to the
+correct answer by constructing a synthetic dataset with known noise
+properties, and then reconstructing the noise variance using the method
+above. The dataset we use is a simple sinusoid with added noise. We then
+attempt to recover the noise variance using the method above, and
+compare it to the true noise variance.
+
+    In other words, our process looks like:
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{8}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n}{g} \PY{o}{=} \PY{n}{graphviz}\PY{o}{.}\PY{n}{Digraph}\PY{p}{(}\PY{o}{*}\PY{o}{*}\PY{n}{gv\PYZus{}settings}\PY{p}{)}
+\PY{n}{var\PYZus{}style} \PY{o}{=} \PY{n+nb}{dict}\PY{p}{(}\PY{n}{fillcolor}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{\PYZsh{}F1F7E9}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+
+\PY{n}{g}\PY{o}{.}\PY{n}{attr}\PY{p}{(}
+    \PY{n}{label}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Procedure for Numerical Demonstration}\PY{l+s+se}{\PYZbs{}n}\PY{l+s+s2}{of Estimator Performance}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{n}{labelloc}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{t}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{n}{fontname}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Helvetica\PYZhy{}Bold}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{fontsize}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{18}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{shape}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{plaintext}\PY{l+s+s1}{\PYZsq{}}
+\PY{p}{)}
+
+\PY{n}{g}\PY{o}{.}\PY{n}{node}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{func}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Underlying }\PY{l+s+se}{\PYZbs{}\PYZdq{}}\PY{l+s+s2}{truth}\PY{l+s+se}{\PYZbs{}\PYZdq{}}\PY{l+s+s2}{ function}\PY{l+s+se}{\PYZbs{}n}\PY{l+s+s2}{(sinusoid with a known signal frequency)}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+\PY{n}{g}\PY{o}{.}\PY{n}{node}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{draw}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Take discrete samples}\PY{l+s+se}{\PYZbs{}n}\PY{l+s+s2}{at sample frequency}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+\PY{n}{g}\PY{o}{.}\PY{n}{edge}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{func}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{draw}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+
+\PY{n}{g}\PY{o}{.}\PY{n}{node}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{tvar}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{True variance}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{o}{*}\PY{o}{*}\PY{n}{var\PYZus{}style}\PY{p}{)}
+\PY{n}{g}\PY{o}{.}\PY{n}{node}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{noise}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Add noise}\PY{l+s+se}{\PYZbs{}n}\PY{l+s+s2}{(normal dist., independent)}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+\PY{n}{g}\PY{o}{.}\PY{n}{edge}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{tvar}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{noise}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+
+\PY{n}{g}\PY{o}{.}\PY{n}{edge}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{draw}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{noise}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+
+\PY{n}{g}\PY{o}{.}\PY{n}{node}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{syn}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Synthetic Dataset}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{fillcolor}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{\PYZsh{}F7E9F1}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+\PY{n}{g}\PY{o}{.}\PY{n}{edge}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{noise}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{syn}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+
+\PY{n}{g}\PY{o}{.}\PY{n}{node}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{est}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Apply the first\PYZhy{}order estimator}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+\PY{n}{g}\PY{o}{.}\PY{n}{node}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{evar}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Estimated variance}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{o}{*}\PY{o}{*}\PY{n}{var\PYZus{}style}\PY{p}{)}
+
+\PY{n}{g}\PY{o}{.}\PY{n}{edge}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{syn}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{est}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+\PY{n}{g}\PY{o}{.}\PY{n}{edge}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{est}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{evar}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+
+\PY{n}{g}\PY{o}{.}\PY{n}{node}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{c}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Compare to}\PY{l+s+se}{\PYZbs{}n}\PY{l+s+s2}{assess performance}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{shape}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{plaintext}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{fillcolor}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{white}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+
+\PY{n}{dashed\PYZus{}line} \PY{o}{=} \PY{n+nb}{dict}\PY{p}{(}
+    \PY{n}{style}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{dashed}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+    \PY{n}{color}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{gray}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+    \PY{n}{arrowhead}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{none}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+    \PY{n}{arrowtail}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{none}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+    \PY{n+nb}{dir}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{both}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+    \PY{n}{penwidth}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{1}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+\PY{p}{)}
+\PY{n}{g}\PY{o}{.}\PY{n}{edge}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{tvar}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{c}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{o}{*}\PY{o}{*}\PY{n}{dashed\PYZus{}line}\PY{p}{)}
+\PY{n}{g}\PY{o}{.}\PY{n}{edge}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{evar}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{c}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{o}{*}\PY{o}{*}\PY{n}{dashed\PYZus{}line}\PY{p}{)}
+
+\PY{n}{g}
+\end{Verbatim}
+\end{tcolorbox}
+ 
+            
+\prompt{Out}{outcolor}{8}{}
+    
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_40_0.pdf}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+
+    In code:
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{9}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n}{np}\PY{o}{.}\PY{n}{random}\PY{o}{.}\PY{n}{seed}\PY{p}{(}\PY{l+m+mi}{0}\PY{p}{)}  \PY{c+c1}{\PYZsh{} Sets a pseudo\PYZhy{}random seed for reproducibility}
+
+
+\PY{k}{def} \PY{n+nf}{synthesize\PYZus{}data\PYZus{}and\PYZus{}reconstruct\PYZus{}noise\PYZus{}variance\PYZus{}1}\PY{p}{(}\PY{n}{freq\PYZus{}signal}\PY{p}{,} \PY{n}{freq\PYZus{}sample}\PY{p}{)}\PY{p}{:}
+\PY{+w}{    }\PY{l+s+sd}{\PYZdq{}\PYZdq{}\PYZdq{}}
+\PY{l+s+sd}{    Generates a synthetic dataset with known noise properties, and then reconstructs the noise variance using the}
+\PY{l+s+sd}{    first\PYZhy{}order method described above.}
+
+\PY{l+s+sd}{    The signal is assumed to be a sinusoid with some frequency, and the noise is assumed to be independent,}
+\PY{l+s+sd}{    homoscedastic, and normally\PYZhy{}distributed.}
+
+\PY{l+s+sd}{    Args:}
+\PY{l+s+sd}{        freq\PYZus{}signal: Frequency of the underlying true signal [Hz]}
+\PY{l+s+sd}{        freq\PYZus{}sample: Data sample rate from the sensor [Hz]}
+
+\PY{l+s+sd}{    Returns: None. Prints the true noise standard deviation and the reconstructed (estimated) noise standard}
+\PY{l+s+sd}{    deviation, as well as various input parameters.}
+\PY{l+s+sd}{    \PYZdq{}\PYZdq{}\PYZdq{}}
+    \PY{c+c1}{\PYZsh{}\PYZsh{}\PYZsh{}\PYZsh{}\PYZsh{} Synthetic Data Generation \PYZsh{}\PYZsh{}\PYZsh{}\PYZsh{}\PYZsh{}}
+    \PY{n}{t} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{arange}\PY{p}{(}\PY{l+m+mi}{0}\PY{p}{,} \PY{l+m+mi}{5}\PY{p}{,} \PY{l+m+mi}{1} \PY{o}{/} \PY{n}{freq\PYZus{}sample}\PY{p}{)}
+
+    \PY{n}{true\PYZus{}data} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{sin}\PY{p}{(}\PY{l+m+mi}{2} \PY{o}{*} \PY{n}{np}\PY{o}{.}\PY{n}{pi} \PY{o}{*} \PY{n}{freq\PYZus{}signal} \PY{o}{*} \PY{n}{t}\PY{p}{)}
+
+    \PY{n}{true\PYZus{}noise\PYZus{}standard\PYZus{}deviation} \PY{o}{=} \PY{l+m+mf}{0.1}
+    \PY{n}{noise} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{random}\PY{o}{.}\PY{n}{normal}\PY{p}{(}\PY{n}{size}\PY{o}{=}\PY{n+nb}{len}\PY{p}{(}\PY{n}{true\PYZus{}data}\PY{p}{)}\PY{p}{)} \PY{o}{*} \PY{n}{true\PYZus{}noise\PYZus{}standard\PYZus{}deviation}
+
+    \PY{n}{sensor\PYZus{}data} \PY{o}{=} \PY{n}{true\PYZus{}data} \PY{o}{+} \PY{n}{noise}
+
+    \PY{c+c1}{\PYZsh{}\PYZsh{}\PYZsh{}\PYZsh{}\PYZsh{} Noise Variance Reconstruction \PYZsh{}\PYZsh{}\PYZsh{}\PYZsh{}\PYZsh{}}
+    \PY{n}{estimated\PYZus{}noise\PYZus{}standard\PYZus{}deviation} \PY{o}{=} \PY{p}{(}
+            \PY{n}{np}\PY{o}{.}\PY{n}{std}\PY{p}{(}  \PY{c+c1}{\PYZsh{} Standard deviation}
+                \PY{n}{np}\PY{o}{.}\PY{n}{diff}\PY{p}{(}\PY{n}{sensor\PYZus{}data}\PY{p}{)}  \PY{c+c1}{\PYZsh{} of the differences between subsequent samples}
+            \PY{p}{)} \PY{o}{/} \PY{n}{np}\PY{o}{.}\PY{n}{sqrt}\PY{p}{(}\PY{l+m+mi}{2}\PY{p}{)}
+    \PY{p}{)}
+
+    \PY{n+nb}{print}\PY{p}{(}\PY{l+s+sa}{f}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{First\PYZhy{}Order Data\PYZhy{}Driven Noise Estimator}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+    \PY{n+nb}{print}\PY{p}{(}\PY{l+s+sa}{f}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Sample frequency / Underlying Signal Frequency = }\PY{l+s+si}{\PYZob{}}\PY{l+m+mi}{1}\PY{+w}{ }\PY{o}{/}\PY{+w}{ }\PY{n}{np}\PY{o}{.}\PY{n}{diff}\PY{p}{(}\PY{n}{t}\PY{p}{)}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{l+s+si}{\PYZcb{}}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+    \PY{n+nb}{print}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{\PYZhy{}}\PY{l+s+s2}{\PYZdq{}} \PY{o}{*} \PY{l+m+mi}{50}\PY{p}{)}
+    \PY{n+nb}{print}\PY{p}{(}\PY{l+s+sa}{f}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{True noise standard deviation: }\PY{l+s+si}{\PYZob{}}\PY{n}{true\PYZus{}noise\PYZus{}standard\PYZus{}deviation}\PY{l+s+si}{:}\PY{l+s+s2}{.3f}\PY{l+s+si}{\PYZcb{}}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+    \PY{n+nb}{print}\PY{p}{(}\PY{l+s+sa}{f}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Estimated noise standard deviation: }\PY{l+s+si}{\PYZob{}}\PY{n}{estimated\PYZus{}noise\PYZus{}standard\PYZus{}deviation}\PY{l+s+si}{:}\PY{l+s+s2}{.3f}\PY{l+s+si}{\PYZcb{}}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{10}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n}{synthesize\PYZus{}data\PYZus{}and\PYZus{}reconstruct\PYZus{}noise\PYZus{}variance\PYZus{}1}\PY{p}{(}
+    \PY{n}{freq\PYZus{}signal}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{,}
+    \PY{n}{freq\PYZus{}sample}\PY{o}{=}\PY{l+m+mi}{1000}
+\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+First-Order Data-Driven Noise Estimator
+Sample frequency / Underlying Signal Frequency = 1000.0
+--------------------------------------------------
+True noise standard deviation: 0.100
+Estimated noise standard deviation: 0.098
+    \end{Verbatim}
+
+    As we can see, noise standard deviation that we estimate using this
+method is very close to the true value. We will also show later that
+this estimator is convergent to the true value as the number of samples
+increases.
+
+However, this estimator is only first-order convergent with respect to
+the ratio between the sampling frequency (\texttt{freq\_sample}) and the
+underlying dynamics of the system (\texttt{freq\_signal}). In other
+words, if the system is ``fast'' relative to the sample rate, then the
+estimator will be inaccurate. We can demonstrate this by repeating the
+above experiment, but with a higher-frequency true signal:
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{11}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n}{synthesize\PYZus{}data\PYZus{}and\PYZus{}reconstruct\PYZus{}noise\PYZus{}variance\PYZus{}1}\PY{p}{(}
+    \PY{n}{freq\PYZus{}signal}\PY{o}{=}\PY{l+m+mi}{100}\PY{p}{,}
+    \PY{n}{freq\PYZus{}sample}\PY{o}{=}\PY{l+m+mi}{1000}
+\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+First-Order Data-Driven Noise Estimator
+Sample frequency / Underlying Signal Frequency = 1000.0
+--------------------------------------------------
+True noise standard deviation: 0.100
+Estimated noise standard deviation: 0.324
+    \end{Verbatim}
+
+    Notably, the discrepancy between the true and estimated noise standard
+deviations are much larger, so our first-order estimator is not working
+as well.
+
+    \hypertarget{a-second-order-estimator}{%
+\paragraph{A Second-Order Estimator}\label{a-second-order-estimator}}
+
+To do a better job of estimating the noise variance even in cases where
+\(f_{\rm sample} \gg f_{\rm signal}\) doesn't strictly hold, we can use
+a second-order estimator. With this extension, we use a three-point
+numerical stencil.
+
+Derivation of this estimator follows similar principles to the
+first-order estimator above, with the key result as follows:
+
+\[\sigma^2 = \frac{1}{6 \cdot (N-2)} \sum_{i=1}^{N-2} \Big( s(t_{i+2}) - 2 \cdot s(t_{i+1}) + s(t_i) \Big)^2\]
+
+where \(N\) is the number of samples in the dataset.
+
+Notably, this effectively implements a first-order, second-degree
+finite-difference of the underlying data - a discrete derivative. It's
+instructive to consider the theoretical underpinning of using a discrete
+derivative operator here. If we assume that the underlying true signal
+is relatively smooth, then as we take more discrete derivatives of the
+observed data, the signal component will asymptote to zero (assuming
+\(f_{\rm sample} \geq f_{\rm signal}\)). Stated equivalently, the
+frequency spectrum of the true signal is assumed to have some cutoff
+frequency (analogous to \(f_{\rm signal}\)), above which the power
+spectral density gradually goes to zero. We don't need to specify this
+cutoff frequency or know it precisely \emph{a priori}; the remarks
+presented here merely require that one exists and is somewhere below
+\(f_{\rm sample}\).
+
+In contrast, the noise is assumed to be independent, which means that
+the noise component of the observed data will \emph{not} go to zero as
+we take successive derivatives. Stated equivalently, the frequency
+spectrum of the noise is \emph{white}, with uniform power across all
+frequencies. Therefore, \textbf{repeated application of the discrete
+derivative operator acts as a way to spectrally-separate the noise from
+the signal}. This is a key insight that we will use later in the paper.
+
+In code, this second-order estimator would look like the following:
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{12}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{k}{def} \PY{n+nf}{synthesize\PYZus{}data\PYZus{}and\PYZus{}reconstruct\PYZus{}noise\PYZus{}variance\PYZus{}2}\PY{p}{(}\PY{n}{freq\PYZus{}signal}\PY{p}{,} \PY{n}{freq\PYZus{}sample}\PY{p}{)}\PY{p}{:}
+\PY{+w}{    }\PY{l+s+sd}{\PYZdq{}\PYZdq{}\PYZdq{}}
+\PY{l+s+sd}{    Generates a synthetic dataset with known noise properties, and then reconstructs the noise variance using the}
+\PY{l+s+sd}{    second\PYZhy{}order method described above.}
+
+\PY{l+s+sd}{    The signal is assumed to be a sinusoid with some frequency, and the noise is assumed to be independent,}
+\PY{l+s+sd}{    homoscedastic, and normally\PYZhy{}distributed.}
+
+\PY{l+s+sd}{    Args:}
+\PY{l+s+sd}{        freq\PYZus{}signal: Frequency of the underlying true signal [Hz]}
+\PY{l+s+sd}{        freq\PYZus{}sample: Data sample rate from the sensor [Hz]}
+
+\PY{l+s+sd}{    Returns: None. Prints the true noise standard deviation and the reconstructed (estimated) noise standard}
+\PY{l+s+sd}{    deviation, as well as various input parameters.}
+\PY{l+s+sd}{    \PYZdq{}\PYZdq{}\PYZdq{}}
+    \PY{c+c1}{\PYZsh{}\PYZsh{}\PYZsh{}\PYZsh{}\PYZsh{} Synthetic Data Generation \PYZsh{}\PYZsh{}\PYZsh{}\PYZsh{}\PYZsh{}}
+    \PY{n}{t} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{arange}\PY{p}{(}\PY{l+m+mi}{0}\PY{p}{,} \PY{l+m+mi}{5}\PY{p}{,} \PY{l+m+mi}{1} \PY{o}{/} \PY{n}{freq\PYZus{}sample}\PY{p}{)}
+
+    \PY{n}{true\PYZus{}data} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{sin}\PY{p}{(}\PY{l+m+mi}{2} \PY{o}{*} \PY{n}{np}\PY{o}{.}\PY{n}{pi} \PY{o}{*} \PY{n}{freq\PYZus{}signal} \PY{o}{*} \PY{n}{t}\PY{p}{)}
+
+    \PY{n}{true\PYZus{}noise\PYZus{}standard\PYZus{}deviation} \PY{o}{=} \PY{l+m+mf}{0.1}
+    \PY{n}{noise} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{random}\PY{o}{.}\PY{n}{normal}\PY{p}{(}\PY{n}{size}\PY{o}{=}\PY{n+nb}{len}\PY{p}{(}\PY{n}{true\PYZus{}data}\PY{p}{)}\PY{p}{)} \PY{o}{*} \PY{n}{true\PYZus{}noise\PYZus{}standard\PYZus{}deviation}
+
+    \PY{n}{sensor\PYZus{}data} \PY{o}{=} \PY{n}{true\PYZus{}data} \PY{o}{+} \PY{n}{noise}
+
+    \PY{c+c1}{\PYZsh{}\PYZsh{}\PYZsh{}\PYZsh{}\PYZsh{} Noise Variance Reconstruction \PYZsh{}\PYZsh{}\PYZsh{}\PYZsh{}\PYZsh{}}
+    \PY{n}{estimated\PYZus{}noise\PYZus{}standard\PYZus{}deviation} \PY{o}{=} \PY{p}{(}
+            \PY{n}{np}\PY{o}{.}\PY{n}{std}\PY{p}{(}  \PY{c+c1}{\PYZsh{} Standard deviation}
+                \PY{n}{np}\PY{o}{.}\PY{n}{diff}\PY{p}{(}\PY{n}{np}\PY{o}{.}\PY{n}{diff}\PY{p}{(}\PY{n}{sensor\PYZus{}data}\PY{p}{)}\PY{p}{)}  \PY{c+c1}{\PYZsh{} of the differences between subsequent samples}
+            \PY{p}{)} \PY{o}{/} \PY{n}{np}\PY{o}{.}\PY{n}{sqrt}\PY{p}{(}\PY{l+m+mi}{6}\PY{p}{)}
+    \PY{p}{)}
+
+    \PY{n+nb}{print}\PY{p}{(}\PY{l+s+sa}{f}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Second\PYZhy{}Order Data\PYZhy{}Driven Noise Estimator}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+    \PY{n+nb}{print}\PY{p}{(}\PY{l+s+sa}{f}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Sample frequency / Underlying Signal Frequency = }\PY{l+s+si}{\PYZob{}}\PY{l+m+mi}{1}\PY{+w}{ }\PY{o}{/}\PY{+w}{ }\PY{n}{np}\PY{o}{.}\PY{n}{diff}\PY{p}{(}\PY{n}{t}\PY{p}{)}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{l+s+si}{\PYZcb{}}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+    \PY{n+nb}{print}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{\PYZhy{}}\PY{l+s+s2}{\PYZdq{}} \PY{o}{*} \PY{l+m+mi}{50}\PY{p}{)}
+    \PY{n+nb}{print}\PY{p}{(}\PY{l+s+sa}{f}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{True noise standard deviation: }\PY{l+s+si}{\PYZob{}}\PY{n}{true\PYZus{}noise\PYZus{}standard\PYZus{}deviation}\PY{l+s+si}{:}\PY{l+s+s2}{.3f}\PY{l+s+si}{\PYZcb{}}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+    \PY{n+nb}{print}\PY{p}{(}\PY{l+s+sa}{f}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Estimated noise standard deviation: }\PY{l+s+si}{\PYZob{}}\PY{n}{estimated\PYZus{}noise\PYZus{}standard\PYZus{}deviation}\PY{l+s+si}{:}\PY{l+s+s2}{.3f}\PY{l+s+si}{\PYZcb{}}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    This second-order estimator is still convergent when we have a wealth of
+samples (i.e., the system is ``slow'' relative to the sample rate):
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{13}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n}{synthesize\PYZus{}data\PYZus{}and\PYZus{}reconstruct\PYZus{}noise\PYZus{}variance\PYZus{}2}\PY{p}{(}
+    \PY{n}{freq\PYZus{}signal}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{,}
+    \PY{n}{freq\PYZus{}sample}\PY{o}{=}\PY{l+m+mi}{1000}
+\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+Second-Order Data-Driven Noise Estimator
+Sample frequency / Underlying Signal Frequency = 1000.0
+--------------------------------------------------
+True noise standard deviation: 0.100
+Estimated noise standard deviation: 0.099
+    \end{Verbatim}
+
+    But, in comparison, its performance drop-off for ``fast'' systems is
+much less severe than it is for the first-order estimator:
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{14}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n}{synthesize\PYZus{}data\PYZus{}and\PYZus{}reconstruct\PYZus{}noise\PYZus{}variance\PYZus{}2}\PY{p}{(}
+    \PY{n}{freq\PYZus{}signal}\PY{o}{=}\PY{l+m+mi}{100}\PY{p}{,}
+    \PY{n}{freq\PYZus{}sample}\PY{o}{=}\PY{l+m+mi}{1000}
+\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+Second-Order Data-Driven Noise Estimator
+Sample frequency / Underlying Signal Frequency = 1000.0
+--------------------------------------------------
+True noise standard deviation: 0.100
+Estimated noise standard deviation: 0.148
+    \end{Verbatim}
+
+    \hypertarget{arbitrary-order-estimators}{%
+\paragraph{Arbitrary-Order
+Estimators}\label{arbitrary-order-estimators}}
+
+Clearly, the second-order estimator improves performance compared to the
+first-order one. How far can we push this?
+
+We can generalize the logic to an \(d\)-th order estimator by observing
+that the denominator (2 for the first-order estimator, 6 for the
+second-order estimator) is the sum of the squares of the first-order,
+\(d\)-th-degree, uniform-grid finite difference coefficients (or,
+perhaps more intuitively, the elements of the \(d\)-th row of Pascal's
+triangle). Then, we use the combinatorial trick that:
+
+\[{d \choose 0}^2 + {d \choose 1}^2 + \dots + {d \choose d}^2 = {2 d \choose d} = \frac{(2d)!}{(d!)^2}\]
+
+to derive the following \(d\)-th order estimator of the noise variance:
+
+\[\sigma^2 =
+\frac{1}{{2 d \choose d} \cdot (N-d)}
+\cdot \sum_{i=1}^{N-d} \left[
+{d \choose 0} s(t_i)
+- {d \choose 1} s(t_{i+1})
++ {d \choose 2} s(t_{i+2})
+- {d \choose 3} s(t_{i+3})
++ \dots
+\pm {d \choose d} s(t_{i+d})
+\right]^2\]
+
+which, in code, looks like:
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{15}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{k}{def} \PY{n+nf}{synthesize\PYZus{}data\PYZus{}and\PYZus{}reconstruct\PYZus{}noise\PYZus{}variance}\PY{p}{(}\PY{n}{freq\PYZus{}signal}\PY{p}{,} \PY{n}{freq\PYZus{}sample}\PY{p}{,} \PY{n}{order}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{)}\PY{p}{:}
+\PY{+w}{    }\PY{l+s+sd}{\PYZdq{}\PYZdq{}\PYZdq{}}
+\PY{l+s+sd}{    Generates a synthetic dataset with known noise properties, and then reconstructs the noise variance using the}
+\PY{l+s+sd}{    specified\PYZhy{}order method described above.}
+
+\PY{l+s+sd}{    The signal is assumed to be a sinusoid with some frequency, and the noise is assumed to be independent,}
+\PY{l+s+sd}{    homoscedastic, and normally\PYZhy{}distributed.}
+
+\PY{l+s+sd}{    Args:}
+\PY{l+s+sd}{        freq\PYZus{}signal: Frequency of the underlying true signal [Hz]}
+\PY{l+s+sd}{        freq\PYZus{}sample: Data sample rate from the sensor [Hz]}
+\PY{l+s+sd}{        order: Order of the estimator to use [int]}
+
+\PY{l+s+sd}{    Returns: The true noise standard deviation and the reconstructed (estimated) noise standard deviation.}
+\PY{l+s+sd}{    \PYZdq{}\PYZdq{}\PYZdq{}}
+    \PY{c+c1}{\PYZsh{}\PYZsh{}\PYZsh{}\PYZsh{}\PYZsh{} Synthetic Data Generation \PYZsh{}\PYZsh{}\PYZsh{}\PYZsh{}\PYZsh{}}
+    \PY{n}{t} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{arange}\PY{p}{(}\PY{l+m+mi}{0}\PY{p}{,} \PY{l+m+mi}{5}\PY{p}{,} \PY{l+m+mi}{1} \PY{o}{/} \PY{n}{freq\PYZus{}sample}\PY{p}{)}
+
+    \PY{n}{true\PYZus{}data} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{sin}\PY{p}{(}\PY{l+m+mi}{2} \PY{o}{*} \PY{n}{np}\PY{o}{.}\PY{n}{pi} \PY{o}{*} \PY{n}{freq\PYZus{}signal} \PY{o}{*} \PY{n}{t}\PY{p}{)}
+
+    \PY{n}{true\PYZus{}noise\PYZus{}standard\PYZus{}deviation} \PY{o}{=} \PY{l+m+mf}{0.1}
+    \PY{n}{noise} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{random}\PY{o}{.}\PY{n}{normal}\PY{p}{(}\PY{n}{size}\PY{o}{=}\PY{n+nb}{len}\PY{p}{(}\PY{n}{true\PYZus{}data}\PY{p}{)}\PY{p}{)} \PY{o}{*} \PY{n}{true\PYZus{}noise\PYZus{}standard\PYZus{}deviation}
+
+    \PY{n}{sensor\PYZus{}data} \PY{o}{=} \PY{n}{true\PYZus{}data} \PY{o}{+} \PY{n}{noise}
+
+    \PY{c+c1}{\PYZsh{}\PYZsh{}\PYZsh{}\PYZsh{}\PYZsh{} Noise Variance Reconstruction \PYZsh{}\PYZsh{}\PYZsh{}\PYZsh{}\PYZsh{}}
+    \PY{c+c1}{\PYZsh{}\PYZsh{}\PYZsh{} Note: there are a few differences between the equation above and this, to prevent overflow}
+    \PY{n}{diff\PYZus{}data} \PY{o}{=} \PY{n}{sensor\PYZus{}data}
+
+    \PY{k+kn}{from} \PY{n+nn}{scipy}\PY{n+nn}{.}\PY{n+nn}{special} \PY{k+kn}{import} \PY{n}{binom}
+    \PY{n}{denominator} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{sqrt}\PY{p}{(}\PY{n}{binom}\PY{p}{(}\PY{l+m+mi}{2} \PY{o}{*} \PY{n}{order}\PY{p}{,} \PY{n}{order}\PY{p}{)}\PY{p}{)}
+
+    \PY{k}{for} \PY{n}{\PYZus{}} \PY{o+ow}{in} \PY{n+nb}{range}\PY{p}{(}\PY{n}{order}\PY{p}{)}\PY{p}{:}
+        \PY{n}{diff\PYZus{}data} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{diff}\PY{p}{(}\PY{n}{diff\PYZus{}data}\PY{p}{)} \PY{o}{/} \PY{n}{denominator} \PY{o}{*}\PY{o}{*} \PY{p}{(}\PY{l+m+mi}{1} \PY{o}{/} \PY{n}{order}\PY{p}{)}
+
+    \PY{n}{estimated\PYZus{}noise\PYZus{}standard\PYZus{}deviation} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{std}\PY{p}{(}\PY{n}{diff\PYZus{}data}\PY{p}{)}
+
+    \PY{k}{return} \PY{n}{true\PYZus{}noise\PYZus{}standard\PYZus{}deviation}\PY{p}{,} \PY{n}{estimated\PYZus{}noise\PYZus{}standard\PYZus{}deviation}
+\end{Verbatim}
+\end{tcolorbox}
+
+    While we have shown that the second-order estimator has improved
+robustness to low sample rates, it is not immediately clear that this
+will hold for arbitrary orders - as the order increases, we might expect
+to see some form of numerical instability as we take successively
+higher-order derivatives of noisy data.
+
+To test this, we can plot the performance of noise estimators of various
+orders:
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{16}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n}{fig}\PY{p}{,} \PY{n}{ax} \PY{o}{=} \PY{n}{plt}\PY{o}{.}\PY{n}{subplots}\PY{p}{(}\PY{p}{)}
+
+\PY{n}{freq\PYZus{}sample} \PY{o}{=} \PY{l+m+mi}{1000}
+\PY{n}{freq\PYZus{}signals} \PY{o}{=} \PY{n}{freq\PYZus{}sample} \PY{o}{/} \PY{n}{np}\PY{o}{.}\PY{n}{logspace}\PY{p}{(}\PY{l+m+mi}{0}\PY{p}{,} \PY{l+m+mi}{3}\PY{p}{,} \PY{l+m+mi}{500}\PY{p}{)}
+\PY{n}{orders} \PY{o}{=} \PY{p}{[}\PY{l+m+mi}{1}\PY{p}{,} \PY{l+m+mi}{2}\PY{p}{,} \PY{l+m+mi}{3}\PY{p}{,} \PY{l+m+mi}{4}\PY{p}{,} \PY{l+m+mi}{8}\PY{p}{,} \PY{l+m+mi}{16}\PY{p}{,} \PY{l+m+mi}{64}\PY{p}{,} \PY{l+m+mi}{512}\PY{p}{]}
+
+\PY{n}{colors} \PY{o}{=} \PY{n}{p}\PY{o}{.}\PY{n}{sns}\PY{o}{.}\PY{n}{color\PYZus{}palette}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{rainbow}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{n\PYZus{}colors}\PY{o}{=}\PY{n+nb}{len}\PY{p}{(}\PY{n}{orders}\PY{p}{)}\PY{p}{)}
+
+\PY{k}{for} \PY{n}{i}\PY{p}{,} \PY{n}{order} \PY{o+ow}{in} \PY{n+nb}{enumerate}\PY{p}{(}\PY{n}{orders}\PY{p}{)}\PY{p}{:}
+    \PY{n}{true}\PY{p}{,} \PY{n}{estimated} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{vectorize}\PY{p}{(}\PY{n}{synthesize\PYZus{}data\PYZus{}and\PYZus{}reconstruct\PYZus{}noise\PYZus{}variance}\PY{p}{)}\PY{p}{(}
+        \PY{n}{freq\PYZus{}signal}\PY{o}{=}\PY{n}{freq\PYZus{}signals}\PY{p}{,}
+        \PY{n}{freq\PYZus{}sample}\PY{o}{=}\PY{n}{freq\PYZus{}sample}\PY{p}{,}
+        \PY{n}{order}\PY{o}{=}\PY{n}{order}\PY{p}{,}
+    \PY{p}{)}
+    \PY{n}{ratio} \PY{o}{=} \PY{n}{freq\PYZus{}sample} \PY{o}{/} \PY{n}{freq\PYZus{}signals}
+    \PY{n}{error} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{abs}\PY{p}{(}\PY{n}{true} \PY{o}{\PYZhy{}} \PY{n}{estimated}\PY{p}{)} \PY{o}{/} \PY{n}{true}
+
+    \PY{n}{index\PYZus{}noise\PYZus{}floor} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{argwhere}\PY{p}{(}
+        \PY{p}{(}\PY{n}{np}\PY{o}{.}\PY{n}{arange}\PY{p}{(}\PY{n+nb}{len}\PY{p}{(}\PY{n}{error}\PY{p}{)}\PY{p}{)} \PY{o}{\PYZgt{}} \PY{n}{np}\PY{o}{.}\PY{n}{argmax}\PY{p}{(}\PY{n}{error}\PY{p}{)}\PY{p}{)} \PY{o}{\PYZam{}} \PY{p}{(}\PY{n}{error} \PY{o}{\PYZlt{}} \PY{l+m+mi}{2} \PY{o}{*} \PY{n}{np}\PY{o}{.}\PY{n}{median}\PY{p}{(}\PY{n}{error}\PY{p}{[}\PY{o}{\PYZhy{}}\PY{l+m+mi}{50}\PY{p}{:}\PY{p}{]}\PY{p}{)}\PY{p}{)}
+    \PY{p}{)}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}
+
+    \PY{n}{c} \PY{o}{=} \PY{n}{p}\PY{o}{.}\PY{n}{adjust\PYZus{}lightness}\PY{p}{(}\PY{n}{colors}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{p}{,} \PY{l+m+mf}{0.6}\PY{p}{)}
+
+    \PY{c+c1}{\PYZsh{} print(order)}
+    \PY{c+c1}{\PYZsh{} print(np.mean(estimated[index\PYZus{}noise\PYZus{}floor+1:]), np.std(estimated[index\PYZus{}noise\PYZus{}floor+1:]))}
+
+    \PY{n}{ax}\PY{o}{.}\PY{n}{loglog}\PY{p}{(}
+        \PY{n}{ratio}\PY{p}{[}\PY{p}{:}\PY{n}{index\PYZus{}noise\PYZus{}floor} \PY{o}{+} \PY{l+m+mi}{1}\PY{p}{]}\PY{p}{,}
+        \PY{n}{error}\PY{p}{[}\PY{p}{:}\PY{n}{index\PYZus{}noise\PYZus{}floor} \PY{o}{+} \PY{l+m+mi}{1}\PY{p}{]}\PY{p}{,}
+        \PY{n}{label}\PY{o}{=}\PY{l+s+sa}{f}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+si}{\PYZob{}}\PY{n}{order}\PY{l+s+si}{\PYZcb{}}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+        \PY{n}{alpha}\PY{o}{=}\PY{l+m+mf}{0.8}\PY{p}{,} \PY{n}{color}\PY{o}{=}\PY{n}{c}\PY{p}{,} \PY{n}{linewidth}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{,}
+        \PY{n}{zorder}\PY{o}{=}\PY{l+m+mi}{4} \PY{o}{+} \PY{n+nb}{len}\PY{p}{(}\PY{n}{orders}\PY{p}{)} \PY{o}{\PYZhy{}} \PY{n}{i}\PY{p}{,}
+    \PY{p}{)}
+    \PY{n}{ax}\PY{o}{.}\PY{n}{loglog}\PY{p}{(}
+        \PY{n}{ratio}\PY{p}{[}\PY{n}{index\PYZus{}noise\PYZus{}floor}\PY{p}{:}\PY{p}{]}\PY{p}{,}
+        \PY{n}{error}\PY{p}{[}\PY{n}{index\PYZus{}noise\PYZus{}floor}\PY{p}{:}\PY{p}{]}\PY{p}{,}
+        \PY{n}{alpha}\PY{o}{=}\PY{l+m+mf}{0.2}\PY{p}{,} \PY{n}{color}\PY{o}{=}\PY{n}{c}\PY{p}{,} \PY{n}{linewidth}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{,}
+        \PY{n}{zorder}\PY{o}{=}\PY{l+m+mi}{3}\PY{p}{,}
+    \PY{p}{)}
+
+\PY{n}{plt}\PY{o}{.}\PY{n}{xlim}\PY{p}{(}\PY{n}{left}\PY{o}{=}\PY{l+m+mi}{2}\PY{p}{,} \PY{n}{right}\PY{o}{=}\PY{p}{(}\PY{n}{freq\PYZus{}sample} \PY{o}{/} \PY{n}{freq\PYZus{}signals}\PY{p}{)}\PY{p}{[}\PY{o}{\PYZhy{}}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}
+\PY{n}{plt}\PY{o}{.}\PY{n}{ylim}\PY{p}{(}\PY{n}{bottom}\PY{o}{=}\PY{l+m+mi}{1} \PY{o}{/} \PY{n}{freq\PYZus{}sample} \PY{o}{/} \PY{l+m+mi}{10}\PY{p}{)}
+
+\PY{n}{plt}\PY{o}{.}\PY{n}{annotate}\PY{p}{(}
+    \PY{n}{text}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Nyquist Freq.,}\PY{l+s+se}{\PYZbs{}n}\PY{l+s+s2}{\PYZdl{}}\PY{l+s+s2}{\PYZbs{}}\PY{l+s+s2}{mathrm}\PY{l+s+si}{\PYZob{}Ratio\PYZcb{}}\PY{l+s+s2}{=2\PYZdl{}}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{n}{xy}\PY{o}{=}\PY{p}{(}\PY{l+m+mi}{0}\PY{p}{,} \PY{l+m+mi}{0}\PY{p}{)}\PY{p}{,}
+    \PY{n}{xytext}\PY{o}{=}\PY{p}{(}\PY{l+m+mi}{0}\PY{p}{,} \PY{o}{\PYZhy{}}\PY{l+m+mi}{20}\PY{p}{)}\PY{p}{,}
+    \PY{n}{xycoords}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{axes fraction}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{n}{textcoords}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{offset points}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{n}{ha}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{center}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{n}{va}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{top}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{n}{alpha}\PY{o}{=}\PY{l+m+mf}{0.6}\PY{p}{,}
+    \PY{n}{fontsize}\PY{o}{=}\PY{l+m+mi}{8}\PY{p}{,}
+    \PY{n}{arrowprops}\PY{o}{=}\PY{n+nb}{dict}\PY{p}{(}
+        \PY{n}{arrowstyle}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{simple}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+        \PY{c+c1}{\PYZsh{} connectionstyle=\PYZdq{}arc3,rad=0.2\PYZdq{},}
+        \PY{n}{linewidth}\PY{o}{=}\PY{l+m+mi}{0}\PY{p}{,}
+        \PY{n}{alpha}\PY{o}{=}\PY{l+m+mf}{0.5}\PY{p}{,}
+        \PY{n}{facecolor}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{k}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{p}{)}\PY{p}{,}
+\PY{p}{)}
+\PY{n}{plt}\PY{o}{.}\PY{n}{annotate}\PY{p}{(}
+    \PY{n}{text}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{For readability, lines are faded once they hit the theoretical}\PY{l+s+se}{\PYZbs{}n}\PY{l+s+s2}{minimum\PYZhy{}possible estimator error, roughly \PYZdl{}}\PY{l+s+se}{\PYZbs{}\PYZbs{}}\PY{l+s+s2}{epsilon }\PY{l+s+se}{\PYZbs{}\PYZbs{}}\PY{l+s+s2}{approx N\PYZca{}}\PY{l+s+s2}{\PYZob{}}\PY{l+s+s2}{\PYZhy{}0.5\PYZcb{}\PYZdl{}}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{n}{xy}\PY{o}{=}\PY{p}{(}\PY{l+m+mf}{0.02}\PY{p}{,} \PY{l+m+mf}{0.02}\PY{p}{)}\PY{p}{,}
+    \PY{n}{xycoords}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{axes fraction}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{n}{ha}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{left}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{n}{va}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{bottom}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{n}{fontsize}\PY{o}{=}\PY{l+m+mi}{9}
+\PY{p}{)}
+
+\PY{n}{plt}\PY{o}{.}\PY{n}{legend}\PY{p}{(}
+    \PY{n}{title}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Estimator Order}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{n}{ncols}\PY{o}{=}\PY{l+m+mi}{2}\PY{p}{,}
+\PY{p}{)}
+\PY{n}{p}\PY{o}{.}\PY{n}{show\PYZus{}plot}\PY{p}{(}
+    \PY{n}{title}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Performance of Higher\PYZhy{}Order Data\PYZhy{}Driven Noise Estimators}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{n}{xlabel}\PY{o}{=}\PY{l+s+sa}{r}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Ratio of \PYZdl{}}\PY{l+s+s2}{\PYZbs{}}\PY{l+s+s2}{frac}\PY{l+s+s2}{\PYZob{}}\PY{l+s+s2}{\PYZbs{}}\PY{l+s+s2}{mathrm}\PY{l+s+s2}{\PYZob{}}\PY{l+s+s2}{Sample}\PY{l+s+s2}{\PYZbs{}}\PY{l+s+s2}{ Frequency\PYZcb{}\PYZcb{}}\PY{l+s+s2}{\PYZob{}}\PY{l+s+s2}{\PYZbs{}}\PY{l+s+s2}{mathrm}\PY{l+s+s2}{\PYZob{}}\PY{l+s+s2}{Underlying}\PY{l+s+s2}{\PYZbs{}}\PY{l+s+s2}{ Signal}\PY{l+s+s2}{\PYZbs{}}\PY{l+s+s2}{ Frequency\PYZcb{}\PYZcb{}\PYZdl{}}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{n}{ylabel}\PY{o}{=}\PY{l+s+sa}{r}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Relative Error of Estimator \PYZdl{}}\PY{l+s+s2}{\PYZbs{}}\PY{l+s+s2}{epsilon = }\PY{l+s+s2}{\PYZbs{}}\PY{l+s+s2}{left| }\PY{l+s+s2}{\PYZbs{}}\PY{l+s+s2}{frac}\PY{l+s+s2}{\PYZob{}}\PY{l+s+s2}{ }\PY{l+s+s2}{\PYZbs{}}\PY{l+s+s2}{sigma\PYZus{}}\PY{l+s+s2}{\PYZob{}}\PY{l+s+s2}{\PYZbs{}}\PY{l+s+s2}{mathrm}\PY{l+s+si}{\PYZob{}estimated\PYZcb{}}\PY{l+s+s2}{\PYZcb{} \PYZhy{} }\PY{l+s+s2}{\PYZbs{}}\PY{l+s+s2}{sigma\PYZus{}}\PY{l+s+s2}{\PYZob{}}\PY{l+s+s2}{\PYZbs{}}\PY{l+s+s2}{mathrm}\PY{l+s+si}{\PYZob{}true\PYZcb{}}\PY{l+s+s2}{\PYZcb{} \PYZcb{}}\PY{l+s+s2}{\PYZob{}}\PY{l+s+s2}{\PYZbs{}}\PY{l+s+s2}{sigma\PYZus{}}\PY{l+s+s2}{\PYZob{}}\PY{l+s+s2}{\PYZbs{}}\PY{l+s+s2}{mathrm}\PY{l+s+si}{\PYZob{}true\PYZcb{}}\PY{l+s+s2}{\PYZcb{}\PYZcb{}}\PY{l+s+s2}{\PYZbs{}}\PY{l+s+s2}{right|\PYZdl{}}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{n}{legend}\PY{o}{=}\PY{k+kc}{False}\PY{p}{,}
+    \PY{n}{dpi}\PY{o}{=}\PY{l+m+mi}{300}\PY{p}{,}
+\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_56_0.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    The figure above shows something quite remarkable: we can use
+extremely-high-order estimators (even up to the 512th order, i.e.,
+taking the 512th-derivative of raw, noisy data via finite differences),
+and we see not only that it's numerically stable, but also that it
+accurately estimates the true noise variance even when the underlying
+signal is almost at the Nyquist frequency.
+
+Interestingly, except for a miniscule region near the Nyquist frequency,
+estimator performance seems to monotonically improve with increasing
+estimator order. Since practical data reconstruction would likely have
+the \(f_{\rm sample} / f_{\rm signal}\) ratio be much larger than 2,
+this suggests that we can use extremely-high-order estimators to
+estimate the noise variance with very high accuracy.
+
+    \hypertarget{bootstrapped-uncertainty-quantification-using-noise-estimators}{%
+\subsubsection{Bootstrapped Uncertainty Quantification using Noise
+Estimators}\label{bootstrapped-uncertainty-quantification-using-noise-estimators}}
+
+    An added benefit of rigorously estimating the noise variance is that we
+can use this to improve the uncertainty quantification of our air
+vehicle state estimation with minimal extra effort.
+
+For example, consider uncertainty quantification through a resampling
+boostrap.
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{17}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{k}{def} \PY{n+nf}{read\PYZus{}and\PYZus{}estimate\PYZus{}noise}\PY{p}{(}\PY{n}{name}\PY{p}{,} \PY{n}{estimator\PYZus{}order}\PY{o}{=}\PY{l+m+mi}{100}\PY{p}{)}\PY{p}{:}
+    \PY{n}{source} \PY{o}{=} \PY{n}{data\PYZus{}sources}\PY{p}{[}\PY{n}{name}\PY{p}{]}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}
+    \PY{n}{colname} \PY{o}{=} \PY{n}{data\PYZus{}sources}\PY{p}{[}\PY{n}{name}\PY{p}{]}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}
+
+    \PY{n}{df} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{read\PYZus{}csv}\PY{p}{(}\PY{n}{source}\PY{p}{)}
+
+    \PY{n}{raw\PYZus{}time} \PY{o}{=} \PY{p}{(}\PY{n}{df}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{timestamp}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{o}{.}\PY{n}{values}\PY{o}{.}\PY{n}{astype}\PY{p}{(}\PY{n+nb}{float}\PY{p}{)} \PY{o}{\PYZhy{}} \PY{n}{timestamp\PYZus{}0}\PY{p}{)} \PY{o}{/} \PY{l+m+mf}{1e6}
+    \PY{n}{data} \PY{o}{=} \PY{n}{df}\PY{p}{[}\PY{n}{colname}\PY{p}{]}\PY{o}{.}\PY{n}{values}\PY{o}{.}\PY{n}{astype}\PY{p}{(}\PY{n+nb}{float}\PY{p}{)}
+
+    \PY{n}{mask} \PY{o}{=} \PY{p}{(}\PY{n}{raw\PYZus{}time} \PY{o}{\PYZgt{}} \PY{n}{raw\PYZus{}time\PYZus{}takeoff}\PY{p}{)} \PY{o}{\PYZam{}} \PY{p}{(}\PY{n}{raw\PYZus{}time} \PY{o}{\PYZlt{}} \PY{n}{raw\PYZus{}time\PYZus{}landing}\PY{p}{)}
+
+    \PY{n}{time} \PY{o}{=} \PY{n}{raw\PYZus{}time}\PY{p}{[}\PY{n}{mask}\PY{p}{]} \PY{o}{\PYZhy{}} \PY{n}{raw\PYZus{}time\PYZus{}takeoff}
+    \PY{n}{data} \PY{o}{=} \PY{n}{data}\PY{p}{[}\PY{n}{mask}\PY{p}{]}
+
+    \PY{n}{diff\PYZus{}data} \PY{o}{=} \PY{n}{data}
+
+    \PY{k}{for} \PY{n}{\PYZus{}} \PY{o+ow}{in} \PY{n+nb}{range}\PY{p}{(}\PY{n}{estimator\PYZus{}order}\PY{p}{)}\PY{p}{:}
+        \PY{n}{diff\PYZus{}data} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{diff}\PY{p}{(}\PY{n}{diff\PYZus{}data}\PY{p}{)}
+
+    \PY{k+kn}{from} \PY{n+nn}{scipy}\PY{n+nn}{.}\PY{n+nn}{special} \PY{k+kn}{import} \PY{n}{binom}
+
+    \PY{n}{estimated\PYZus{}noise\PYZus{}standard\PYZus{}deviation} \PY{o}{=} \PY{p}{(}
+        \PY{n}{np}\PY{o}{.}\PY{n}{std}\PY{p}{(}  \PY{c+c1}{\PYZsh{} Standard deviation}
+            \PY{n}{diff\PYZus{}data} \PY{o}{/} \PY{n}{np}\PY{o}{.}\PY{n}{sqrt}\PY{p}{(}\PY{n}{binom}\PY{p}{(}\PY{l+m+mi}{2} \PY{o}{*} \PY{n}{estimator\PYZus{}order}\PY{p}{,} \PY{n}{estimator\PYZus{}order}\PY{p}{)}\PY{p}{)}
+        \PY{p}{)}
+    \PY{p}{)}
+
+    \PY{k}{return} \PY{n}{time}\PY{p}{,} \PY{n}{data}\PY{p}{,} \PY{n}{estimated\PYZus{}noise\PYZus{}standard\PYZus{}deviation}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{18}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n}{x}\PY{p}{,} \PY{n}{y}\PY{p}{,} \PY{n}{y\PYZus{}stdev} \PY{o}{=} \PY{n}{read\PYZus{}and\PYZus{}estimate\PYZus{}noise}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{airspeed}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{estimator\PYZus{}order}\PY{o}{=}\PY{l+m+mi}{100}\PY{p}{)}
+
+\PY{n}{fig}\PY{p}{,} \PY{n}{ax} \PY{o}{=} \PY{n}{plt}\PY{o}{.}\PY{n}{subplots}\PY{p}{(}\PY{n}{figsize}\PY{o}{=}\PY{p}{(}\PY{l+m+mi}{7}\PY{p}{,} \PY{l+m+mf}{6.4}\PY{p}{)}\PY{p}{)}
+
+\PY{n}{color}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{teal}\PY{l+s+s2}{\PYZdq{}}
+
+\PY{n}{x\PYZus{}fit}\PY{p}{,} \PY{n}{y\PYZus{}bootstrap\PYZus{}fits} \PY{o}{=} \PY{n}{p}\PY{o}{.}\PY{n}{plot\PYZus{}with\PYZus{}bootstrapped\PYZus{}uncertainty}\PY{p}{(}
+    \PY{n}{x}\PY{p}{,}
+    \PY{n}{y}\PY{p}{,}
+    \PY{n}{y\PYZus{}stdev} \PY{o}{=} \PY{n}{y\PYZus{}stdev}\PY{p}{,}
+    \PY{n}{color}\PY{o}{=}\PY{n}{color}\PY{p}{,}
+    \PY{n}{n\PYZus{}fit\PYZus{}points}\PY{o}{=}\PY{l+m+mi}{5000}\PY{p}{,}
+    \PY{n}{draw\PYZus{}data}\PY{o}{=}\PY{k+kc}{False}\PY{p}{,}
+    \PY{n}{draw\PYZus{}ci}\PY{o}{=}\PY{k+kc}{False}\PY{p}{,}
+    \PY{n}{label\PYZus{}line}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Best Estimate}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+\PY{p}{)}
+\PY{n}{ci\PYZus{}ranges} \PY{o}{=} \PY{p}{(}\PY{l+m+mf}{0.50}\PY{p}{,} \PY{l+m+mf}{0.95}\PY{p}{)}
+\PY{k}{for} \PY{n}{ci} \PY{o+ow}{in} \PY{n}{ci\PYZus{}ranges}\PY{p}{:}
+    \PY{n}{plt}\PY{o}{.}\PY{n}{fill\PYZus{}between}\PY{p}{(}
+        \PY{n}{x\PYZus{}fit}\PY{p}{,}
+        \PY{n}{np}\PY{o}{.}\PY{n}{nanquantile}\PY{p}{(}\PY{n}{y\PYZus{}bootstrap\PYZus{}fits}\PY{p}{,} \PY{n}{q}\PY{o}{=}\PY{p}{(}\PY{l+m+mi}{1} \PY{o}{\PYZhy{}} \PY{n}{ci}\PY{p}{)} \PY{o}{/} \PY{l+m+mi}{2}\PY{p}{,} \PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{0}\PY{p}{)}\PY{p}{,}  \PY{c+c1}{\PYZsh{} Use the equal\PYZhy{}tails method}
+        \PY{n}{np}\PY{o}{.}\PY{n}{nanquantile}\PY{p}{(}\PY{n}{y\PYZus{}bootstrap\PYZus{}fits}\PY{p}{,} \PY{n}{q}\PY{o}{=}\PY{l+m+mi}{1} \PY{o}{\PYZhy{}} \PY{p}{(}\PY{l+m+mi}{1} \PY{o}{\PYZhy{}} \PY{n}{ci}\PY{p}{)} \PY{o}{/} \PY{l+m+mi}{2}\PY{p}{,} \PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{0}\PY{p}{)}\PY{p}{,}
+        \PY{n}{color}\PY{o}{=}\PY{n}{color}\PY{p}{,}
+        \PY{n}{label}\PY{o}{=}\PY{n}{ci}\PY{p}{,}
+        \PY{n}{alpha}\PY{o}{=}\PY{l+m+mf}{0.25}\PY{p}{,}
+        \PY{n}{linewidth}\PY{o}{=}\PY{l+m+mi}{0}
+    \PY{p}{)}
+\PY{n}{plt}\PY{o}{.}\PY{n}{plot}\PY{p}{(}
+    \PY{n}{x}\PY{p}{,} \PY{n}{y}\PY{p}{,}
+    \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{.k}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{n}{label}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Raw Data}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{n}{alpha}\PY{o}{=}\PY{l+m+mf}{0.5}\PY{p}{,}
+    \PY{n}{markersize}\PY{o}{=}\PY{l+m+mi}{6}\PY{p}{,}
+    \PY{n}{markeredgewidth}\PY{o}{=}\PY{l+m+mi}{0}\PY{p}{,}
+    \PY{n}{zorder}\PY{o}{=}\PY{l+m+mf}{1.9}
+\PY{p}{)}
+
+\PY{n}{xlim} \PY{o}{=} \PY{p}{(}\PY{l+m+mi}{60}\PY{p}{,} \PY{l+m+mi}{90}\PY{p}{)}
+\PY{n}{plt}\PY{o}{.}\PY{n}{xlim}\PY{p}{(}\PY{o}{*}\PY{n}{xlim}\PY{p}{)}
+\PY{n}{plt}\PY{o}{.}\PY{n}{ylim}\PY{p}{(}\PY{l+m+mi}{6}\PY{p}{,} \PY{l+m+mi}{13}\PY{p}{)}
+\PY{n}{p}\PY{o}{.}\PY{n}{set\PYZus{}ticks}\PY{p}{(}\PY{l+m+mi}{5}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{,} \PY{l+m+mf}{0.2}\PY{p}{)}
+
+\PY{n}{p}\PY{o}{.}\PY{n}{show\PYZus{}plot}\PY{p}{(}
+    \PY{l+s+sa}{f}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Probabilistic State Reconstruction with Improved Noise Estimates}\PY{l+s+se}{\PYZbs{}n}\PY{l+s+s2}{Airspeed data, zoomed to \PYZdl{}t }\PY{l+s+s2}{\PYZbs{}}\PY{l+s+s2}{in }\PY{l+s+si}{\PYZob{}}\PY{n}{xlim}\PY{l+s+si}{\PYZcb{}}\PY{l+s+s2}{\PYZdl{}}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Time after Takeoff [sec]}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Airspeed [m/s]}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+    \PY{n}{dpi}\PY{o}{=}\PY{l+m+mi}{300}\PY{p}{,}
+\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{Verbatim}[commandchars=\\\{\}, frame=single, framerule=2mm, rulecolor=\color{outerrorbackground}]
+\textcolor{ansi-red-intense}{\textbf{---------------------------------------------------------------------------}}
+\textcolor{ansi-red-intense}{\textbf{TypeError}}                                 Traceback (most recent call last)
+Cell \textcolor{ansi-green-intense}{\textbf{In[18], line 7}}
+\textcolor{ansi-green}{      3} fig, ax \def\tcRGB{\textcolor[RGB]}\expandafter\tcRGB\expandafter{\detokenize{98,98,98}}{=} plt\def\tcRGB{\textcolor[RGB]}\expandafter\tcRGB\expandafter{\detokenize{98,98,98}}{.}subplots(figsize\def\tcRGB{\textcolor[RGB]}\expandafter\tcRGB\expandafter{\detokenize{98,98,98}}{=}(\def\tcRGB{\textcolor[RGB]}\expandafter\tcRGB\expandafter{\detokenize{98,98,98}}{7}, \def\tcRGB{\textcolor[RGB]}\expandafter\tcRGB\expandafter{\detokenize{98,98,98}}{6.4}))
+\textcolor{ansi-green}{      5} color\def\tcRGB{\textcolor[RGB]}\expandafter\tcRGB\expandafter{\detokenize{98,98,98}}{=}\def\tcRGB{\textcolor[RGB]}\expandafter\tcRGB\expandafter{\detokenize{175,0,0}}{"}\def\tcRGB{\textcolor[RGB]}\expandafter\tcRGB\expandafter{\detokenize{175,0,0}}{teal}\def\tcRGB{\textcolor[RGB]}\expandafter\tcRGB\expandafter{\detokenize{175,0,0}}{"}
+\textcolor{ansi-green-intense}{\textbf{----> 7}} x\_fit, y\_bootstrap\_fits \def\tcRGB{\textcolor[RGB]}\expandafter\tcRGB\expandafter{\detokenize{98,98,98}}{=} \setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{p\strut}\def\tcRGB{\textcolor[RGB]}\expandafter\tcRGB\expandafter{\detokenize{98,98,98}}{\setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{.\strut}}\setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{plot\_with\_bootstrapped\_uncertainty\strut}\setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{(\strut}
+\textcolor{ansi-green}{      8} \setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{    \strut}\setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{x\strut}\setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{,\strut}
+\textcolor{ansi-green}{      9} \setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{    \strut}\setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{y\strut}\setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{,\strut}
+\textcolor{ansi-green}{     10} \setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{    \strut}\setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{y\_stdev\strut}\setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{ \strut}\def\tcRGB{\textcolor[RGB]}\expandafter\tcRGB\expandafter{\detokenize{98,98,98}}{\setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{=\strut}}\setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{ \strut}\setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{y\_stdev\strut}\setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{,\strut}
+\textcolor{ansi-green}{     11} \setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{    \strut}\setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{color\strut}\def\tcRGB{\textcolor[RGB]}\expandafter\tcRGB\expandafter{\detokenize{98,98,98}}{\setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{=\strut}}\setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{color\strut}\setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{,\strut}
+\textcolor{ansi-green}{     12} \setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{    \strut}\setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{n\_fit\_points\strut}\def\tcRGB{\textcolor[RGB]}\expandafter\tcRGB\expandafter{\detokenize{98,98,98}}{\setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{=\strut}}\def\tcRGB{\textcolor[RGB]}\expandafter\tcRGB\expandafter{\detokenize{98,98,98}}{\setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{5000\strut}}\setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{,\strut}
+\textcolor{ansi-green}{     13} \setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{    \strut}\setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{draw\_data\strut}\def\tcRGB{\textcolor[RGB]}\expandafter\tcRGB\expandafter{\detokenize{98,98,98}}{\setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{=\strut}}\def\tcRGB{\textcolor[RGB]}\expandafter\tcRGB\expandafter{\detokenize{0,135,0}}{\setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{\textbf{False}\strut}}\setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{,\strut}
+\textcolor{ansi-green}{     14} \setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{    \strut}\setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{draw\_ci\strut}\def\tcRGB{\textcolor[RGB]}\expandafter\tcRGB\expandafter{\detokenize{98,98,98}}{\setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{=\strut}}\def\tcRGB{\textcolor[RGB]}\expandafter\tcRGB\expandafter{\detokenize{0,135,0}}{\setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{\textbf{False}\strut}}\setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{,\strut}
+\textcolor{ansi-green}{     15} \setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{    \strut}\setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{label\_line\strut}\def\tcRGB{\textcolor[RGB]}\expandafter\tcRGB\expandafter{\detokenize{98,98,98}}{\setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{=\strut}}\def\tcRGB{\textcolor[RGB]}\expandafter\tcRGB\expandafter{\detokenize{175,0,0}}{\setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{"\strut}}\def\tcRGB{\textcolor[RGB]}\expandafter\tcRGB\expandafter{\detokenize{175,0,0}}{\setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{Best Estimate\strut}}\def\tcRGB{\textcolor[RGB]}\expandafter\tcRGB\expandafter{\detokenize{175,0,0}}{\setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{"\strut}}\setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{,\strut}
+\textcolor{ansi-green}{     16} \setlength{\fboxsep}{0pt}\colorbox{ansi-yellow}{)\strut}
+\textcolor{ansi-green}{     17} ci\_ranges \def\tcRGB{\textcolor[RGB]}\expandafter\tcRGB\expandafter{\detokenize{98,98,98}}{=} (\def\tcRGB{\textcolor[RGB]}\expandafter\tcRGB\expandafter{\detokenize{98,98,98}}{0.50}, \def\tcRGB{\textcolor[RGB]}\expandafter\tcRGB\expandafter{\detokenize{98,98,98}}{0.95})
+\textcolor{ansi-green}{     18} \def\tcRGB{\textcolor[RGB]}\expandafter\tcRGB\expandafter{\detokenize{0,135,0}}{\textbf{for}} ci \def\tcRGB{\textcolor[RGB]}\expandafter\tcRGB\expandafter{\detokenize{175,0,255}}{\textbf{in}} ci\_ranges:
+
+\textcolor{ansi-red-intense}{\textbf{TypeError}}: plot\_with\_bootstrapped\_uncertainty() got an unexpected keyword argument 'draw\_ci'
+    \end{Verbatim}
+
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_61_1.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    
+
+
+    % Add a bibliography block to the postdoc
+    
+    
+    
+\end{document}
