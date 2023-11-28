@@ -330,7 +330,7 @@
 
     Gradient-based optimization methods are computationally bottlenecked by the cost of computing gradients \cite{lyu_benchmarking_2014, martins_engineering_2021}. Existing state-of-the-art workflows have users manually derive and implement highly-efficient gradients for each model, but this is time-consuming and thus impractical for early-stage design. Automatic differentiation (AD) is an efficient and accurate way to automatically compute the gradients of a function \textit{as represented in code} at runtime. In many cases, the computational complexity of this technique is fundamentally better than traditional approaches like finite-differencing; Griewank provides concrete upper bounds on the worst-case time complexity \cite{griewank_automatic_1988}.
 
-    Automatic differentiation exploits the fact that any function can be broken into a series of simple mathematical operators, which can then be represented as a computational graph. As a practical matter, this computational graph is often created by tracing program execution with an overloaded numerics library. This graph construction process is illustrated in Figure \ref{fig:computational-graph}. The chain rule can then be applied to this graph to compute the Jacobian of the function. Various modes of automatic differentiation effectively allow this Jacobian construction to occur either column-by-column (forward-mode) or row-by-row (reverse-mode) \cite{casadi, jax, martins_engineering_2021}; depending on the shape of this Jacobian, one strategy may be enormously more efficient than the other.
+    Automatic differentiation exploits the fact that any function can be broken into a series of simple mathematical operators, which can then be represented as a computational graph. As a practical matter, this computational graph is often created by tracing program execution with an overloaded numerics library \cite{maclaurin_autograd_2015}. This graph construction process is illustrated in Figure \ref{fig:computational-graph}. The chain rule can then be applied to this graph to compute the Jacobian of the function. Various modes of automatic differentiation effectively allow this Jacobian construction to occur either column-by-column (forward-mode) or row-by-row (reverse-mode) \cite{casadi, jax, martins_engineering_2021}; depending on the shape of this Jacobian, one strategy may be enormously more efficient than the other.
 
     \begin{figure}[H]
         \centering
@@ -560,6 +560,50 @@
 
     Thus, this contribution is twofold. First, the thesis will conceptually introduce code transformations as a new paradigm for engineering MDO frameworks. Secondly, the thesis will demonstrate strategies that allow traceability of engineering design code with minimal user effort, enabling the use of code transformations in practice.
 
+    \subsection*{Results-To-Date in Code Transformations}
+
+
+    To explore and demonstrate this code transformation paradigm, we created \textit{AeroSandbox}, a Python-based MDO framework for conceptual design. This framework serves as both a proof-of-concept implementation as well as a proving ground for testing new transformations, with specific focus on engineering design applications. On top of this code framework, many optional aircraft-design-specific tools and physics modules are included; nevertheless, the core design optimization framework is applicable for conceptual design of many large-scale engineering systems. The code is made available open-source on GitHub under the permissive MIT license in order to gather as much practical user feedback as possible.
+
+    Core components of this framework and its mathematical basis are discussed more fully by Sharpe \cite{sharpe_aerosandbox_2021}. The framework is built on top of the \textit{CasADi} \cite{casadi} and \textit{JAX} \cite{jax} scientific computing libraries, which allow the computational graph tracing and several of the code transformation capabilities that are central to this work. The framework is designed to be modular and extensible, with a focus on ease-of-use and interpretability. The framework is also designed to be highly performant, with a focus on leveraging code transformations to achieve high computational speeds. As an optimization backend, the framework currently solves the transformed optimization problem using IPOPT, a primal-dual interior point algorithm \cite{wachter_implementation_2006}.
+
+    Fundamentally, AeroSandbox is a tool for building and transforming computational graphs, and indeed these graphs can be directly inspected both computationally and visually, as Figure \ref{fig:computational-graph-aerosandbox} shows. When constructing this graph, AeroSandbox deliberately makes certain framework-level decisions (e.g., to use a static, rather than dynamic graph; to use heuristics for forward- vs. reverse-mode automatic differentiation); these choices are tradeoffs that tend to work well on engineering analysis code \cite{rackauckas_engineering_2021}.
+
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=\textwidth]{../figures/computational_graph_blimp.png}
+        \caption{Computational graph of a mass model for an airship, as constructed by AeroSandbox. This graph is automatically constructed at runtime.}
+        \label{fig:computational-graph-aerosandbox}
+    \end{figure}
+
+    AeroSandbox can be used to demonstrate the potential of code transformations to accelerate optimization problems with minimal effort. Here, we give an example comparison using the Rosenbrock optimization problem. This problem is a classic optimization benchmark, designed to be a stress-test as the optimum lies at the bottom of a shallow-curving valley \cite{rosenbrock}. Here, we solve an $N$-dimensional extension of this problem, which conveniently gives a knob to dial up or down the difficulty of the problem \cite{kok}. This optimization problem is defined in Equation \ref{eq:rosenbrock}:
+
+    \begin{mini}|l|
+        {\vec{x}}{ \sum_{i=1}^{N-1} \left[ 100 \left(x_{i+1} - x_i^2 \right)^2 + \left(1 - x_i \right)^2 \right] }
+        {}{}
+%        \addConstraint{}
+        \label{eq:rosenbrock}
+    \end{mini}
+
+    Figure \ref{fig:rosenbrock} illustrates this optimization landscape for the case where $N=2$, showing the curved valley. For all $N$, the global optimum is at $\vec{x} = \vec{1}$, where the objective function evaluates to $0$. This problem is chosen here because it shares many difficult aspects with engineering design optimization problems: it is nonlinear, nonconvex, and poorly-scaled. Furthermore, we deliberately choose poor initial guesses, with each element of the vector of initial guesses drawn from a random uniform distribution in the interval $[-10, 10]$.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics{../figures/rosenbrock_function.pdf}
+        \caption{The Rosenbrock function, a classic optimization benchmark problem.}
+        \label{fig:rosenbrock}
+    \end{figure}
+
+    In Figure \ref{fig:aerosandbox_scaling_comparison}, the performance of AeroSandbox (which leverages code transformations) is compared against existing methods using black-box optimization techniques. AeroSandbox offers faster practical and asymptotic optimization performance than existing black-box optimization methods, demonstrating the magnitude of acceleration that is possible with code transformations.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.8\textwidth]{../figures/aerosandbox_scaling_comparison.png}
+        \caption{Comparison of optimization performance between AeroSandbox and existing black-box optimization methods on the $N$-dimensional Rosenbrock problem. Other methods are a Nelder-Mead simplex method and two gradient-based methods (SLSQP and BFGS), both using common SciPy implementations \cite{scipy}.}
+        \label{fig:aerosandbox_scaling_comparison}
+    \end{figure}
+    
+    Engineering benchmarks comparing the performance of an early implementation of the code transformations paradigm to disciplined optimization methods are given in Sharpe \cite{sharpe_aerosandbox_2021}. In short, code transformations can equal or exceed the performance of disciplined optimization methods such as geometric programming, even on problems where this disciplined optimization approach is applicable. This is a promising result, as it suggests that code transformations may be able to offer the best of both worlds on engineering problems: the computational performance of disciplined optimization methods without the strict mathematical restrictions.
 
     \section{Traceable Physics Models}
     \label{sec:physics_models}
@@ -620,7 +664,7 @@
     \end{enumerate}
     This simple procedure yields the complete bipartite graph between inputs and outputs (the \textit{sparsity pattern}). The sparsity pattern enables gradient computation accelerations via simultaneous evaluation, since the sparsity of the Jacobian is known to be a strict subset of the result of this procedure. Crucially, no internal knowledge of the black-box function is required, which in theory compatibility with arbitrary external code.
 
-    Further accelerations are possible. One novel proposed acceleration, which we term ``chunking'', seeds multiple adjacent elements of the input vector with NaN values simultaneously. As an example: if pairs of adjacent inputs are seeded, this has the benefit of halving the number of function calls, at the detriment of providing overly-conservative sparsity information\footnote{as one cannot determine which NaN input caused a given output to return NaN, so neither can be ruled out}. This exploits the fact that a conservative sparsity pattern can still provide a significant speedup, depending on the sparsity pattern. It also exploits the fact that human-written code tends to have a high degree of locality\footnote{in other words, humans tend to code Discipline A in its entirety before implementing analyses for Discipline B} (e.g., inputs 10 and 11 are much more likely to share a sparsity pattern than inputs 10 and 100), and hence these chunked sparsities can be surprisingly accurate in practice. Thus, chunking may offer significant practical speedups by exploiting typical problem structure; a computational analogy would be how an $A^*$ graph traversal algorithm outperforms Dijkstra's algorithm in practice despite identical worst-case complexity. This and other heuristics can significantly reduce the number of black-box function evaluations required to trace the sparsity pattern.
+    Further accelerations are possible. One novel proposed acceleration, which we term ``chunking'', seeds multiple adjacent elements of the input vector with NaN values simultaneously. As an example: if pairs of adjacent inputs are seeded, this has the benefit of halving the number of function calls, at the detriment of providing overly-conservative sparsity information\footnote{as one cannot determine which NaN input caused a given output to return NaN, so neither can be ruled out}. This exploits the fact that a conservative sparsity pattern can still provide a significant speedup, depending on the sparsity pattern. It also exploits the fact that human-written code tends to have a high degree of locality\footnote{in other words, humans tend to code Discipline A in its entirety before implementing analyses for Discipline B} (e.g., inputs 10 and 11 are much more likely to share a sparsity pattern than inputs 10 and 100), and hence these chunked sparsity patterns can be surprisingly accurate in practice. Thus, chunking may offer significant practical speedups by exploiting typical problem structure; a computational analogy would be how an $A^*$ graph traversal algorithm outperforms Dijkstra's algorithm in practice despite identical worst-case complexity. This and other heuristics can significantly reduce the number of black-box function evaluations required to trace the sparsity pattern.
 
     There are several subtleties to address for robustness across numerical code. First, some functions may internally handle NaN values via exceptions, preventing contamination and hence precluding this strategy. However, NaN propagation is common in most numerical libraries. Second, conditional logic can complicate tracing, but most libraries propagate NaNs through static conditional statements (i.e., a flattened if-else statement where both branches are fused). Overall, NaN propagation shows promise for automated sparsity detection through common black-box functions. Integrating this technique into the code transformation paradigm could expand its applicability.
 
@@ -628,12 +672,77 @@
     \section{Physics-Informed Machine Learning Surrogates for Black-Box Models}
     \label{sec:physics_informed_ml}
 
+    This contribution demonstrates a method of bringing complex black-box physics models into a code transformations paradigm using surrogate modeling via physics-informed neural networks. Although low- and mid-fidelity traceable models are often more than adequate for conceptual design, there are some cases where high-fidelity black-box models is critical. Hence, providing a method to bring these models into a code transformations paradigm is an important step towards boosting practicality.
 
-    % TODO
+    As a case study, this will be demonstrated using NeuralFoil, a machine-learned airfoil aerodynamics analysis tool. Airfoil analysis is ubiquitous in aircraft design, but codes like XFoil exhibit attributes that make direct design optimization somewhat challenging \cite{adler_cfd_2022}. Moreover, external codes like XFoil cannot directly be used in the AeroSandbox implementation of the code transformations paradigm, as XFoil is not written in Python.
 
-%    \subsection{Identifying Framework Requirements for Interpretability}
-%
-%    An important distinction is that the primary goal of this thesis is not to create the single ``end-all'' framework for aircraft conceptual MDO - these frameworks naturally come and go over the years as programming languages and optimization algorithms evolve. Rather, the overarching goal is about guiding framework architectures: ``What features and paradigms should framework designers consider to mitigate the interpretability challenges of large-scale engineering design optimization?''.
+    NeuralFoil aims to match XFoil's accuracy using pure Python and NumPy code amenable to transformations, while avoiding these limitations. It is composed of feedforward neural networks trained on over 25 million XFoil runs, embedding physical knowledge like symmetry with respect to angle of attack and power-law drag behavior in the low-Reynolds limit\footnote{i.e., Stokes flow}. Strategies for structurally embedding these physics constraints into neural networks are discussed by Zhang \cite{zhang_threedimensional_2022} and leveraged for this work. This allows accurate generalization to airfoil shapes outside its training set and more efficient use of training data. Eight different neural network models, with increasing levels of complexity, have been created; this spectrum offers a tradeoff between accuracy and computational cost, as later shown in Table \ref{tab:neuralfoil_performance}.
+
+    The airfoil geometry given to NeuralFoil's neural networks is parameterized as an 8-parameter-per-side CST (Kulfan) parameterization, with Kulfan's added leading-edge-modification (LEM) and trailing-edge thickness parameter \cite{kulfan_universal_2008, kulfan_modification_2020}. This gives a total of 18 parameters (corresponding to linear modes) to describe a given airfoil shape, which are illustrated in Figure \ref{fig:neuralfoil_parameterization}. This parameterization was chosen as it is one of the most parameter-efficient representations of airfoil shape \cite{masters_geometric_2017}, is linear and relatively interpretable, and is common in existing aerospace tools \cite{mcdonald_open_2022}.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.8\textwidth]{../figures/neuralfoil/kulfan_parameterization_illustration.pdf}
+        \caption{Geometry input parameterization used by NeuralFoil.}
+        \label{fig:neuralfoil_parameterization}
+    \end{figure}
+
+    Qualitatively, NeuralFoil tracks XFoil very closely across a wide range of angles of attack and Reynolds numbers. In Figure \ref{fig:clcd_polar}, we compare the performance of NeuralFoil to XFoil on aerodynamic polar prediction. Notably, the airfoil analyzed here was developed from scratch for a real-world aircraft development program and is completely separate from the airfoils used during NeuralFoil's training, so NeuralFoil isn't gaining an unfair advantage by memorizing this airfoil's performance. In this example, and in others, NeuralFoil is typically accurate to within a few percent of XFoil's predictions. NeuralFoil also has the benefit of smoothing out XFoil's ``jagged'' predictions (for example, near $C_L=1.4$ and $Re=90k$ in Figure \ref{fig:clcd_polar}) in cases where XFoil is not reliably converging, which would otherwise make optimization difficult. Indeed, due to the nature of the neural network structures used, NeuralFoil outputs are structurally guaranteed to be $C^\infty$-continuous.
+
+    \begin{figure}[h]
+        \centering
+        \includesvg[width=\textwidth]{../figures/neuralfoil/neuralfoil_point_validation.svg}
+        \caption{Sample validation of NeuralFoil versus XFoil.}
+        \label{fig:clcd_polar}
+    \end{figure}
+
+
+    Table \ref{tab:neuralfoil_performance} quantifies the performance of NeuralFoil models with respect to XFoil more precisely. At a basic level, the figures of merit are accuracy (here, treating XFoil as a ``ground truth'') and computational speed. This table details both of these considerations. The first few columns show the error with respect to XFoil on the test dataset. The test dataset is completely isolated from the training dataset, and NeuralFoil was not allowed to learn from the test dataset. Thus, the performance on the test dataset gives a good idea of NeuralFoil's performance in the wild. The second set of columns gives the runtime speed of the models, both for a single analysis and for a large batch analysis.
+
+    \begin{table}[h]
+        \centering
+        \caption{Performance comparison of NeuralFoil (``NF'') physics-informed machine learning models versus XFoil in terms of accuracy (treating XFoil as a ground truth) and speed.}
+        \label{tab:neuralfoil_performance}
+
+        \begin{adjustbox}{width=\textwidth}
+
+            \begin{tblr}{
+                width=\textwidth,
+                colspec={m{3cm} | m{2cm} m{2cm} m{2cm} m{2cm} m{2cm} m{2cm} | m{2cm} m{2cm}},
+                row{1}={font=\bfseries},
+%            column{1}={font=\bfseries},
+            }
+                \toprule
+                Aerodynamics Model & \multicolumn{6}{m{12cm}}{Mean Absolute Error (MAE) of Given Metric, on the Test Dataset, with respect to XFoil} & \multicolumn{2}{m{4cm}}{Computational Cost to Run} \\ %\cmidrule{2-9}
+                {}                     & Lift Coeff. & Fractional Drag Coeff. & Moment Coeff. & Max Overspeed                    & Top Transition Location & Bottom Transition Location & Runtime & Total Runtime \\
+                {}                     & $C_L$       & $\ln(C_D)^{\dagger}$   & $C_M$         & $u_{\max}/u_{\infty}^{\ddagger}$ & $x_{tr, top}/c$   & $x_{tr, bot}/c$ & (1 run) & (100,000 runs) \\ \midrule
+%                NF Linear $C_L$ Model & 0.116       & -                      & -             & -                                & -                   & -                  & 1 ms    & 0.020 sec      \\
+                NF ``xxsmall''         & 0.065       & 0.121                  & 0.010         & 0.215                            & 0.073                   & 0.100                      & 3 ms    & 0.190 sec      \\
+                NF ``xsmall''          & 0.042       & 0.075                  & 0.007         & 0.134                            & 0.039                   & 0.055                      & 4 ms    & 0.284 sec      \\
+                NF ``small''           & 0.039       & 0.069                  & 0.006         & 0.122                            & 0.036                   & 0.050                      & 4 ms    & 0.402 sec      \\
+                NF ``medium''          & 0.027       & 0.051                  & 0.004         & 0.088                            & 0.022                   & 0.033                      & 5 ms    & 0.784 sec      \\
+                NF ``large''           & 0.024       & 0.045                  & 0.004         & 0.079                            & 0.020                   & 0.029                      & 6 ms    & 1.754 sec      \\
+                NF ``xlarge''          & 0.023       & 0.043                  & 0.004         & 0.076                            & 0.019                   & 0.028                      & 10 ms   & 3.330 sec      \\
+                NF ``xxlarge''         & 0.021       & 0.040                  & 0.003         & 0.071                            & 0.018                   & 0.025                      & 13 ms   & 4.297 sec      \\
+                NF ``xxxlarge''        & 0.020       & 0.039                  & 0.003         & 0.070                            & 0.016                   & 0.024                      & 38 ms   & 8.980 sec      \\
+                XFoil                  & 0           & 0                      & 0             & 0                                & 0                       & 0                          & 73 ms   & 42 min         \\ \bottomrule
+            \end{tblr}
+        \end{adjustbox}
+
+        \begin{adjustbox}{width=\textwidth}
+            \vspace{1pt}
+            \begin{tblr}{
+                width=\textwidth,
+                colspec={l},
+            }
+                $^{\dagger}$ The deviation of $\ln(C_D)$ can be thought of as ``the typical relative error in $C_D$''. \\
+                $^{\ddagger}$ This ``maximum overspeed'' gives $C_{p,min}$, which can be used to estimate the critical Mach number $M_{crit}$.\\
+            \end{tblr}
+        \end{adjustbox}
+
+    \end{table}
+
+    The benefit of using NeuralFoil as an XFoil surrogate within a code transformations framework is threefold. First, the 10-100x speedup on the analysis itself reduces computational bottlenecks. Second, smooth predictions enable reliable gradient-based optimization without getting caught in spurious local optima. Finally, augmenting NeuralFoil with code transformations permits various acceleration techniques like vectorization and parallelization, which can offer further speedups if multiple sectional aerodynamics analyses are needed (for example, in a 3D wing aerodynamics buildup or a propeller blade-element-method).
 
 
     \section{Aircraft System Identification from Minimal Sensor Data}
@@ -645,7 +754,7 @@
 
     Concretely, conservation of energy\footnote{including both unsteady altitude and airspeed terms} is used to construct an instantaneous aircraft power balance equation. The drag polar and propulsive efficiency are modeled as parametric functions (with initially-unknown parameters) informed by physical intuition or first-principles modeling. By posing this as an optimization problem to minimize residuals within some collapsed space (e.g., the airspeed-power space representing an aircraft's power curve), we simultaneously fit these unknown functions to the data while also correcting for unsteady flight effects. The resulting model is then used to reconstruct the aircraft's performance curves. Remarkably, this physics-informed regression approach shows excellent accuracy reconstructing the true performance curves from real-world noisy data, even when the raw data has significant contamination from unsteady flight effects and is quite limited. Additionally, by wrapping this optimization problem in a bootstrap resampling loop of the flight data samples, uncertainty bounds are obtained from an unbiased estimator. Figure \ref{fig:overall_procedure} broadly illustrates the toolchain for performance reconstruction used in this contribution.
 
-    \begin{figure}[!htb]
+    \begin{figure}[h]
         \centering
         \ifdraft{}{\includegraphics[width=\textwidth, trim=1cm 1cm 1cm 1cm,clip=true]{../figures/aircraft_polar_reconstruction/figures/overall_procedure}}
         \caption{Process for inference-based performance reconstruction from flight data}
@@ -654,7 +763,7 @@
 
     In a working example, key performance information (drag polar, propulsive efficiency curve, and power curve) is reconstructed from a short test flight of the \textit{Solar Surfer} aircraft. This aircraft, shown in Figure \ref{fig:solar_surfer_flight}, is a remote-controlled solar-electric seaplane design with a 14-foot wingspan and as-flown all-up mass of 9.4 kg. A 260-second-long test flight was flown in a racetrack-like pattern, as shown in Figure \ref{fig:solar_surfer_track}. Altitude, airspeed, and battery voltage and current were recorded at approximately 5 Hz. No specific attempt was made to excite the system to facilitate later system identification.
 
-    \begin{figure}[!htb]
+    \begin{figure}[h]
         \centering
         \begin{subfigure}[b]{0.45\textwidth}
             \ifdraft{}{\includegraphics[width=\textwidth]{../figures/aircraft_polar_reconstruction/assets/Flight1_02549.JPG}}
@@ -671,19 +780,19 @@
         \label{fig:solar_surfer_aircraft}
     \end{figure}
 
-    To illustrate the utility of this approach, we take the aircraft power curve (i.e., required power as a function of airspeed in steady level flight) as an example performance output of interest. Figure \ref{fig:power_curve_naive} illustrates the raw data recorded from the \textit{Solar Surfer} test flight in black, and also demonstrates the inability of naive fitting without
+    To illustrate the utility of this approach, we take the aircraft power curve (i.e., required power as a function of airspeed in steady level flight) as an example performance output of interest. Figure \ref{fig:power_curve_naive} illustrates the raw data recorded from the \textit{Solar Surfer} test flight in black, and also demonstrates the inability of naive fitting without physics-informed constraints to capture performance curves. Figure \ref{fig:power_curve_with_physics} shows the corrected data; this includes not only unsteady corrections but also the on-the-fly fitted models for propulsive efficiency from an inferred advance ratio. These corrections substantially collapse the data. From this, a power curve can be simultaneously estimated, along with uncertainty bounds.
 
-    \begin{figure}[H]
+    \begin{figure}[h]
         \centering
-        \begin{subfigure}[b]{\textwidth}
+        \begin{subfigure}[b]{0.8\textwidth}
             \centering
             \includegraphics[width=\textwidth]{../figures/aircraft_polar_reconstruction/figures/power_polar_naive}
             \caption{Raw uncorrected data for the power curve, with naive curve fitting. Uncorrected data exhibits high amounts of unexplained variance. Naive curve fits extrapolate to physically-impossible conclusions and do not capture uncertainty.}
             \label{fig:power_curve_naive}
         \end{subfigure}
-        \begin{subfigure}[b]{\textwidth}
+        \begin{subfigure}[b]{0.8\textwidth}
             \centering
-            \ifdraft{}{\includegraphics[]{../figures/aircraft_polar_reconstruction/figures/power_curve_with_physics}}
+            \ifdraft{}{\includegraphics[width=\textwidth]{../figures/aircraft_polar_reconstruction/figures/power_curve_with_physics}}
             \caption{Power curve with physics-informed corrections on data and model, and using noise estimator with a resampling bootstrap for uncertainty quantification.}
             \label{fig:power_curve_with_physics}
         \end{subfigure}
@@ -691,8 +800,6 @@
         \caption{A comparison of power curve estimation for the \textit{Solar Surfer} airplane using naive vs. system identification methods for simultaneous data correction and performance estimation.}
         \label{fig:power_curve_comparison}
     \end{figure}
-
-    In the example result presented, performance curves are reconstructed using only 260 seconds of flight data. Uncertainty bounds are sufficiently tight for the power curve to clearly reject a naive curve fit.
 
     The proposed technique offers substantial advantages over traditional quasi-steady flight testing, including: (1) Performance estimates from significantly less flight time/data, (2) Rigorous uncertainty quantification, (3) The ability to incorporate data from non-steady flight segments, reducing wasted data, and (4) Reduced pilot workload. Taken together, these benefits can greatly reduce the time, instrumentation cost, and risk required to characterize the performance of an unproven aircraft design.
 
@@ -883,7 +990,7 @@
 
     \end{appendices}
 
-    % Bibliography
+% Bibliography
     \clearpage % or \cleardoublepage
     \addcontentsline{toc}{chapter}{Bibliography}
     \bibliography{../TeX/main, C:/Users/peter/Documents/Zotero/library, C:/Users/peter/Documents/Zotero/library-zotero}
