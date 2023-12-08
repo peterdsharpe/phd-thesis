@@ -311,6 +311,7 @@
     % Importance of geometry - CPACS, Haimes work
     A recent notable shift in aircraft design optimization perspectives has been a renewed focus on geometry representation and parameterization. For example, Haimes and Drela \cite{haimes_construction_2012} contended in 2012 that ``constructive solid geometry (CSG) is the natural foundation for [aircraft design optimization]''. This publication extended prior work by Lazzara, Haimes, and Willcox \cite{lazzara_haimes_willcox_multifidelity_geometry_2009} that introduced the concept of ``multifidelity geometry''. Together, these works advocated for accurate 3D outer mold line representations from the earliest stages of conceptual design, with degenerate representations of this central geometry used to drive individual discipline analyses. Furthermore, they recognized the fundamental limitations of general-purpose (e.g., Parasolid-based) CAD tools in aircraft design optimization: because aerospace geometries tend to use complex, lofted surfaces, the resulting CAD models can be brittle with respect to parameter changes. This observation, along with later developments such as differentiable discretization techniques \cite{esp}, led to renewed research on how aircraft geometry should be parameterized for optimization. For example, in recent years aircraft-specific geometry tools like OpenVSP \cite{mcdonald_open_2022} and Engineering Sketch Pad \cite{esp} have been developed for design optimization workflows, a trend that arguably stems from this line of research.
 % TODO transition
+
     In a broader sense, another notable area where computational methods for aircraft design have long made inroads to industry is in inverse design tools. (An example of successful industry adoption in aerodynamics the inverse approach used by the XFoil airfoil design code \cite{drela_xfoil_1989} and others \cite{liebeck_blendedwingbody_1998} to recover a shape from a specified pressure distribution.) Like optimization methods, these inverse methods can aid designers because they offer fundamentally different capabilities than traditional design methods (e.g., carpet plots). While traditional methods focus on the ``forward problem'' (design $\rightarrow$ performance), inverse methods and optimization methods both focus on the ``inverse problem'' (performance $\rightarrow$ design). Drela \cite{drela_pros_1998} shows that this more-manual inverse approach can lead to more robust designs than optimization, if the user is not familiar with the risks of an improperly-specified optimization problem.
 
 %    \subsection{Emerging Trends and Opportunities}
@@ -598,7 +599,7 @@
 
     \begin{figure}[H]
         \centering
-        \includegraphics[width=0.8\textwidth]{../figures/aerosandbox_scaling_comparison.png}
+        \includegraphics[width=0.8\textwidth]{../figures/benchmark_nd_rosenbrock.pdf}
         \caption{Comparison of optimization performance between AeroSandbox and existing black-box optimization methods on the $N$-dimensional Rosenbrock problem. Other methods are a Nelder-Mead simplex method and two gradient-based methods (SLSQP and BFGS), both using common SciPy implementations \cite{scipy}.}
         \label{fig:aerosandbox_scaling_comparison}
     \end{figure}
@@ -610,10 +611,10 @@
 
     The thesis will also contribute the first computational implementations of several key physics models for aircraft design that are compatible with a code transformations paradigm (i.e., traceable).
 
-    The broad motivation stems from the observation that ``ease-of-implementation'' has historically proven to be one of the most important factors for determining whether an MDO paradigm can achieve use in industry. More specifically, the goals of this contribution are to:
+    The broad motivation for this contribution stems from the observation that ``ease-of-implementation'' has historically proven to be one of the most important factors for determining whether an MDO paradigm can achieve use in industry. More specifically, the goals of this contribution are to:
 
     \begin{enumerate}
-        \item Stress-test the feasibility of code transformations in practice -- How much added user effort and expertise is required to bring typical engineering analyses into a code-transformations-based MDO tool? To what extent can existing code be used as-is? Finally, the thesis aims to identify any specific computational elements that cause ``pain points'' when attempting to make an analysis traceable.
+        \item Stress-test the feasibility of code transformations in practice -- how much added user effort and expertise is required to bring typical engineering analyses into a code-transformations-based MDO tool? To what extent can existing code be used as-is? Finally, the thesis aims to identify any specific computational elements that cause ``pain points'' when attempting to make an analysis traceable.
         \item Jump-start future applied research by providing a set of modular, plug-and-play analyses that can be used to quickly build a variety of aircraft design optimization problems. Since the long-term goal of this research direction is to establish whether the proposed MDO paradigm improves practicality, it follows that many practical aircraft design problems must be posed. By creating the building blocks for such problems, we aim to accelerate future research.
     \end{enumerate}
 
