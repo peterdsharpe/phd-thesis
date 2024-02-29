@@ -9,6 +9,8 @@ __pycache__/
 .ipynb_checkpoints
 */.ipynb_checkpoints/*
 ~*.*
+*.bkp
+*.dtmp
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
