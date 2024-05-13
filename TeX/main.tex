@@ -1,36 +1,35 @@
-\documentclass[12pt,vi,twoside]{mitthesis}
+\documentclass[11pt,vi,twoside,table]{mitthesis}
 
 \include{preamble}
 \include{commands}
 
 \pagestyle{plain}
 
-\def\all{all}
-\ifx\files\all \typeout{Including all files.} \fi % \else \typeout{Including only \files.} \includeonly{\files} \fi
-
 \begin{document}
 
-\include{cover}
-\pagestyle{plain}
+    \include{cover}
 
-\include{contents}
+    \tableofcontents
+    \newpage
+    \listoffigures
+    \newpage
+    \listoftables
 
-\include{introduction}
-\include{challenges}
-\include{aerosandbox}
-\include{aerosandbox-1-core}
-\include{aerosandbox-2-modeling}
-%\include{aerosandbox-3-discipline-specific}
-%\include{application-firefly}
-%\include{application-dawn}
-\include{conclusion}
+    \include{introduction}
+    \include{literature-review}
+    \include{chapter-code-transformations}
+    \include{chapter-traceable-physics}
+    \include{chapter-nan-contamination}
+    \include{chapter-neuralfoil}
+%    \include{aircraft-sysid}
 
-\appendix
-\include{appendix-installation}
-\include{appendix-caveats}
-\include{appendix-derivations-and-code}
+    \include{conclusion}
 
-\include{biblio}
+    \appendix
+%\include{appendix-installation}
+%\include{appendix-caveats}
+%\include{appendix-derivations-and-code}
+
+    \include{biblio}
 
 \end{document}
-

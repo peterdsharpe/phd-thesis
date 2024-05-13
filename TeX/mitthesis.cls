@@ -371,7 +371,7 @@
 \def\department#1{\gdef\@department{#1}}
 
 % If you are getting two degrees, use \and between the names.
-\def\degree#1{\setbox0\hbox{#1}	 %for side effect of setting \@degreeword
+\def\thisdegree#1{\setbox0\hbox{#1}	 %for side effect of setting \@degreeword
   \gdef\@degree{#1}}
 
 % \and is used inside the \degree argument to separate two degrees
@@ -444,6 +444,13 @@ reserved.\par\permission}}
 
 % department chairman, not thesis committee chairman
 \def\chairman#1#2{\gdef\@chairmanname{#1}\gdef\@chairmantitle{#2}}
+
+% Reader is like supervisor, but only appears on abstract (no signature)
+\def\reader#1#2{\setbox\@abstractsupervisor\vbox
+  {\unvbox\@abstractsupervisor
+  \vskip\baselineskip \def\baselinestretch{1}\@normalsize
+  \par\noindent Thesis Reader: #1 \\ Title: #2}}
+
 
 %% `upcase' documentclass option: \choosecase is defined either as a dummy or
 %% a macro to change the (expanded) argument to uppercase.

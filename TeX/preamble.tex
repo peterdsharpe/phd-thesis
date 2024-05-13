@@ -50,6 +50,8 @@
 \usepackage{fontspec}
 \setmonofont{Source Code Pro}
 \setmainfont{TeX Gyre Pagella}
+%\setmainfont{Fira Sans}
+%\setmainfont{TeX Gyre Heros}
 
 \usepackage{tikz}
 \usetikzlibrary{positioning}
@@ -69,6 +71,15 @@
 \definecolor{c1}{HTML}{64ACBE}
 \definecolor{c2}{HTML}{EE442F}
 \definecolor{c3}{HTML}{601A4A}
+
+\definecolor{myorange}{RGB}{255, 165, 0}
+\definecolor{mydarkseagreen}{RGB}{143, 188, 143}
+\definecolor{mydodgerblue}{RGB}{30, 144, 255}
+
+\colorlet{b}{red!13!white}
+\colorlet{m}{yellow!20!white}
+\colorlet{g}{green!18!white}
+
 
 \renewcommand{\theFancyVerbLine}{\sffamily
     \textcolor[rgb]{0.8,0.8,0.8}{\scriptsize\oldstylenums{\arabic{FancyVerbLine}}}
@@ -114,7 +125,7 @@
 }
 
 \usepackage{setspace}
-\setstretch{1.25}
+\setstretch{1.5}
 
 \usepackage{svg}
 
@@ -122,3 +133,15 @@
 
 \usepackage{afterpage}
 \usepackage[section]{placeins}
+
+\newcommand{\Rey}{\rm Re}
+\newcommand{\M}{\rm M}
+\newcommand{\Cp}{C_p}
+\newcommand{\Cpo}{C_{p_0}}
+\newcommand{\Cpm}{C_{p_{\rm min}}}
+\newcommand{\Cpom}{C_{p_{0,\rm min}}}
+\newcommand{\Cpcr}{C_{p_{\rm crit}}}
+\newcommand{\Mcr}{M_{\rm crit}}
+\newcommand{\Mdd}{M_{\rm dd}}
+\newcommand{\Mi}{M_\infty}
+\newcommand{\Ncr}{N_{\rm crit}}

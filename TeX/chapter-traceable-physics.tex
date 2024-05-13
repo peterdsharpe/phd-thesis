@@ -1,0 +1,41 @@
+\chapter{Traceable Physics Models}
+\label{sec:physics_models}
+
+The thesis will also contribute the first computational implementations of several key physics models for aircraft design that are compatible with a code transformations paradigm (i.e., traceable).
+
+The broad motivation for this contribution stems from the observation that ``ease-of-implementation'' has historically proven to be one of the most important factors for determining whether an MDO paradigm can achieve use in industry. More specifically, the goals of this contribution are to:
+
+\begin{enumerate}
+    \item Stress-test the feasibility of code transformations in practice -- how much added user effort and expertise is required to bring typical engineering analyses into a code-transformations-based MDO tool? To what extent can existing code be used as-is? Finally, the thesis aims to identify any specific computational elements that cause ``pain points'' when attempting to make an analysis traceable.
+    \item Jump-start future applied research by providing a set of modular, plug-and-play analyses that can be used to quickly build a variety of aircraft design optimization problems. Since the long-term goal of this research direction is to establish whether the proposed MDO paradigm improves practicality, it follows that many practical aircraft design problems must be posed. By creating the building blocks for such problems, we aim to accelerate future research.
+\end{enumerate}
+
+To achieve these goals, the thesis will contribute the first traceable implementations of the common aircraft design analyses given in Table \ref{tab:models_to_contribute}. This set of analyses was deliberately chosen to be diverse, spanning a wide range of common computational attributes. The types of attributes that each analysis is intended to stress-test are given in the right-most column of Table \ref{tab:models_to_contribute}. By contributing this breadth of analyses within a traceable paradigm, we aim to cover a wide and representative gamut of engineering code patterns.
+
+\begin{table}[H]
+    \newcolumntype{M}{>{\raggedright\arraybackslash}m{0.4\textwidth}}
+    \newcolumntype{E}{>{\raggedright\arraybackslash}m{0.25\textwidth}}
+    \newcolumntype{D}{>{\raggedright\arraybackslash}m{0.5\textwidth}}
+
+    \centering
+    \caption{A list of aircraft design analyses that the thesis will implement within a code transformations framework. The middle column lists the non-traceable tools for each analysis that are commonly used in industry today. The right-most column lists the computational attributes that each analysis is intended to stress-test.}
+    \label{tab:models_to_contribute}
+
+    \begin{adjustbox}{width=\textwidth}
+
+        \begin{tabularx}{1.2\textwidth}{M E D}
+            \toprule
+            \textbf{Analysis To Contribute}                            & \textbf{Non-Traceable Analogue}                                               & \textbf{Tests tracing through...}                                                                                           \\ \toprule
+            \textbf{Vortex-Lattice Method Aerodynamics Analysis}       & AVL \cite{avl}                                                                & An aerospace geometry engine and discretization; large, vectorized matrix methods, like linear solves                       \\ \midrule
+            \textbf{Nonlinear Lifting Line Aerodynamics Analysis}      & Phillips \& Snyder \cite{phillips_modern_2000}, Reid \cite{reid_general_2020} & Nonlinear systems of equations (i.e., implicit), which often lead to value-dependent code execution (via convergence loops) \\ \midrule
+            \textbf{Workbook-style Aerodynamics Buildup}               & USAF Digital DATCOM \cite{datcom}                                             & Table lookups, large amounts of conditional logic (yielding a wide, branching graph), and scalar-heavy math                 \\ \midrule
+%                \textbf{6-DoF Euler-Bernoulli Tube-Spar Beam Model}        & ASWING (structures) \cite{aswing}                                             & Better                                                                                                             \\ \midrule
+            \textbf{Rigid-Body Equations of Motion}                    & ASWING (dynamics) \cite{aswing}                                               & Ordinary differential equations, which are often implemented in a loop-heavy way (yielding a deep graph)                    \\ \midrule
+            \textbf{Linearized Aircraft Stability Modal Decomposition} & AVL \cite{avl}                                                                & More advanced matrix methods, such as an eigenvalue decomposition                                                           \\
+            \bottomrule
+        \end{tabularx}
+
+    \end{adjustbox}
+\end{table}
+
+These traceable implementations offer value within the context of the thesis itself (in stress-testing the practicality of code transformations), but they also have value as a standalone contribution to the aircraft design community -- even outside of design optimization. For example, a traceable workbook-style aerodynamics buildup would seamlessly enable GPU-accelerated evaluations and automatic vectorization, offering significant speedups; an example application might be real-time performance estimation for model predictive controllers or flight simulation.
