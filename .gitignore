@@ -41,6 +41,7 @@ main-proposal.pdf
 .idea/
 .vscode/
 *.pyc
+*/svg-inkscape/
 
 ## Bibliography auxiliary files (bibtex/biblatex/biber):
 *.bbl
