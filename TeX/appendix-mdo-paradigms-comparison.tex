@@ -1,0 +1,54 @@
+\chapter{Comparison of MDO Framework Paradigms}
+\label{chap:paradigm_comparison}
+
+This appendix aims to expand on the comparisons made in Table \ref{tab:paradigm_comparison} by providing more details on the pros and cons of various MDO paradigms. In this table, three qualitative metrics are defined over which MDO framework paradigms are evaluated. These metrics represent framework needs derived from the barriers to industry adoption that are identified in Chapter \ref{chap:literature}. Here, we define those metrics more precisely:
+
+\begin{enumerate}
+    \item \textbf{Ease of implementation:} How much effort is required to implement a typical aircraft design problem (from ``concept idea'' to ``working code'') in this paradigm? How much optimization or programming expertise is required, beyond the basics needed to write engineering analysis code?
+    \item \textbf{Computational speed and scalability:} How fast is the resulting design optimization problem to run, and how does this scale with problem size and number of disciplines? Are there other fundamental limits to scaling up analysis fidelity?
+    \item \textbf{Mathematical flexibility:} What kinds of restrictions are present on the mathematical form of the optimization problem? This has important follow-on effects for backwards-compatability, as highly-restrictive frameworks preclude the use of existing engineering code and instead require from-scratch rewrites.
+\end{enumerate}
+
+From here, we can provide some notes on how various MDO paradigms are assessed:
+
+\subsection*{Black-Box Optimization}
+
+Black-box optimization refers to the common industry approach of taking an existing performance analysis toolchain and wrapping it in an optimizer. An example of this is shown in Figure \ref{fig:nested}. Here, the user has a ``black box'' function that takes in a vector of design variables and outputs a scalar objective and a vector of constraints. The user then wraps this function in an optimizer, without providing any other information (e.g., gradient or sparsity) about the function. The moniker ``black box'' refers to the fact that the internal workings of this analysis function are essentially opaque to the optimizer.
+
+\begin{figure}[H]
+    \centering
+    \includesvg[width=0.8\textwidth]{../figures/nested.svg}
+    \caption{A representation of a traditional ``black-box'' wrapped-optimization approach, which remains the dominant MDO paradigm used by industry practitioners today. Figure adapted from \cite{drela_simultaneous_2010}.}
+    \label{fig:nested}
+\end{figure}
+
+The main benefit of this approach is its conceptual simplicity: a black-box optimization paradigm tends to map most directly onto the ``mental model'' of optimization that most practicing engineers have. In this mental model, the forward problem (i.e., analysis) is the basis, and an inverse solve (i.e., optimization) is bolted on afterwards to wrap this. Because of this, black-box optimization is assessed to have the easiest path to implementation in industry. Modeling flexibility is likewise excellent due to the minimal information required by the optimizer.
+
+However, this approach has some drawbacks, which we enumerate here:
+\begin{enumerate}
+    \item Computational performance invariably degrades rapidly as the number of design variables is increased. If a gradient-free optimizer is used, this is due to the curse of dimensionality, where the size of the feasible set of the design space grows exponentially with the number of design variables. with a gradient-based optimizer, scaling is better, but it still falls sharply behind more advanced paradigms due to the bottleneck of gradient computation via finite differencing.
+    \item Convergence issues may exist if the wrapped analysis requires internal closure loops to be satisfied. If a wrapped analysis cannot achieve closure (i.e., feasibility) with a given set of inputs, the optimizer receives essentially no information that allows it to recover from this; this can render the optimization process brittle. Likewise, these closure loops can be inefficient -- lots of computational effort is spent closing iterative feasibility loops early in the design process, when the design is far from optimal.
+    \item Finally, the black-box optimization approach typically forces a functional coding style (i.e., a callable data structure with defined inputs and outputs) in order to interface with an external optimizer. This can be unnatural to read and write, as engineers typically write analysis code in a procedural style. While simple analyses may allow easy conversion between functional and procedural coding styles, this task becomes substantially harder for larger codebases split across multiple files or modules.
+\end{enumerate}
+
+Because of these reasons, the runtime speed and scalability of black-box optimization methods is deemed relatively poor.
+
+\subsection*{Gradient-based with Analytic Gradients}
+
+Gradient-based optimization methods that are manually augmented with user-provided analytic gradients offer substantial runtime performance improvements over black-box optimization methods -- indeed, to-date this is the dominant approach in deep MDO methods where runtime speed is the primary limitation \cite{martins_coupledadjoint_2005}. However, deriving and implementing derivatives for each model can be a Herculean effort that is challenging to scale to wide MDO methods with hundreds of constituent models \cite{brelje_multidisciplinary_2021}. Moreover, this process requires significant end-user expertise and is often tedious and error-prone. Indeed, erroneous gradient calculations can be some of the most persistent and difficult errors to detect and debug \cite{martins_engineering_2021}. Due to the user expertise and engineering time required to implement each model in such a framework, this paradigm faces an uphill battle for conceptual design in industry.
+
+Modeling flexibility is approaches the total freedom that black-box optimization affords, although the requirement for differentiability (more precisely, $C^1$-continuity) can preclude certain types of conditional logic that do not preserve this. In practice, limitations due to this restriction are rare and can usually be worked around.
+
+\subsection*{Disciplined Optimization Paradigm}
+
+Disciplined optimization methods, such as geometric programming or convex programming methods, offer the ease-of-use of black-box optimization methods with the runtime speed of gradient-based methods with analytic gradients \cite{gpkit, kirschen}. Moreover, they carry notable additional benefits by virtue of their convex formulation: no initial guesses are required, and any optimum must be a global one.
+
+These benefits are achieved by restricting the space of mathematical operators, which limits the models that can be implemented into such a framework. Because of this restriction, model flexibility is scored low. Fortunately, geometric programming maps relatively well onto many sizing relations found in aircraft conceptual design, since many of these are power-law-like relations \cite{hoburg_geometric_2014}. However, even in conceptual aircraft design relations, a substantial number of exceptions to GP-compatibility exist, and this can be labor-intensive to resolve \cite{tao_phd_thesis}. Furthermore, this model inflexibility leaves little ability to scale up the level of fidelity to include common mid-fidelity analysis elements like nonlinear systems of equations or integrators. For this reason, disciplined optimization methods are scored lower on scalability, although they are quite competitive on runtime speed when the nature of the problem allows it to be compatible with such a framework.
+
+\subsection*{Code Transformations}
+
+On the metric of ease-of-implementation, code transformations are scored as identical to disciplined optimization paradigm. Both approaches allow a procedural modeling-language-like approach that tends to map closely onto existing engineering analysis code. Optimization components, like the variables, constraints, and objective, can be specified in natural-language syntax. Both are scored slightly below black-box optimization methods, since they both require understanding of certain paradigm-specific concepts. (In the case of disciplined optimization methods, this is convexity or GP-compatibility. In the case of code transformations, this is traceability.)
+
+Code transformations offer runtime speeds that equals or exceed those of dedicated disciplined optimization solvers on relevant problems. This paradigm also offers a pathway to medium-fidelity analysis that is often not possible with disciplined optimization methods. However, code transformations are relatively memory-hungry due to the storage of a complete computational graph; this precludes the high-fidelity analyses (e.g., RANS CFD) that are possible in an analytic-gradient paradigm. Likewise, hand-derived gradients can implement accelerations that are not yet possible with code transformations, such as more aggressive sparsity accounting, subtractive cancellation, and common subexpression elimination \cite{casadi, martins_complexstep_2003, martins_engineering_2021}. For these reasons, runtime speed and scalability falls somewhere between that of disciplined optimization methods and gradient-based methods with analytic gradients.
+
+Finally, modeling flexibility is vastly improved over disciplined optimization methods, as the only fundamental requirement is that of $C^1$-continuity, similar to that of other gradient-based methods. However, mathematical operators should be drawn from a set of pre-defined primitives \cite{ rackauckas_generalizing_2021}, which has the potential to reduce modeling flexibility if the numerics framework does not make appropriate syntax choices to mitigate this \cite{jax}. For these reasons, flexibility is assessed as slightly below that of gradient-based methods with analytic gradients.
