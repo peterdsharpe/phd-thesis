@@ -754,21 +754,21 @@ In this chapter, we discuss the methodology and performance of NeuralFoil with s
     Nevertheless, the strength of NeuralFoil-powered optimization is that it allows one to generate optimized airfoils that are remarkably similar to expert-designed airfoils in mere seconds. This optimization capability is more-than-adequate for conceptual aircraft design, and it provides an excellent starting point for expert-guided airfoil design refinement.
 
 
-    \section{Computational Reproducibility Statement}
+    \section{Computational Reproducibility}
     \label{sec:nf-reproducibility}
 
     NeuralFoil is implemented as an open-source Python package with minimal dependencies (only NumPy \cite{harris_array_2020} for the actual aerodynamic modeling), allowing easy installation across a variety of platforms.
 
-    All source code used in this paper is publicly available at \url{https://github.com/peterdsharpe/neuralfoil}. Model architecture, weights, training scripts, and usage examples are included in this repository.
+    All source code used to generate results in this chapter is publicly available at \url{https://github.com/peterdsharpe/neuralfoil}. Model architecture, weights, training scripts, and usage examples are included in this repository.
 %    Training data is available upon request with the corresponding author.
     For end-users, NeuralFoil is best accessed through the open-source AeroSandbox aircraft design optimization framework \cite{sharpe_aerosandbox_2021}; this provides some of the advanced features (e.g., $360\degree$ angle of attack, compressibility corrections, and control surface deflections) described in this chapter that are not yet available in the standalone NeuralFoil package.
 
 
-    \section{Conclusion}
+    \section{Summary and Future Work}
     % TODO rewrite to flow better here
     \label{sec:conclusion}
 
-    In this chapter, we introduce NeuralFoil, a physics-informed machine learning tool for airfoil aerodynamics analysis. Relative to existing popular tools such as XFoil, NeuralFoil offers improved computational efficiency, even after controlling for equivalent accuracy. Its ability to handle a wide range of practical airfoil shapes and flow conditions makes it a versatile tool in aerodynamic analysis.
+    This chapter has introduced NeuralFoil, a physics-informed machine learning tool for airfoil aerodynamics analysis. Relative to existing popular tools such as XFoil, NeuralFoil offers improved computational efficiency, even after controlling for equivalent accuracy. Its ability to handle a wide range of practical airfoil shapes and flow conditions makes it a versatile tool in aerodynamic analysis.
 
     The accuracy of NeuralFoil with respect to XFoil is demonstrated across several test cases, with a particular focus on airfoils that NeuralFoil was not trained on (i.e., out-of-distribution). Much of the accuracy achieved here is due to the embedding of domain-specific physics knowledge into the model architecture, which increases the parameter-efficiency and generalizability of the resulting model.
 

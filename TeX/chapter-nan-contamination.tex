@@ -263,3 +263,8 @@ As an example: if pairs of adjacent inputs are seeded, this has the benefit of h
 It also exploits the fact that sparsity patterns of human-written code are not uniformly random. In particular, these sparsity patterns tend to have a high degree of locality (e.g., inputs at indices 3 and 4 are much more likely to share a similar sparsity pattern than inputs at indices 3 and 30). This locality is due to the fact that, in an engineering analysis with multiple submodules, humans tend to code submodule A in its entirety before implementing submodule B. Because of this, these chunked sparsity patterns using adjacent inputs can be surprisingly accurate approximations in practice.
 
 Thus, chunking may offer significant speedups in engineering practice by exploiting typical problem structure; a computational analogy would be how an $A^*$ graph traversal algorithm outperforms Dijkstra's algorithm in practice despite identical worst-case complexity. This and other heuristics can significantly reduce the number of black-box function evaluations required to trace the sparsity pattern.
+
+\section{Computational Reproducibility}
+\label{sec:nan-reproducibility}
+
+All source code used to generate example results in this chapter is publicly available at \url{https://github.com/peterdsharpe/nan-propagation}.
