@@ -1,7 +1,8 @@
 \chapter{A Code Transformation Paradigm for MDO Frameworks}
-\label{sec:code_transformations}
+\label{chap:code_transformations}
 
-\section{Overview and Definitions}
+
+\section{Introduction and Definitions}
 
 In recent years, several advanced scientific computing techniques have proliferated that offer fundamentally new capabilities by using non-standard interpretations of numerical code. Examples of these techniques include:
 
@@ -11,7 +12,7 @@ In recent years, several advanced scientific computing techniques have prolifera
     \item Automatic problem transformations (in the context of numerical optimization), including techniques such as:
     \begin{itemize}[noitemsep]
         \item Problem scaling \cite{nocedal_numerical_2006}, to improve the conditioning of Hessians and linear sub-problems
-        \item Log-transformations of variables, constraints, and objectives (similar to geometric programming) \cite{kirschen, agrawal_disciplined_2019}, which can improve convexity or eliminate nonlinearities
+%        \item Log-transformations of variables, constraints, and objectives (similar to geometric programming) \cite{kirschen, agrawal_disciplined_2019}, which can improve convexity or eliminate nonlinearities
         \item Redundant constraint elimination
     \end{itemize}
     \item Common subexpression elimination \cite{casadi}, where repeated calculations are automatically identified and rewritten for faster speed via pre-computation
@@ -23,48 +24,32 @@ In this work, we collectively call this set of computational techniques \emph{co
 
 This definition is similar to that of a ``compiler optimization'' in computer science, though a distinction can be drawn in the implied level of code abstraction where the improvement is applied. Compiler optimizations typically refer to lower-level improvements at the level of source code static analysis or a language-level syntax tree (e.g., dead-code elimination, loop fusion, and static type inference and specialization). By contrast, code transformations broaden this to also include improvements at the higher level of computational graphs dynamically constructed within domain-specific modeling languages, or at the level of a data structure describing a complete numerical method (e.g., an optimization problem formulation).
 
-Another point of comparison for this code transformations definition is ``scientific machine learning'' (SciML), which is a term that has become increasingly popular to describe several of these higher-level transformations \cite{ma_modelingtoolkit_2021, hu_taichi_2018, lavin_simulation_2022}. This is particularly true for end-to-end automatic differentiation of physical simulators, in cases where it is then used for machine learning applications such as parameter estimation, surrogate modeling, or scientific hypothesis testing via probabilistic programming. SciML methods can be seen as a subset of code transformation techniques that emphasize differentiability and compatibility with machine learning frameworks. Often, SciML implementations make various engineering tradeoffs that favor this goal \cite{rackauckas_engineering_2021}.
+Another useful point of comparison for this code transformations definition is ``scientific machine learning'' (SciML), which is a term that has become increasingly popular to describe several of these higher-level transformations \cite{ma_modelingtoolkit_2021, hu_taichi_2018, lavin_simulation_2022}. In particular, this term has been applied to end-to-end automatic differentiation of physical simulators, in cases where it is then used for machine learning applications such as parameter estimation, surrogate modeling, or scientific hypothesis testing via probabilistic programming. SciML methods can be seen as a subset of code transformation techniques that emphasize differentiability and compatibility with machine learning frameworks. Often, SciML implementations make various engineering tradeoffs that favor this goal \cite{rackauckas_engineering_2021}. In this way, code transformations can be roughly described as a union of both compiler optimizations and scientific machine learning.
 
 %as well as the composability of such transformations through their expression as higher-order functions \cite{jax}. A beneficial consequence of this dynamic, composability-first point of view has been the growth of modeling languages \cite{_modelica_2023, ma_modelingtoolkit_2021, _simulink_2020, fourer_ampl_1989} and domain-specific languages for machine learning \cite{pytorch, hu_taichi_2018}, which can offer reduced barrier to entry.
 
 % separates declarative and imperative code; HTML/CSS,
 % undersells impact—not just ml
 
-In this way, code transformations can be roughly described as a union of both compiler optimizations and scientific machine learning. The benefit of introducing this broad ``code transformations'' abstraction is to recognize that all of these advanced techniques essentially share one major requirement to use: they require the ability to directly inspect some representation\footnote{In the general case of a code transformation, this must be a \emph{global} representation of the numerical problem} of the user's numerical code.
+\subsection{Code Traceability}
 
-In practice, this code inspection can be done either via direct source code analysis or by constructing a computational graph of the numerical problem at runtime. The latter approach, which is called \textit{tracing} in machine learning literature \cite{jax, frostig_compiling_2018, baydin_automatic_2018}, is typically achieved by executing numerical code with a ``tracer'': a symbolic-like dummy data type that records operations performed on it. Where possible, this tracing approach is widely preferred to source code transformation\footnote{Maclaurin provides a comprehensive discussion of the tradeoffs between these techniques, and why tracing is often preferable in practice \cite{maclaurin_modeling_2016}}. Fortunately, modern syntactically-rich languages provide a variety of means to implement tracing, such as dynamic typing or multiple dispatch.
+The main benefit of introducing this ``code transformations'' abstraction is to highlight that all of these advanced techniques essentially impose the same shared requirement on numerical code: a property we refer to as code \emph{traceability}. Here, a piece of numerical code is defined as ``traceable'' if we are able to construct and directly inspect some functional representation (often, a computational graph) of this code at runtime.
 
-Where this tracing approach breaks down is when data structures are forcibly type-cast -- this causes the tracer to lose its recorded computational graph, and is referred to as ``breaking the trace''. The most common example where this might occur is across interfaces between programming languages -- for example, a
+This name for this property derives from one technique commonly used to construct this functional representation, a process aptly called \emph{tracing} in machine learning literature\footnote{Tracing is not the only means by which code transformations can be performed—one example alternative is direct source code transformation, which can be seen in frameworks like Tapenade \cite{tapenade}. However, dynamic tracing-like paradigms are by far the dominant one in modern, syntactically-rich languages, with comprehensive discussion of tradeoffs and motivations given by Maclaurin \cite{maclaurin_modeling_2016}.} \cite{jax, frostig_compiling_2018, baydin_automatic_2018}. This involves taking functional numerical code, and, rather than evaluating it with standard numerical inputs, instead passing in a ``tracer'': a symbolic-like dummy data type that records operations performed on it\footnote{In some frameworks, the tracer is used only for graph construction (e.g., JAX's \texttt{Tracer} \cite{jax}). In others, the same object serves an additional purpose during numerical evaluation, where it works as a concrete numerical data type (e.g., PyTorch's \texttt{Tensor} \cite{paszke_pytorch_2019}).}. The output of the code then includes a recorded computational graph representing the code execution path (the ``trace'' or ``tape'' \cite{paszke_pytorch_2019}), which can then be manipulated and transformed to enable the advanced techniques listed above.
 
+In order for this tracing process to work, all mathematical operators used within this numerical code must be able to accept and return these tracer objects\footnote{Another observation is that this tracing process is generally easier to implement in languages with dynamic typing or multiple dispatch, as these languages make it easier to switch between traditional and tracer data types in numerical code.}. In practice, this often means that traceable code must be written with a specialized numerical framework—we must be able to intercept math library calls in order to properly handle tracers. This implies that traceability is a property that is defined with respect to a specific numerical framework, rather than a universal property of the code itself.
 
-Therefore, for the purposes of this work, \textit{traceability} is effectively synonymous with code transformability.
+This concept of traceability allows us to intuitively predict which operations are likely to ``break the trace'' and render the target code incompatible with code transformations. For example, explicit type casting often causes problems, since a tracer variable may be coerced into a traditional numerical type, resulting in a lost computational graph. Likewise, any interfaces between programming languages (e.g., a Python function calling a C function) will usually break the trace, as a tracer object cannot be passed across the language boundary. This insight can be used to guide the design of numerical code to be more traceable, and hence more amenable to code transformations.
 
+%In summary, traceability effectively requires that
 
-A key observation is that many of these diverse techniques share similar principles. First, all of these techniques are operations that both act on and return executable code functions, and hence can be mathematically characterized as \emph{higher-order functions}.
+\subsection{Implications for Engineering Design}
 
-This is because all of these techniques are operations that both act on and return executable code functions, and hence can be mathematically characterized as \emph{higher-order functions}.
+The main goal of this chapter is to introduce this idea of code transformations (via traceable code) as a computational paradigm on top of which an MDO framework can be built. This work deliberately aims to broaden the focus of framework design towards traceability, rather than towards any one specific transformation technique (e.g., automatic differentiation). By finding this common thread, we enable a much more general set of computational techniques to be applied, and this approach remains more scalable as new transformation techniques are developed.
 
-Secondly,
+If these code transformation techniques can be applied to engineering design optimization, they offer order-of-magnitude speedups over the black-box optimization methods that form the vast majority of industry use today \cite{martins_engineering_2021, lavin_simulation_2022}. These achievable speeds are comparable to those of state-of-the-art optimization methods in academia, such as disciplined optimization methods\footnote{such as geometric programming and disciplined convex programming} \cite{grant_disciplined_2006, gpkit, boyd_convex_2004, agrawal_disciplined_2019} and gradient-based methods using user-provided analytic gradients\footnote{sometimes referred to as ``adjoint methods'' in reference to a common method for manually deriving these gradients for more-complex analyses} \cite{gray_openmdao_2019, kenway_effective_2019, innes_don_2019}.
 
-
-%all of these advanced techniques essentially share one major requirement to use: the optimization framework must be able to inspect the actual code driving the design problem.
-
-
-%Formally, we define a code transformation as:
-
-%, where numerical code is written in a declarative style that separates numerics from execution. This includes
-% Tradition ``compiler optimizations'' -> we look at them as a framework paradigm
-
-
-
-%Here, we introduce the idea of \textit{code transformations} as a new computational paradigm on top of which an MDO framework can be built. Here, code transformations are defined as a generalized set of computational techniques that intercept the original optimization problem posed by the user (at runtime), apply some improvement based on analysis of the code itself, and then solve a modified optimization problem instead. This encompasses a variety of recent advanced techniques in scientific computing, such as:
-
-
-The benefit of introducing this abstraction is to recognize that all of these advanced techniques essentially share one major requirement to use: the optimization framework must be able to inspect the actual code driving the design problem. This code inspection is done either via direct source code analysis or by creating a computational graph of the optimization model at runtime. The latter approach, which is called \textit{tracing} in machine learning literature \cite{jax, frostig_compiling_2018, baydin_automatic_2018}, is widely preferred to the former in modern, syntactically-rich languages\footnote{Maclaurin provides a comprehensive discussion of the tradeoffs between these techniques, and why tracing is often preferable in practice \cite{maclaurin_modeling_2016}}. Therefore, for the purposes of this work, \textit{traceability} is effectively synonymous with code transformability.
-
-If code transformation techniques can be applied to engineering design optimization, they offer order-of-magnitude speedups over the black-box optimization methods that form the vast majority of industry use today \cite{martins_engineering_2021, lavin_simulation_2022}. These achievable speeds are comparable to those of state-of-the-art optimization methods in academia, such as disciplined optimization methods\footnote{such as geometric programming and disciplined convex programming} \cite{grant_disciplined_2006, gpkit, boyd_convex_2004, agrawal_disciplined_2019} and gradient-based methods using user-provided analytic gradients\footnote{sometimes referred to as ``adjoint methods'' in reference to a common method for manually deriving these gradients for more-complex analyses} \cite{gray_openmdao_2019, kenway_effective_2019, innes_don_2019}.
-
-However, code transformations offer a key advantage over these state-of-the-art methods in that they can be applied \textit{automatically} -- most of the benefits of these advanced techniques can be gained without requiring any additional effort (or mathematical expertise) from the user. This ease-of-use is critical for practicality -- Grant notes that existing paradigms are hamstrung by a ``expertise barrier'' of existing methods, as described by Grant \cite{grant_disciplined_2006}. Table \ref{tab:paradigm_comparison} compares code transformations to existing MDO paradigms across three key practical metrics. In short, code transformations offer the best of both worlds: the computational speed of latest academic methods with the ease-of-use of methods already accepted by industry today.
+A crucial advantage of code transformation over many state-of-the-art methods is that they can be applied mostly \textit{automatically} -- most of the benefits of these advanced techniques can be gained without requiring any additional effort (or mathematical expertise) from the user. This ease-of-use is critical for practicality -- Grant notes that many existing paradigms are hamstrung by a ``expertise barrier'' \cite{grant_disciplined_2006}, which inhibits industry adoption. To assess this further, Table \ref{tab:paradigm_comparison} compares code transformations to existing MDO paradigms across three key practical metrics. These metrics are derived from the high-level view of engineering design optimization given in Figure \ref{fig:birds_eye_view}, and considerations here are described in more detail in Appendix \ref{chap:paradigm_comparison}.
 
 \begin{table}[H]
 
@@ -85,46 +70,109 @@ However, code transformations offer a key advantage over these state-of-the-art 
     \newcommand{\best}{\textcolor{q4}{\large\textbf{Best}}}
 
     \centering
-    \caption{A subjective comparison of tradeoffs between existing MDO framework paradigms and the proposed \textit{code transformation} paradigm. The industrial state-of-the-art is largely \textit{black-box optimization}. The academic state-of-the-art has two major branches: \textit{gradient-based methods with analytical gradients}, and \textit{disciplined optimization methods}. More detailed discussion of these assessments, including definitions and reasoning, is given in Appendix \ref{chap:paradigm_comparison}.}
+    \caption{A subjective comparison of tradeoffs between existing MDO framework paradigms and the proposed \textit{code transformation} paradigm. The industrial state-of-the-art is largely de facto \textit{black-box optimization}. The academic state-of-the-art has two major branches: \textit{gradient-based methods with analytical gradients}, and \textit{disciplined optimization methods}. More detailed discussion of these assessments, including definitions and reasoning, is given in Appendix \ref{chap:paradigm_comparison}.}
     \label{tab:paradigm_comparison}
 
     \begin{adjustbox}{width=\textwidth}
         \begin{tabular}{M E I S Q}
             \toprule
-            \textbf{MDO Framework Paradigm}                 & \textbf{Example Frameworks and Tools}                                                                                                                                                                                                       & \textbf{Ease of \mbox{Implementation}}\ (idea-to-code) & \textbf{Runtime Speed and Scalability}\ (code-to-result) & \textbf{Modeling Flexibility} \\ \toprule
+            \textbf{MDO Framework Paradigm}                 & \textbf{Example Frameworks and Tools}                                                                                                                                                                                                       & \textbf{Ease of \mbox{Implementation}}\ (sketchpad-to-code) & \textbf{Runtime Speed and Scalability}\ (code-to-result) & \textbf{Modeling Flexibility} \\ \toprule
             \textbf{Black-box Optimization}                 & SUAVE \cite{SUAVE2017}, OpenMDAO$^*$ \cite{gray_openmdao_2019}, TASOPT \cite{drela_tasopt_2010}, PASS \cite{antoine_framework_2005}, FAST \cite{fast_ga_code}, FLOPS \cite{flops}, FBHALE \cite{fbhale}, \textbf{almost all industry codes} & \great & \bad & \best \\ \midrule
             \textbf{Gradient-based with Analytic Gradients} & MACH-Aero \cite{he_aerodynamic_2018}, OpenMDAO$^*$ \cite{gray_openmdao_2019}, OpenConcept \cite{brelje_multidisciplinary_2021} & \bad & \best & \great \\ \midrule
-            \textbf{Disciplined Optimization}               & GPkit \cite{gpkit}, other convex methods \cite{karcher_method_2023, boyd_convex_2004, grant_disciplined_2006}, most algebraic modeling languages & \good & \good & \bad \\ \midrule
+            \textbf{Disciplined Optimization}               & GPkit \cite{gpkit}, other convex methods \cite{karcher_method_2023, boyd_convex_2004, grant_disciplined_2006}, AMPL \cite{fourer_ampl_1989} & \good & \good & \bad \\ \midrule
             \textbf{Code \mbox{Transformations}}            & AeroSandbox$^\dag$ \cite{sharpe_aerosandbox_2021}, JAX$^\ddag$ \cite{jax}, ModelingToolkit.jl$^\ddag$ \cite{ma_modelingtoolkit_2021} & \good & \great & \good \\
             \bottomrule
 
             \multicolumn{5}{p{1\textwidth}}{$^*$ Can use either paradigm, depending on user's implementation} \\
-            \multicolumn{5}{p{1\textwidth}}{$^\dag$ Part of the present work, as detailed in Section \ref{sec:code_transformations}} \\
-            \multicolumn{5}{p{1\textwidth}}{$^\ddag$ These are computational tools to facilitate code transformations, rather than frameworks themselves}
+            \multicolumn{5}{p{1\textwidth}}{$^\dag$ Part of the present work} \\
+            \multicolumn{5}{p{1\textwidth}}{$^\ddag$ These are computational tools to facilitate code transformations, rather than design optimization frameworks}
         \end{tabular}
     \end{adjustbox}
 
 \end{table}
 
-This leads to a compelling value proposition: if we can develop new methods for industry engineers to easily write traceable design code, then we gain access to an host of advanced scientific computing techniques that can significantly shrink the academia-industry MDO gap described in Chapter \ref{chap:literature}.
+In short, the main claim this chapter aims to demonstrate is that a code transformations paradigm yields a favorable compromise between all three tradeoffs: it achieves computational speeds similar to the latest academic methods with the ease-of-use of methods already accepted by industry today. If this hypothesis is validated, it leads to a compelling value proposition: if we can develop new methods for industry engineers to easily write traceable design code, then we gain access to an host of advanced scientific computing techniques that can significantly shrink the academia-industry MDO gap described in Chapter \ref{chap:literature}.
 
-Thus, this contribution is twofold. First, the thesis will conceptually introduce code transformations as a new paradigm for engineering MDO frameworks. Secondly, the thesis will demonstrate strategies that allow traceability of engineering design code with minimal user effort, enabling the use of code transformations in practice.
+Accordingly, the contribution of this chapter is twofold. First, this chapter will conceptually introduce code transformations as a new paradigm for engineering MDO frameworks. Secondly, the thesis will demonstrate strategies that allow traceability of engineering design code with minimal user effort, enabling the use of code transformations in practice.
+
+
+%Therefore, for the purposes of this work, \textit{traceability} is effectively synonymous with code transformability.
+
+
+%A key observation is that many of these diverse techniques share similar principles. First, all of these techniques are operations that both act on and return executable code functions, and hence can be mathematically characterized as \emph{higher-order functions}.
+
+% The value proposition of this paradigm is this: if we can reduce user frictions to write traceable code, we can achieve large gains in
+%The goal, then, is to enable end users to write traceable code with minimal effort—if this can
+
+%, where numerical code is written in a declarative style that separates numerics from execution. This includes
+% Tradition ``compiler optimizations'' -> we look at them as a framework paradigm
+
+
+\section{AeroSandbox: A Proof-of-Concept Framework Implementation}
+
+To research the feasibility, opportunities, and limitations of a code transformations paradigm for engineering design optimization in greater detail, we have developed an experimental framework called \emph{AeroSandbox}. AeroSandbox is implemented as a Python-based MDO framework aimed primarily at supporting conceptual-level engineering design. As a design \emph{framework} (analogous to OpenMDAO \cite{gray_openmdao_2019} or GPkit \cite{gpkit}), AeroSandbox is a library that provides utilities for constructing and solving general design problems -- this is contrasted against a design \emph{tool} that specializes in a specific design application (e.g., TASOPT \cite{drela_tasopt_2010}).
+
+\subsection{Graph Construction and Optimization}
+
+Fundamentally, AeroSandbox is a tool for building and transforming large computational graphs, and indeed these graphs can be directly inspected both computationally and visually, as Figure \ref{fig:computational-graph-aerosandbox} demonstrates. AeroSandbox uses its own specialized numerical library to intercept and trace user code, and it can interface with tracer-like objects from either the CasADi \cite{casadi} or JAX \cite{jax} libraries to produce a computational graph compatible with these respective libraries. Coverage is provided for a wide range of mathematical operators, including most of the popular NumPy library \cite{harris_array_2020} and parts of the SciPy library \cite{virtanen_scipy_2020}.
+
+When constructing this graph, AeroSandbox deliberately makes certain framework-level decisions which are tradeoffs that tend to work well in engineering design optimization, as contrasted with other possible applications like machine learning \cite{rackauckas_engineering_2021}. An example of one such choice is the decision to use static computational graphs, where the graph is constructed once during problem specification, rather than repeatedly at each function evaluation during optimization\footnote{Behavior analogous to this latter approach is seen in PyTorch, for example, where evaluation and tracing happen simultaneously.}. This results in a reduced computational overhead per-operator, which is important as engineering analysis tends to involve deep, scalar-heavy\footnote{Relative to traditional machine learning, which tends to focus more on large kernel operators (e.g., einsum-like) that perform much more computational ``work'' per operator.} computational graphs. This also makes it more worthwhile to apply global transformations (e.g., common subexpression elimination) to the graph, since the overhead of this is only incurred once. On the other hand, this same decision inherently prohibits value-dependent language-level control flow from being recorded in the graph, which creates challenges in other areas (e.g., adaptive-step numerical integrators). Tradeoffs such as this are made at every step of the framework architecture, from graph construction to code transformations; the end result is a framework that makes numerical choices favoring design optimization applications.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{../figures/computational_graph_blimp.png} % TODO update
+    \caption{Computational graph of a mass model for an airship, as constructed by AeroSandbox. This graph is automatically constructed at runtime.}
+    \label{fig:computational-graph-aerosandbox}
+\end{figure}
+
+Once the graph is constructed, various user-specified inputs and outputs are connected to form a data structure representing a numerical optimization problem. With this information, code transformations can be applied. Most transformations, like automatic differentiation, automated sparsity detection, and problem scaling, are performed automatically and transparently to the user. Here, sensible default heuristics tuned on engineering design optimization problems are used. For example, the framework will automatically choose between forward-mode and reverse-mode automatic differentiation based on the size of the problem and the number of design variables. Likewise, problem scaling is applied on variables and constraints with a heuristic based on the user-provided initial guess, any bounds constraints, and the constraint Jacobian at the initial guess.
+
+After appropriate code transformations are applied, the transformed problem is then solved using a numerical optimization backend. By default, this backend sends the solve to IPOPT \cite{wachter_implementation_2006}, a primal-dual interior point algorithm that performs favorably in large-scale engineering design optimization \cite{lyu_benchmarking_2014}. This core mathematical framework architecture, tradeoffs, and heuristics are discussed in further detail in prior work by Sharpe \cite{sharpe_aerosandbox_2021}.
+
+This core design optimization framework is intended to be broadly applicable to many kinds of large-scale engineering systems. However, on top of this code framework, many optional aircraft-design-specific tools and physics modules are included, which make the framework especially well-suited to support these applications. These specialized tools are the focus of Chapter \ref{chap:physics}, though an overview of how these tools fit into the broader framework is given in Figure \ref{fig:asb-diagram}.
+
+\begin{figure}[h]
+    \centerline{\input{../figures/asb-diagram.tikz}}
+    \caption{Dependency relationships between \textbf{\textcolor{c1!80!black}{AeroSandbox (ASB) components}} and \textbf{\textcolor{c2!80!black}{external libraries}}. Arrows point toward dependencies. Adapted from prior work by Sharpe \cite{sharpe_aerosandbox_2021}.}
+    \label{fig:asb-diagram}
+\end{figure}
+
+
+\section{Performance Comparisons}
+
+To test the hypothesis shown in Table \ref{tab:paradigm_comparison}, where a code transformations paradigm can offer a favorable compromise between ease-of-use and computational performance, we have conducted a series of benchmarking studies. Each benchmark is designed to compare performance on one of the three key practical metrics, and against at least one of the existing MDO paradigms listed in Table \ref{tab:paradigm_comparison}. % TODO cleanup
+
+\subsection{Code Transformations vs. Black-Box Optimization Methods}
+
+\subsection{Code Transformations vs. Disciplined Optimization Methods}
+
+\subsection{Code Transformations vs. Analytic-Gradient Methods}
+
+
+\section{Syntax Considerations}
+
+\subsection{Procedural Coding Style}
+
+
+\section{Aircraft Design Case Studies}
+
+% Spiral development process
+
+\subsection{Firefly} % TODO name
+
+\subsection{Dawn} % TODO name
+
+\subsection{Other Case Studies} % TODO name
+
+
+\section{Computational Reproducibility}
+
+%The code is made available open-source on GitHub under the permissive MIT license in order to gather as much practical user feedback as possible.
+
 
 \section{Results-To-Date in Code Transformations}
 
 
-To explore and demonstrate this code transformation paradigm, we created \textit{AeroSandbox}, a Python-based MDO framework for conceptual design. This framework serves as both a proof-of-concept implementation as well as a proving ground for testing new transformations, with specific focus on engineering design applications. On top of this code framework, many optional aircraft-design-specific tools and physics modules are included; nevertheless, the core design optimization framework is applicable for conceptual design of many large-scale engineering systems. The code is made available open-source on GitHub under the permissive MIT license in order to gather as much practical user feedback as possible.
-
-Core components of this framework and its mathematical basis are discussed more fully by Sharpe \cite{sharpe_aerosandbox_2021}. The framework is built on top of the \textit{CasADi} \cite{casadi} and \textit{JAX} \cite{jax} scientific computing libraries, which allow the computational graph tracing and several of the code transformation capabilities that are central to this work. The framework is designed to be modular and extensible, with a focus on ease-of-use and interpretability. The framework is also designed to be highly performant, with a focus on leveraging code transformations to achieve high computational speeds. As an optimization backend, the framework currently solves the transformed optimization problem using IPOPT, a primal-dual interior point algorithm \cite{wachter_implementation_2006}.
-
-Fundamentally, AeroSandbox is a tool for building and transforming computational graphs, and indeed these graphs can be directly inspected both computationally and visually, as Figure \ref{fig:computational-graph-aerosandbox} shows. When constructing this graph, AeroSandbox deliberately makes certain framework-level decisions (e.g., to use a static, rather than dynamic graph; to use heuristics for forward- vs. reverse-mode automatic differentiation); these choices are tradeoffs that tend to work well on engineering analysis code \cite{rackauckas_engineering_2021}.
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=\textwidth]{../figures/computational_graph_blimp.png}
-    \caption{Computational graph of a mass model for an airship, as constructed by AeroSandbox. This graph is automatically constructed at runtime.}
-    \label{fig:computational-graph-aerosandbox}
-\end{figure}
 
 AeroSandbox can be used to demonstrate the potential of code transformations to accelerate optimization problems with minimal effort. Here, we give an example comparison using the Rosenbrock optimization problem. This problem is a classic optimization benchmark, designed to be a stress-test as the optimum lies at the bottom of a shallow-curving valley \cite{rosenbrock}. Here, we solve an $N$-dimensional extension of this problem, which conveniently gives a knob to dial up or down the difficulty of the problem \cite{kok}. This optimization problem is defined in Equation \ref{eq:rosenbrock}:
 

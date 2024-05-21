@@ -1,0 +1,63 @@
+\providecommand\ntxt{}
+\renewcommand{\ntxt}[2]{
+    \textbf{#1}\\#2
+}
+
+\tikzstyle{int} = [
+thick,
+rectangle, rounded corners, minimum height=2em,
+draw=c1,  fill=c1!20,
+text width=11em, text centered,
+]
+\tikzstyle{ext} = [int, draw=c2, fill=c2!20]
+\tikzstyle{line} = [draw, thick, ->, shorten >=2pt, shorten <=2pt]
+
+\begin{tikzpicture} [
+    auto,
+    node distance = 0.8cm and 0.8cm,
+]
+    \node (opti) [int] {\ntxt{ASB Core: \texttt{Opti} Stack}{Optimization interface}};
+    \node (num) [int, right=of opti] {\ntxt{ASB Core: Numerics}{Unified numerics stack}};
+    \node (cas) [ext, below=of opti] {\ntxt{CasADi or JAX \cite{casadi, jax}}{Computational graph framework}};
+    \node (numpy) [ext, right=of cas] {\ntxt{NumPy \cite{numpy}}{Pre-computed numerics}};
+    \node (ipopt) [ext, below=of cas] {\ntxt{IPOPT \cite{ipopt}}{Optimizer}};
+    \node (surr) [int, above=of opti] {\ntxt{ASB Surrogate Modeling Tools}{}};
+    \node (geom) [int, right=of surr] {\ntxt{ASB Geometry Stack}{}};
+    \node (suge) at ($(surr)!0.5!(geom)$) {};
+    \node (disc) [int, above=of suge, yshift=5pt] {\ntxt{ASB Discipline-Specific Tools}{}};
+
+    \node (ldummy) [xshift=-0.5cm] at (opti.west) {};
+    \node (rdummy) [xshift=0.5cm] at (num.east) {};
+
+    % connect all nodes defined above
+    \begin{scope} [every path/.style=line]
+        \path (disc) -- (geom);
+%        \path (disc) edge[out=180, in=180] (opti);
+        \path [rounded corners] (disc) -| (ldummy.center) -- (opti);
+%        \path (disc) edge[out=0, in=0] (num);
+        \path [rounded corners] (disc) -| (rdummy.center) -- (num);
+        \path (surr) -- (opti);
+        \path (surr) -- (num);
+        \path (geom) -- (num);
+        \path (opti) -- (cas);
+        \path (num) -- (cas);
+        \path (num) -- (numpy);
+        \path (cas) -- (ipopt);
+        \path (opti) -- (num);
+    \end{scope}
+
+%    % Legend
+%    \matrix [draw,below left] at (current bounding box.north east) {
+%        \node [int, label=right:{AeroSandbox Component}]; \\
+%        \node [ext, label=right:{External Library}]; \\
+%    };
+
+    \begin{scope} [xshift=9.5cm, yshift=-0.5cm, scale=4.5]
+        \draw[black!75, <->] (0, -1.1) -- (0, 1.1);
+        \foreach \y in {-1, -0.67, -0.33, 0, 0.33, 0.67, 1}
+        \draw[shift={(0,\y)},color=black!75] (1pt,0pt) -- (-1pt, 0pt);
+        \node[anchor=west,text width = 3cm](top) at (0.05, 1){More\\ abstract};
+        \node[anchor=west,text width = 3cm](bot) at (0.05, -1){More\\ foundational};
+    \end{scope}
+
+\end{tikzpicture}
