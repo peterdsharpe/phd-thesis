@@ -84,14 +84,14 @@ A crucial advantage of code transformation over many state-of-the-art methods is
             \bottomrule
 
             \multicolumn{5}{p{1\textwidth}}{$^*$ Can use either paradigm, depending on user's implementation} \\
-            \multicolumn{5}{p{1\textwidth}}{$^\dag$ Part of the present work} \\
+            \multicolumn{5}{p{1\textwidth}}{$^\dag$ Introduced as part of the present work} \\
             \multicolumn{5}{p{1\textwidth}}{$^\ddag$ These are computational tools to facilitate code transformations, rather than design optimization frameworks}
         \end{tabular}
     \end{adjustbox}
 
 \end{table}
 
-In short, the main claim this chapter aims to demonstrate is that a code transformations paradigm yields a favorable compromise between all three tradeoffs: it achieves computational speeds similar to the latest academic methods with the ease-of-use of methods already accepted by industry today. If this hypothesis is validated, it leads to a compelling value proposition: if we can develop new methods for industry engineers to easily write traceable design code, then we gain access to an host of advanced scientific computing techniques that can significantly shrink the academia-industry MDO gap described in Chapter \ref{chap:literature}.
+In short, the main claim this chapter aims to demonstrate is that a code transformations paradigm yields a favorable compromise between all three tradeoffs: it achieves computational speeds similar to the latest academic methods with the ease-of-use of methods already accepted by industry today, all without overly-burdensome mathematical restrictions. If this hypothesis is validated, it leads to a compelling value proposition: if we can develop new methods for industry engineers to easily write traceable design code, then we can give them access to a host of advanced scientific computing techniques and help shrink the academia-industry MDO gap described in Chapter \ref{chap:literature}.
 
 Accordingly, the contribution of this chapter is twofold. First, this chapter will conceptually introduce code transformations as a new paradigm for engineering MDO frameworks. Secondly, the thesis will demonstrate strategies that allow traceability of engineering design code with minimal user effort, enabling the use of code transformations in practice.
 
@@ -114,25 +114,28 @@ To research the feasibility, opportunities, and limitations of a code transforma
 
 \subsection{Graph Construction and Optimization}
 
-Fundamentally, AeroSandbox is a tool for building and transforming large computational graphs, and indeed these graphs can be directly inspected both computationally and visually, as Figure \ref{fig:computational-graph-aerosandbox} demonstrates. AeroSandbox uses its own specialized numerical library to intercept and trace user code, and it can interface with tracer-like objects from either the CasADi \cite{casadi} or JAX \cite{jax} libraries to produce a computational graph compatible with these respective libraries. Coverage is provided for a wide range of mathematical operators, including most of the popular NumPy library \cite{harris_array_2020} and parts of the SciPy library \cite{virtanen_scipy_2020}.
-
-When constructing this graph, AeroSandbox deliberately makes certain framework-level decisions which are tradeoffs that tend to work well in engineering design optimization, as contrasted with other possible applications like machine learning \cite{rackauckas_engineering_2021}. An example of one such choice is the decision to use static computational graphs, where the graph is constructed once during problem specification, rather than repeatedly at each function evaluation during optimization\footnote{Behavior analogous to this latter approach is seen in PyTorch, for example, where evaluation and tracing happen simultaneously.}. This results in a reduced computational overhead per-operator, which is important as engineering analysis tends to involve deep, scalar-heavy\footnote{Relative to traditional machine learning, which tends to focus more on large kernel operators (e.g., einsum-like) that perform much more computational ``work'' per operator.} computational graphs. This also makes it more worthwhile to apply global transformations (e.g., common subexpression elimination) to the graph, since the overhead of this is only incurred once. On the other hand, this same decision inherently prohibits value-dependent language-level control flow from being recorded in the graph, which creates challenges in other areas (e.g., adaptive-step numerical integrators). Tradeoffs such as this are made at every step of the framework architecture, from graph construction to code transformations; the end result is a framework that makes numerical choices favoring design optimization applications.
+Fundamentally, AeroSandbox is a tool for building and transforming large computational graphs, and indeed these graphs can be directly inspected both computationally and visually, as Figure \ref{fig:computational-graph-aerosandbox} demonstrates. AeroSandbox uses its own specialized numerical library to intercept and trace user code, and it can interface with tracer-like objects from either the CasADi \cite{casadi} or JAX \cite{jax} libraries to produce a computational graph compatible with these respective libraries. Coverage is provided for a wide range of mathematical operators, including most of the popular NumPy library \cite{harris_array_2020} and parts of the SciPy library \cite{scipy}.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{../figures/computational_graph_blimp.png} % TODO update
-    \caption{Computational graph of a mass model for an airship, as constructed by AeroSandbox. This graph is automatically constructed at runtime.}
+    \includegraphics[width=\textwidth]{../figures/large_computational_graph-crop.pdf} % TODO update
+    \caption{Computational graph of an airfoil aerodynamics analysis, as constructed by AeroSandbox at runtime. The analysis depicted here is NeuralFoil, which is described in more detail in Chapter \ref{chap:physics-informed-ml}. Elements of the analysis that are not functions of design variables are pre-computed and collapsed into a single node in the computational graph, so the exact runtime graph depends on the user-specified design problem.}
     \label{fig:computational-graph-aerosandbox}
 \end{figure}
 
-Once the graph is constructed, various user-specified inputs and outputs are connected to form a data structure representing a numerical optimization problem. With this information, code transformations can be applied. Most transformations, like automatic differentiation, automated sparsity detection, and problem scaling, are performed automatically and transparently to the user. Here, sensible default heuristics tuned on engineering design optimization problems are used. For example, the framework will automatically choose between forward-mode and reverse-mode automatic differentiation based on the size of the problem and the number of design variables. Likewise, problem scaling is applied on variables and constraints with a heuristic based on the user-provided initial guess, any bounds constraints, and the constraint Jacobian at the initial guess.
+During graph construction, code variables that the user specifies as optimization variables are assigned tracers and included as input nodes to the computational graph. Because this happens at runtime on an as-needed basis, parts of the computation that are not functions of optimization variables are evaluated as standard numerical functions. This essentially allows static parts of the optimization problem (e.g., constants, parameters, or frozen variables; and any analyses that are a pure function of these) to be evaluated once and then be reused across multiple function evaluations, which can significantly reduce computational overhead.
 
-After appropriate code transformations are applied, the transformed problem is then solved using a numerical optimization backend. By default, this backend sends the solve to IPOPT \cite{wachter_implementation_2006}, a primal-dual interior point algorithm that performs favorably in large-scale engineering design optimization \cite{lyu_benchmarking_2014}. This core mathematical framework architecture, tradeoffs, and heuristics are discussed in further detail in prior work by Sharpe \cite{sharpe_aerosandbox_2021}.
+While constructing this graph, AeroSandbox deliberately makes certain framework-level decisions which are tradeoffs that tend to work well in engineering design optimization, as contrasted with other possible applications like machine learning \cite{rackauckas_engineering_2021}. An example of one such choice is the decision to use static computational graphs, where the graph is constructed once during problem specification, rather than repeatedly at each function evaluation during optimization\footnote{Behavior analogous to this latter approach is seen in PyTorch, for example, where evaluation and tracing happen simultaneously.}. This static approach results in a reduced computational overhead per-operator, which is important as engineering analysis tends to involve deep, scalar-heavy\footnote{Relative to traditional machine learning, which tends to focus more on large kernel operators (e.g., matrix multiplication and other einsum-like operators) that perform much more computational ``work'' per operator.} computational graphs. This also makes it more worthwhile to apply global transformations (e.g., common subexpression elimination) to the graph, since the overhead of this is only incurred once. On the other hand, this same decision inherently prohibits value-dependent language-level control flow from being recorded in the graph, which creates challenges in other cases (e.g., adaptive-step numerical integrators). Tradeoffs such as this are made at every step of the framework architecture, from graph construction to code transformations; the end result is a framework that makes numerical choices favoring design optimization applications.
 
-This core design optimization framework is intended to be broadly applicable to many kinds of large-scale engineering systems. However, on top of this code framework, many optional aircraft-design-specific tools and physics modules are included, which make the framework especially well-suited to support these applications. These specialized tools are the focus of Chapter \ref{chap:physics}, though an overview of how these tools fit into the broader framework is given in Figure \ref{fig:asb-diagram}.
+Once the graph is constructed, various user-specified inputs and outputs are connected to form a data structure representing a numerical optimization problem. With this information, code transformations can be applied. Most transformations, like automatic differentiation, automated sparsity detection, and problem scaling, are performed automatically and transparently to the user. Here, sensible default heuristics tuned on engineering design optimization problems are used. For example, the framework will automatically choose between forward-mode and reverse-mode automatic differentiation for the constraint Jacobian based on its dimensionality after coloring and compression. Likewise, problem scaling is applied on variables and constraints with a heuristic based on the user-provided initial guess, any bounds constraints, and the constraint Jacobian at the initial guess.
+
+After appropriate code transformations are applied, the transformed problem is then solved using a numerical optimization backend. By default, this backend sends the solve to IPOPT \cite{wachter_implementation_2006}, a second-order gradient-based optimization algorithm that performs favorably in large-scale engineering design optimization \cite{lyu_benchmarking_2014}. Another benefit of IPOPT is that constraints are handled by a primal-dual interior point algorithm, which allows constraint sensitivity information to be obtained naturally as part of the solve. This core mathematical framework architecture, tradeoffs, and heuristics are discussed in further detail in prior work by Sharpe \cite{sharpe_aerosandbox_2021}.
+
+It should be emphasized that this core design optimization framework is intended to be broadly applicable to many kinds of large-scale engineering systems, and is not aerospace-specific. However, on top of this application-agnostic numerical framework, many optional aircraft-design-specific tools and physics modules are included, which make the framework especially well-suited to support these applications. These specialized tools are the focus of Chapter \ref{chap:physics}, though an overview of how these tools fit into the broader framework is given in Figure \ref{fig:asb-diagram}.
 
 \begin{figure}[h]
-    \centerline{\input{../figures/asb-diagram.tikz}}
+    \centering
+    \input{../figures/asb-diagram.tikz}
     \caption{Dependency relationships between \textbf{\textcolor{c1!80!black}{AeroSandbox (ASB) components}} and \textbf{\textcolor{c2!80!black}{external libraries}}. Arrows point toward dependencies. Adapted from prior work by Sharpe \cite{sharpe_aerosandbox_2021}.}
     \label{fig:asb-diagram}
 \end{figure}
@@ -144,10 +147,92 @@ To test the hypothesis shown in Table \ref{tab:paradigm_comparison}, where a cod
 
 \subsection{Code Transformations vs. Black-Box Optimization Methods}
 
+The first possible point of comparison is between code transformations and black-box optimization methods, which is the de facto standard in industry today. As shown in Table \ref{tab:paradigm_comparison}, the main advantage of a code transformations framework over such methods is a significant increase in runtime speed and scalability. To demonstrate this, we perform an optimization benchmark on the Rosenbrock problem \cite{rosenbrock}. This problem is a classic optimization benchmark, designed to be a stress-test as the optimum lies at the bottom of a shallow-curving valley. Here, we solve an $N$-dimensional extension of this problem, which conveniently gives a knob to smoothly dial up or down the difficulty of the problem \cite{kok}. This optimization problem is defined in Equation \ref{eq:rosenbrock}:
+
+\begin{mini}
+    |l|
+        {\vec{x}}{ \sum_{i=1}^{N-1} \left[ 100 \left(x_{i+1} - x_i^2 \right)^2 + \left(1 - x_i \right)^2 \right] }
+        {}{}
+%        \addConstraint{}
+    \label{eq:rosenbrock}
+\end{mini}
+
+Figure \ref{fig:rosenbrock} illustrates this optimization landscape for the case where $N=2$, showing the curved valley. For all $N$, the global optimum is at $\vec{x} = \vec{1}$, where the objective function evaluates to $0$. This problem is chosen here because it shares many challenging aspects with engineering design optimization problems: it is nonlinear, nonconvex, and poorly-scaled. Likewise, the Hessian of the function changes substantially near the optimum (as evidenced by the curvature in the valley) -- this is designed to put second-order gradient-based optimization methods (such as IPOPT) at a disadvantage. In this benchmark problem, we deliberately choose extremely poor initial guesses, with the goal of stress-testing solver robustness. Specifically, each element of the vector of initial guesses drawn from a random uniform distribution in the interval $[-10, 10]$.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=4in]{../figures/rosenbrock_function.pdf}
+    \caption{The Rosenbrock function, a classic optimization benchmark problem with mathematical formulation given in Equation \ref{eq:rosenbrock}. Here, the $N=2$ case is shown for ease of visualization, though axes are labeled as $x_i$ and $x_{i+1}$ to illustrate that this curving valley occurs in every adjacent pair of dimensions for higher-dimensional variants.}
+    \label{fig:rosenbrock}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{../figures/benchmark_nd_rosenbrock.pdf}
+    \caption{Comparison of optimization performance between AeroSandbox and existing black-box optimization methods on the $N$-dimensional Rosenbrock problem. Other methods are two gradient-free methods (Nelder-Mead simplex method and a differential evolution genetic algorithm) and two gradient-based methods (SLSQP and BFGS), all using common SciPy implementations \cite{scipy}.}
+    \label{fig:benchmark_nd_rosenbrock}
+\end{figure}
+
+In Figure \ref{fig:benchmark_nd_rosenbrock}, the computational cost of AeroSandbox (which leverages code transformations) is benchmarked against existing black-box optimization methods, as the problem dimensionality $N$ is varied. Several notable features can be seen in this figure. First, we find that gradient-based methods (e.g., BFGS, SLSQP) scale much better to high-dimensional optimization problems than gradient-free methods (e.g., Nelder-Mead, genetic), consistent with theory and other literature \cite{martins_engineering_2021, kochenderfer_algorithms_2019}. Because of this trend, these gradient-based methods are the most representative example of black-box methods used in industry today. As specific points of comparison, the SUAVE aircraft design suite \cite{SUAVE2017} conventionally uses black-box SLSQP optimization, and the TASOPT aircraft design code \cite{drela_tasopt_2010} uses a black-box Nelder-Mead simplex method.
+
+Second, we find that AeroSandbox offers significantly faster asymptotic runtime compared to all examined black-box methods. As problem dimensionality increases, the number of function evaluations required for AeroSandbox optimization to converge scales roughly linearly with the number of variables, while the equivalent metric for black-box gradient-based methods scales superlinearly. This improvement in scaling is mostly attributable to the use of automatic differentiation, which allows for more efficient gradient computation.
+
+Finally, we find that AeroSandbox offers improved convergence robustness to poor initial guesses compared to some methods, like SLSQP. In Figure \ref{fig:rosenbrock}, a method's convergence on the problem at a given dimensionality $N$ is shown by the presence or absence of a colored dot. While some methods converge fairly reliably (e.g., AeroSandbox and BFGS), others like SLSQP show more spotty convergence, with failure becoming increasingly common as the dimensionality increases. This is attributable to two factors: a) the backtracking line search implemented by IPOPT within AeroSandbox and the BFGS solver within SciPy, which stabilizes the optimization process, and b) the presence of automatic problem scaling, which improves the conditioning of the optimization problem.
+
+This benchmark demonstrates that a code transformations paradigm can offer faster practical and asymptotic optimization performance than existing black-box optimization methods, especially as problem scale increases.
+
 \subsection{Code Transformations vs. Disciplined Optimization Methods}
+\label{sec:benchmark_gpkit}
+
+Another MDO paradigm that can be compared to code transformation is a broad class of techniques known as disciplined optimization methods. The basic premise of such methods is that if user code can be restricted to specific mathematical forms, then specialized solvers can achieve large speedups over black-box methods. An example of one such mathematical form is convex optimization \cite{boyd_convex_2004}, and methodologies such as disciplined convex programming \cite{grant_disciplined_2006} show how a framework can be built on such paradigms. In these \emph{disciplined} frameworks, various mathematical properties (e.g., convexity) are tracked for each user-specified expression, to ensure that the optimization problem remains within the bounds of the solver's capabilities.
+
+From the perspective of aircraft design optimization, this paradigm became particularly intriguing with the advent of disciplined geometric programming \cite{boyd_tutorial_2007, agrawal_disciplined_2019}, where the mathematical space of functions is not convex but rather log-convex (monomials, posynomials, and signomials, which are described further by Burnell \cite{gpkit}). This is primarily due to research by Hoburg \cite{hoburg_geometric_2014}, who first applied such methods to conceptual aircraft design and demonstrated that many common first-order sizing relationships in this field are well-approximated by geometric programs. Further research by Hoburg, Kirschen, Ozturk, Burnell, and others \cite{kirschen, geometric, jho} have extended this work with the development of GPkit, a geometric programming framework for engineering design optimization.
+
+Geometric programming (GP) methods have been shown to offer significant speedups over black-box optimization methods on engineering design problems \cite{kirschen}, which makes them particularly compelling. In addition, this speedup is achieved largely without sacrificing the syntactical clarity of the user's code, which makes expressing design problems relatively efficient. However, the mathematical restriction to certain categories of log-convex functions can be significant, and working around this by reformulation or approximation can sometimes prove burdensome in engineering practice. As an illustrative example, a case study by Vernacchia \cite{vernacchia_gpkit} documents an effort by an experienced end-user to build geometric-programming-compatible analysis tools for compressible aerodynamics. Here, a common empirical model for the transonic lift-curve slope is found to break GP-compatibility due to the presence of a $\tan^2()$ operator. To fix this, it is instead replaced with a modified \nth{12}-order Taylor series approximation. This works to restore GP-compatibility, but crafting such approximations can be time-consuming and error-prone. This mathematical restriction also limits the extensibility of design codes to higher-fidelity analyses, which are often not easily representable through verifiably-log-convex relationships.
+
+Therefore, from this perspective, a valuable objective for any new MDO paradigm should be to achieve runtime speeds comparable to these disciplined optimization methods, while relaxing some of their mathematical restrictions to the extent possible. The code transformations paradigm that is proposed here achieves the latter goal of removing some mathematical restrictions: rather than restrict user code to log-convex expressions, the user is restricted to the much-broader category of $C^1$-continuous expressions. (Like disciplined methods, a specialized numerics library is still required, however. In the case of code transformations, this is due to the traceability requirement.) This relaxation of mathematical restrictions allows users to formulate many more engineering design problems without the need for mathematical rewriting, and the ability to embed common numerical operators such as linear solves and integrators enables extensibility to higher-fidelity modeling.
+
+However, the question remains whether this relaxation of mathematical restrictions comes at the cost of computational performance. To investigate this, we conduct a benchmark study comparing code transformations (via AeroSandbox) to disciplined methods (via GPkit) on an example engineering problem. The specific problem is directly reproduced from the GPkit user documentation \cite{gpkit}, in order to ensure that a high-quality and representative GPkit code implementation is available for comparison. This problem in question is a static Euler-Bernoulli cantilever beam analysis problem, where a distributed load is applied; a diagram of the setup is shown in Figure \ref{fig:gpkit-cantilever-beam}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=3in,clip,trim={0} {4.5cm} {0} {6.5cm}]{../figures/gpkit-compare/cantilever-beam.png}
+    \caption{Setup for a cantilever beam analysis problem, which is directly reproduced from the GPkit user documentation \cite{gpkit} and used as a benchmark to compare solution performance across various frameworks. The beam is discretized into $N$ elements, and a uniform distributed load is applied.}
+    \label{fig:gpkit-cantilever-beam}
+\end{figure}
+
+Mathematically, this problem is represented as a fourth-order differential equation, which is discretized into $N$ elements. The goal of the analysis is to compute the state vector (deflection, slope, moment, and shear) at each point along the beam, given some specified distributed load. A useful observation is that, assuming the discretization is performed in a way that expresses integrands as a linear function of these state vectors (e.g., trapzeoidal integration), this problem can be solved in a single sparse linear solve. However, this linearity is only advantageous if a framework can exploit this structure, and log-transformation will lose this property.
+
+Numerically, the problem is written in residual (implicit) form, which allows it to be formulated as an optimization problem in various frameworks. As-given, this problem is a pure analysis problem, and the number of constraints (including boundary conditions) exactly equals the number of degrees of freedom. However, one can easily imagine this problem being implemented as a discipline-specific analysis within a larger MDO framework, where the beam analysis is coupled to other analyses (e.g., a wing sizing analysis) and design variables (e.g., wing thickness).
+
+In Figure \ref{fig:benchmark_gp_beam}, the wall-clock runtime of AeroSandbox and GPkit is compared as the number of elements $N$ is varied. In this chart, four labeled cases are given:
+\begin{enumerate}
+    \item \textbf{GPkit (cvxopt)}, where the problem is solved using GPkit's default convex optimization solver, CVXOPT \cite{cvxopt}. Notably, CVXOPT is free and open-source, so this is a realistic comparison for many users.
+    \item \textbf{GPkit (mosek)}, where the problem is solved using GPkit's interface to a commercial solver, MOSEK \cite{mosek}. This is included to show the performance of GPkit in cases where users have access to a high-performance proprietary solver, and indeed the runtime is roughly an order of magnitude faster than the CVXOPT case.
+    \item \textbf{AeroSandbox}, where the problem is formulated with syntax as close to its basic mathematical form as possible. The exact syntax used here is given in Listing \ref{lst:gpkit_beam}; notably, the coding style is declarative and allows the framework to set up its own discretization routines. In this case, a substantial speedup is achieved, in large part due to the fact that the problem is not solved in log-space, and hence the linearity can be exploited by a gradient-based solver. Thus, in this case, the problem can always be solved in one optimization iteration.
+    \item \textbf{AeroSandbox (forced to use GP formulation)}, where the problem is formulated in its log-transformed form to AeroSandbox, which is identical to what underlying solvers of GPkit would see. This case is perhaps the most interesting of the four, because it shows that even with the same mathematical structure, code transformations can help accelerate specialized solvers. In this case, subsequent benchmarking reveals that most of this speedup is due to sparsity detection and Jacobian compression, since the constraint Jacobian of this problem is quite sparse (due to locality of the governing equations).
+\end{enumerate}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{../figures/benchmark_gp_beam.pdf}
+    \caption{Comparison of optimization performance between AeroSandbox and GPkit on the cantilever beam analysis problem. The problem is formulated as a static Euler-Bernoulli beam analysis, with the number of discretized elements, $N$, varied to test scalability. The number of optimization variables (i.e., degrees of freedom) is $4N$, as the governing equation is originally a \nth{4}-order ODE and is decomposed to a larger system of first-order ODEs.}
+    \label{fig:benchmark_gp_beam}
+\end{figure}
+
+Another interesting observation from Figure \ref{fig:benchmark_gp_beam} is the fact that the wall-clock runtime of the AeroSandbox case asymptotes to roughly 10 milliseconds in the limit of small $N$. This is rather large given the simplicity of the problem; if this analysis problem were explicitly formulated as a sparse linear program and given to such a specialized linear solver, it would likely be solved in a fraction of a millisecond. This discrepancy is due to the overhead of the optimization framework, which includes both tracing and applying code transformations. However, this overhead only scales weakly with problem size, and hence the runtime scales linearly with the number of elements $N$ in the limit of large $N$. This contrasts to the GPkit runtime, which scales superlinearly with $N$. This is a common tradeoff in optimization frameworks: the overhead of the framework is often fixed, and hence the framework is most efficient when solving large problems.
+
+The payoff of this computational overhead, however, is that an end-user can take advantage of the sparse linear structure of the problem without needing to explicitly recognize and formulate it as such. This trades engineering effort for computational effort, which may be a favorable tradeoff in the context of quick-turnaround conceptual design problems. This automation also lowers the expertise barrier for users, as they do not need to be aware of the underlying mathematical structure of the problem to achieve good performance.
+
+Other comparisons between a code transformations paradigm and disciplined optimization methods, including two conceptual aircraft sizing case studies, are given in prior work by Sharpe \cite{sharpe_aerosandbox_2021}. In short, code transformations can equal or exceed the performance of disciplined optimization methods such as geometric programming, even on problems where this disciplined optimization approach is applicable. This is a promising result, as it suggests that code transformations may be able to offer the best of both worlds on engineering problems: the computational performance of disciplined optimization methods with fewer mathematical restrictions.
 
 \subsection{Code Transformations vs. Analytic-Gradient Methods}
 
+%The final comparison to be made is between code transformations and analytic-gradient methods, which are an area of active research in engineering design optimization. As shown in Table \ref{tab:paradigm_comparison}, the main advantage of a code transformations framework over such methods is a significant increase in ease of implementation. One popular framework that supports analytic gradients is OpenMDAO \cite{gray_openmdao_2019}, a flexible Python-based MDO % TODO
+
+
+
+%To demonstrate this, we perform an optimization benchmark on the Rosenbrock problem \cite{rosenbrock} using OpenMDAO, a popular MDO framework that supports analytic gradients \cite{gray_openmdao_2019}.
 
 \section{Syntax Considerations}
 
@@ -174,32 +259,4 @@ To test the hypothesis shown in Table \ref{tab:paradigm_comparison}, where a cod
 
 
 
-AeroSandbox can be used to demonstrate the potential of code transformations to accelerate optimization problems with minimal effort. Here, we give an example comparison using the Rosenbrock optimization problem. This problem is a classic optimization benchmark, designed to be a stress-test as the optimum lies at the bottom of a shallow-curving valley \cite{rosenbrock}. Here, we solve an $N$-dimensional extension of this problem, which conveniently gives a knob to dial up or down the difficulty of the problem \cite{kok}. This optimization problem is defined in Equation \ref{eq:rosenbrock}:
-
-\begin{mini}
-    |l|
-        {\vec{x}}{ \sum_{i=1}^{N-1} \left[ 100 \left(x_{i+1} - x_i^2 \right)^2 + \left(1 - x_i \right)^2 \right] }
-        {}{}
-%        \addConstraint{}
-    \label{eq:rosenbrock}
-\end{mini}
-
-Figure \ref{fig:rosenbrock} illustrates this optimization landscape for the case where $N=2$, showing the curved valley. For all $N$, the global optimum is at $\vec{x} = \vec{1}$, where the objective function evaluates to $0$. This problem is chosen here because it shares many difficult aspects with engineering design optimization problems: it is nonlinear, nonconvex, and poorly-scaled. Furthermore, we deliberately choose poor initial guesses, with each element of the vector of initial guesses drawn from a random uniform distribution in the interval $[-10, 10]$.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics{../figures/rosenbrock_function.pdf}
-    \caption{The Rosenbrock function, a classic optimization benchmark problem.}
-    \label{fig:rosenbrock}
-\end{figure}
-
-In Figure \ref{fig:aerosandbox_scaling_comparison}, the performance of AeroSandbox (which leverages code transformations) is compared against existing methods using black-box optimization techniques. AeroSandbox offers faster practical and asymptotic optimization performance than existing black-box optimization methods, demonstrating the magnitude of acceleration that is possible with code transformations.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{../figures/benchmark_nd_rosenbrock.pdf}
-    \caption{Comparison of optimization performance between AeroSandbox and existing black-box optimization methods on the $N$-dimensional Rosenbrock problem. Other methods are a Nelder-Mead simplex method and two gradient-based methods (SLSQP and BFGS), both using common SciPy implementations \cite{scipy}.}
-    \label{fig:aerosandbox_scaling_comparison}
-\end{figure}
-
-Engineering benchmarks comparing the performance of an early implementation of the code transformations paradigm to disciplined optimization methods are given in Sharpe \cite{sharpe_aerosandbox_2021}. In short, code transformations can equal or exceed the performance of disciplined optimization methods such as geometric programming, even on problems where this disciplined optimization approach is applicable. This is a promising result, as it suggests that code transformations may be able to offer the best of both worlds on engineering problems: the computational performance of disciplined optimization methods without the strict mathematical restrictions.
+AeroSandbox can be used to demonstrate the potential of code transformations to accelerate optimization problems with minimal effort. Here, we give an example comparison using the Rosenbrock optimization problem. This problem is a classic optimization benchmark, designed to be a stress-test as the optimum lies at the bottom of a shallow-curving valley \cite{rosenbrock}.
