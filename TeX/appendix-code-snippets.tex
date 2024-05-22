@@ -1,20 +1,13 @@
 \chapter{AeroSandbox Code Examples for Benchmarks}
 \label{chap:code}
 
+
 \section{Benchmark on Beam Static Structural Analysis}
 
 This code is used for the AeroSandbox performance benchmark used in Section \ref{sec:benchmark_gpkit}, with associated runtimes shown as the line labeled ``AeroSandbox'' in Figure \ref{fig:benchmark_gp_beam}. In this analysis problem, a cantilever beam is subject to a distributed load, and the goal is to compute the state of the deflected beam. The code is shown in Listing \ref{lst:gpkit_beam}.
 
 \begin{listing}[h]
-    \begin{minted}
-[
-    frame=lines,
-    framesep=2mm,
-    baselinestretch=1.2,
-    fontsize=\footnotesize,
-    linenos
-]
-{python}
+    \begin{minted}{python}
 import aerosandbox as asb
 import aerosandbox.numpy as np
 

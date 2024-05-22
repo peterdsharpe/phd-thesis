@@ -142,6 +142,7 @@ It should be emphasized that this core design optimization framework is intended
 
 
 \section{Performance Comparisons}
+\label{sec:benchmarks}
 
 To test the hypothesis shown in Table \ref{tab:paradigm_comparison}, where a code transformations paradigm can offer a favorable compromise between ease-of-use and computational performance, we have conducted a series of benchmarking studies. Each benchmark is designed to compare performance on one of the three key practical metrics, and against at least one of the existing MDO paradigms listed in Table \ref{tab:paradigm_comparison}. % TODO cleanup
 
@@ -201,7 +202,7 @@ However, the question remains whether this relaxation of mathematical restrictio
     \label{fig:gpkit-cantilever-beam}
 \end{figure}
 
-Mathematically, this problem is represented as a fourth-order differential equation, which is discretized into $N$ elements. The goal of the analysis is to compute the state vector (deflection, slope, moment, and shear) at each point along the beam, given some specified distributed load. A useful observation is that, assuming the discretization is performed in a way that expresses integrands as a linear function of these state vectors (e.g., trapzeoidal integration), this problem can be solved in a single sparse linear solve. However, this linearity is only advantageous if a framework can exploit this structure, and log-transformation will lose this property.
+Mathematically, this problem is represented as a fourth-order differential equation, which is discretized into $N$ elements. The goal of the analysis is to compute the state vector (deflection, slope, moment, and shear) at each point along the beam, given some specified distributed load. A useful observation is that, assuming the discretization is performed in a way that expresses integrands as a linear function of these state vectors (e.g., trapezoidal integration), this problem can be solved in a single sparse linear solve. However, this linearity is only advantageous if a framework can exploit this structure, and log-transformation will lose this property.
 
 Numerically, the problem is written in residual (implicit) form, which allows it to be formulated as an optimization problem in various frameworks. As-given, this problem is a pure analysis problem, and the number of constraints (including boundary conditions) exactly equals the number of degrees of freedom. However, one can easily imagine this problem being implemented as a discipline-specific analysis within a larger MDO framework, where the beam analysis is coupled to other analyses (e.g., a wing sizing analysis) and design variables (e.g., wing thickness).
 
@@ -232,7 +233,7 @@ The final comparison to be made is between code transformations and an analytic-
 
 When implemented, user-specified analytic gradients can be faster than its code-transformations analogue of automatic differentiation. This is both for code reasons (e.g., the framework no longer incurs a tracing overhead) but also for mathematical ones (e.g., the ability to use continuous adjoints, for which there is no direct analogue in automatic differentiation \cite{rackauckas_universal_2021, rackauckas_direct_2022}).
 
-However, the real benefit of analytic gradients is in the potential for reduced memory cost, especially in the case of the largest-scale design optimization problems. This is because the user can use strategies like checkpointing or time-reversal of ODEs to reduce the memory cost of gradient computation, which is challenging to automate in a general-purpose automatic differentiation framework \cite{chen2018neural, rackauckas_direct_2022, griewank_algorithm_2000}. For this memory reason, a framework based on analytic gradients is only tractable choice for many high-fidelity engineering design optimization problems.
+However, the real benefit of analytic gradients is in the potential for reduced memory cost, especially in the case of the largest-scale design optimization problems. This is because the user can use strategies like checkpointing or time-reversal of ODEs to reduce the memory cost of gradient computation, which is challenging to automate in a general-purpose automatic differentiation framework \cite{chen2018neural, rackauckas_direct_2022, griewank_algorithm_2000}. For this memory reason, a framework based on analytic gradients is in fact the only tractable choice for many high-fidelity engineering design optimization problems.
 
 Another framework benefit of ceding control over gradient calculation to user code is that it makes it cleaner to define disciplinary interfaces, as the ``components'' for which users specify partial derivatives form a natural disciplinary boundary. This can make it easier for the user to experiment with a wide variety of MDO architectures, which may improve performance in some cases \cite{martins_multidisciplinary_2013}. To contrast with this, the code transformations paradigm is more naturally suited to monolithic architectures (and in particular, simultaneous analysis and design) due to the global nature of the computational graph it constructs \cite{ma_modelingtoolkit_2021, haftka_simultaneous_1985}.
 
@@ -245,16 +246,16 @@ The primary downside of this analytic-gradients paradigm is that it requires sub
 
 Because of this, a code transformations paradigm may be a promising alternative to analytic-gradient methods in lower-fidelity design optimization cases, such as conceptual design. In such cases, where the fine-grained control of analytic gradients is less crucial, a simpler user experience that automates some of this optimization machinery may yield reduced overall user frictions. Because of this, Table \ref{tab:paradigm_comparison} suggests that the main advantage of a code transformations paradigm over analytic-gradient methods is improved ease of implementation.
 
-To demonstrate what this looks like in practice, we implement a benchmark problem for comparison between AeroSandbox and OpenMDAO, which is a popular MDO framework that supports analytic gradients \cite{gray_openmdao_2019}. The specific problem is reproduced from the user documentation of OpenMDAO, once again to ensure that a high-quality implementation is available for comparison \cite{om_beam}. This problem is based on Euler-Bernoulli beam theory, similar to the example of Section \ref{sec:benchmark_gpkit}. However, in this case it involves not just analysis but also optimziation: the thickness of the beam is allowed to vary along its span. A constraint on the total volume of the beam is imposed, and the objective is to minimize the tip deflection of the beam while a point load is applied at the tip. This problem is illustrated in Figure \ref{fig:om-beam-opt}.
+To demonstrate what this looks like in practice, we implement a benchmark problem for comparison between AeroSandbox and OpenMDAO, which is a popular MDO framework that supports analytic gradients \cite{gray_openmdao_2019}. The specific problem is reproduced from the user documentation of OpenMDAO, once again to ensure that a high-quality implementation is available for comparison \cite{om_beam}. This problem is based on 1-dimensional Euler-Bernoulli beam theory, similar to the example of Section \ref{sec:benchmark_gpkit}. However, in this case it involves not just analysis but also optimization: the thickness of the beam along its length, $h(x)$, is a design variable. The beam is discretized into $N$ elements along its length, and the thickness distribution need not be uniform. A constraint on the total volume of the beam is imposed, and a cantilever boundary condition is applied. The optimization objective is to minimize the tip deflection of the beam while a point load is applied at the tip. This problem is illustrated in Figure \ref{fig:om-beam-opt}, with additional numerical details available in Listing \ref{lst:om_beam}.
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=4in]{../figures/om_beam-crop.pdf}
-    \caption{Setup for a beam shape optimization problem, which is directly reproduced from the OpenMDAO user documentation \cite{gray_openmdao_2019} and used as a benchmark to compare solution performance across various frameworks. The beam is discretized into $N$ elements, with a point load at the tip.}
+    \caption{High-level formulation of a beam shape optimization problem, which is directly reproduced from the OpenMDAO user documentation \cite{gray_openmdao_2019} and used as a benchmark to compare solution performance across various frameworks. The beam is discretized into $N$ elements along its length, with a point load at the tip.}
     \label{fig:om-beam-opt}
 \end{figure}
 
-In Figure \ref{fig:benchmark_om_beam}, we compare the wall-clock runtime of AeroSandbox and OpenMDAO as the number of elements $N$ is varied. % TODO continue
+In Figure \ref{fig:benchmark_om_beam}, we compare the wall-clock runtime of AeroSandbox and OpenMDAO as the number of beam discretization elements $N$ is varied. The exact code implementation used for this comparison is given by Gray et. al in the OpenMDAO case \cite{om_beam}, and leverages exact analytic gradients. The corresponding code for the AeroSandbox case is given in Listing \ref{lst:om_beam}. In this benchmark study, we see that a code transformations framework can achieve faster runtime than analytic gradient methods across the range of examined problem sizes.
 
 \begin{figure}[h]
     \centering
@@ -263,19 +264,85 @@ In Figure \ref{fig:benchmark_om_beam}, we compare the wall-clock runtime of Aero
     \label{fig:benchmark_om_beam}
 \end{figure}
 
-% OpenAeroStruct, OpenConcept - it's possible
+However, the true advantage of a code transformations framework in this case study is not in runtime speed, but rather in a reduction in engineering time. This can be challenging to precisely quantify, but one possible approximate metric for this is the number of source lines of code required to implement the problem. Referencing the high-level overview of the optimization user experience in Figure \ref{fig:birds_eye_view}, this loosely corresponds to the amount of friction a user must overcome to implement a problem of interest. Table \ref{tab:benchmark_om_beam} shows that the AeroSandbox implementation of this problem is significantly shorter and simpler than the OpenMDAO one, with a roughly 8x decrease in the number of problem-specific lines of code.
 
-% Due
+\begin{table}
+    \caption{Comparison of code size and wall-clock runtimes between AeroSandbox and OpenMDAO on the beam shape optimization benchmark problem.}
+    \label{tab:benchmark_om_beam}
+    \begin{centering}
+        \begin{tblr}{
+            colspec={m{8cm} l l},
+            row{1} = {font=\bfseries},
+        }
+            \toprule
+            & AeroSandbox & OpenMDAO  \\ \midrule
+            Source Lines of Code$^\dagger$ & 35          & 287       \\
+            Wall-Clock Runtime ($N=5$)     & 0.016 sec   & 0.253 sec \\
+            Wall-Clock Runtime ($N=500$)   & 0.235 sec   & 31 sec    \\
+            \bottomrule
+        \end{tblr}
+        \\
+        \textcolor{darkgray}{$^\dagger$ Includes any imported utilities that are specifically pre-written for this beam problem.} \\
+    \end{centering}
+\end{table}
 
-%Like most framework architecture decisions, this comes down to tradeoffs
+This discrepancy in engineering time occurs primarily because an analytic-gradients framework requires every computation to be accompanied by a user-specified partial derivative. This is true even for simple calculations, such as the bending moment of inertia computation ($I=b h^3 / 12$) in this beam optimization benchmark problem. Furthermore, because these gradients must be linked to the underlying code, all user-defined computation is performed within class data structures (sometimes called components), which also increases the verbosity of the modeling language. For high-fidelity design optimization problems and for problems with only a handful of individual disciplines, this increase in boilerplate code may not be prohibitive. However, for conceptual design problems, which typically involve a vast number of low-fidelity models, and where the goal is to quickly explore a large configuration space, this can be a significant barrier to entry.
 
+\begin{listing}[h]
+    \begin{minted}{python}
+import aerosandbox as asb
+import aerosandbox.numpy as np
+
+N = 500  # Number of discretization nodes
+E = 1e3  # Elastic modulus [N/m^2]
+L = 1  # Beam length [m]
+b = 0.1  # Beam width [m]
+volume = 0.01  # Total material allowed [m^3]
+tip_load = 1  # Tip load [N]
+
+x = np.linspace(0, L, N)  # Node locations [m]
+
+opti = asb.Opti()
+h = opti.variable(init_guess=np.ones(N), lower_bound=1e-6)
+I = (1 / 12) * b * h ** 3  # Bending moment of inertia [m^4]
+
+V = np.ones(N) * (-tip_load)  # Shear force [N]
+M = opti.variable(init_guess=np.zeros(N))  # Moment [N*m]
+th = opti.variable(init_guess=np.zeros(N))  # Slope [rad]
+w = opti.variable(init_guess=np.zeros(N))  # Displacement [m]
+
+opti.subject_to([  # Governing equations
+    np.diff(M) == np.trapz(V) * np.diff(x),
+    np.diff(th) == np.trapz(M / (E * I), modify_endpoints=True) * np.diff(x),
+    np.diff(w) == np.trapz(th) * np.diff(x),
+])
+opti.subject_to([  # Boundary conditions
+    M[-1] == 0,
+    th[0] == 0,
+    w[0] == 0,
+])
+opti.subject_to(np.mean(h * b) <= volume / L)  # Volume constraint
+opti.minimize(w[-1])  # Objective: minimize tip deflection
+sol = opti.solve()
+print(sol(h))  # Gives the optimized beam thickness
+    \end{minted}
+    \caption{AeroSandbox implementation of the beam shape optimization problem, which is directly reproduced from the OpenMDAO user documentation \cite{gray_openmdao_2019} and used as a benchmark to compare solution performance across various frameworks. The beam is discretized into $N$ elements along its length, with a point load at the tip.}
+    \label{lst:om_beam}
+\end{listing}
+
+It is important to emphasize that, although this study highlights the challenges of using an analytic-gradients framework for conceptual design purposes, doing so is not impossible. Several successful example efforts such as the OpenMDAO-based OpenConcept \cite{Brelje2018a} and its related OpenAeroStruct \cite{Adler2022d} exist, and the code architecture of these tools offers an interesting view into how this can be done. In these cases, the user experience is streamlined by a framework-provided library of pre-written components that encapsulate common disciplinary analyses, each of which also has manually-implemented analytic gradients. This can be a suitable approach, especially in targeted applications where the user's design intent does not deviate too far from the assumptions of these pre-written analyses. However, the end-user experience becomes substantially more challenging when the user needs to extend these analyses or pose design problems outside the intended application scope of the framework, as they are no longer insulated from the frictions outlined here.
+
+Because of these reasons, we generally assess that a code transformations paradigm offers improved ease of implementation compared to analytic-gradient methods, as depicted in Table \ref{tab:paradigm_comparison}. This is especially true for conceptual design problems, where the user's primary goal is to quickly explore a large configuration space. However, for high-fidelity design optimization problems, where fine-grained control over the optimization process is required, an analytic-gradients paradigm is likely more suitable.
+
+In all three of the comparison case studies examined in this section, it becomes clear that most framework architecture decisions ultimately come down to tradeoffs: usability, runtime speed, and mathematical restrictions must all be considered. The best choice of MDO paradigm for a given design problem will depend on the specific requirements of that problem, and the user's expertise and preferences. However, the results of these benchmark studies suggest that a code transformations paradigm can offer a favorable general-purpose compromise between these factors, especially in the context of conceptual design optimization problems.
 
 \section{Syntax Considerations}
 
 \subsection{Procedural Coding Style}
 
-\subsection{Miscellaenous} % TODO fix title
+\subsection{Miscellaneous} % TODO fix title
 % Discuss units: deliberate decision not to include, but an interesting one in the context of code transformations.
+
 
 \section{Aircraft Design Case Studies}
 
@@ -285,15 +352,12 @@ In Figure \ref{fig:benchmark_om_beam}, we compare the wall-clock runtime of Aero
 
 \subsection{Dawn} % TODO name
 
+\subsection{Hydrogen} % ?
+
+\subsection{Solar Seaplane} % ?
+
 \subsection{Other Case Studies} % TODO name
 
 
 \section{Computational Reproducibility}
 \label{sec:asb-reproducibility}
-
-
-\section{Results-To-Date in Code Transformations}
-
-
-
-AeroSandbox can be used to demonstrate the potential of code transformations to accelerate optimization problems with minimal effort. Here, we give an example comparison using the Rosenbrock optimization problem. This problem is a classic optimization benchmark, designed to be a stress-test as the optimum lies at the bottom of a shallow-curving valley \cite{rosenbrock}.
