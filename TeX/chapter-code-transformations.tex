@@ -192,7 +192,7 @@ Geometric programming (GP) methods have been shown to offer significant speedups
 
 Therefore, from this perspective, a valuable objective for any new MDO paradigm should be to achieve runtime speeds comparable to these disciplined optimization methods, while relaxing some of their mathematical restrictions to the extent possible. The code transformations paradigm that is proposed here achieves the latter goal of removing some mathematical restrictions: rather than restrict user code to log-convex expressions, the user is restricted to the much-broader category of $C^1$-continuous expressions. (Like disciplined methods, a specialized numerics library is still required, however. In the case of code transformations, this is due to the traceability requirement.) This relaxation of mathematical restrictions allows users to formulate many more engineering design problems without the need for mathematical rewriting, and the ability to embed common numerical operators such as linear solves and integrators enables extensibility to higher-fidelity modeling.
 
-However, the question remains whether this relaxation of mathematical restrictions comes at the cost of computational performance. To investigate this, we conduct a benchmark study comparing code transformations (via AeroSandbox) to disciplined methods (via GPkit) on an example engineering problem. The specific problem is directly reproduced from the GPkit user documentation \cite{gpkit}, in order to ensure that a high-quality and representative GPkit code implementation is available for comparison. This problem in question is a static Euler-Bernoulli cantilever beam analysis problem, where a distributed load is applied; a diagram of the setup is shown in Figure \ref{fig:gpkit-cantilever-beam}.
+However, the question remains whether this relaxation of mathematical restrictions comes at the cost of computational performance. To investigate this, we conduct a benchmark study comparing code transformations (via AeroSandbox) to disciplined methods (via GPkit) on an example engineering problem. The specific problem is directly reproduced from the GPkit user documentation \cite{gpkit, gpkit_beam}, in order to ensure that a high-quality and representative GPkit code implementation is available for comparison. This problem in question is a static Euler-Bernoulli cantilever beam analysis problem, where a distributed load is applied; a diagram of the setup is shown in Figure \ref{fig:gpkit-cantilever-beam}. Values of various constants are taken from Burnell \cite{gpkit_beam} and reproduced in Listing \ref{lst:gpkit_beam}.
 
 \begin{figure}[h]
     \centering
@@ -207,10 +207,10 @@ Numerically, the problem is written in residual (implicit) form, which allows it
 
 In Figure \ref{fig:benchmark_gp_beam}, the wall-clock runtime of AeroSandbox and GPkit is compared as the number of elements $N$ is varied. In this chart, four labeled cases are given:
 \begin{enumerate}
-    \item \textbf{GPkit (cvxopt)}, where the problem is solved using GPkit's default convex optimization solver, CVXOPT \cite{cvxopt}. Notably, CVXOPT is free and open-source, so this case allows an ``open-source to open-source'' comparison to be drawn.
+    \item \textbf{GPkit (cvxopt)}, where the problem is solved using GPkit's default convex optimization solver, CVXOPT \cite{cvxopt}. Notably, CVXOPT is free and open-source, so the inclusion of this case allows an accurate ``open-source to open-source'' comparison to be drawn. The exact syntax used in this case (and in the MOSEK case below) is given by Burnell \cite{gpkit_beam}.
     \item \textbf{GPkit (mosek)}, where the problem is solved using GPkit's interface to a commercial solver, MOSEK \cite{mosek}. This is included to show the performance of GPkit in cases where users have access to a high-performance proprietary solver, and indeed the runtime is roughly an order of magnitude faster than the CVXOPT case.
     \item \textbf{AeroSandbox}, where the problem is formulated with syntax as close to its basic mathematical form as possible. The exact syntax used here is given in Listing \ref{lst:gpkit_beam}; notably, the coding style is declarative and allows the framework to set up its own discretization routines. In this case, a substantial speedup is achieved, in large part due to the fact that the problem is not solved in log-space, and hence the linearity can be exploited by a gradient-based solver. Thus, in this case, the problem can always be solved in one optimization iteration.
-    \item \textbf{AeroSandbox (using GP formulation)}, where the problem is formulated in its log-transformed form to AeroSandbox, which is identical to what underlying solvers of GPkit would see. This case is perhaps the most interesting of the four, because it shows that even with the same mathematical structure, code transformations can help accelerate specialized solvers. In this case, subsequent benchmarking reveals that most of this speedup is due to sparsity detection and Jacobian compression, since the constraint Jacobian of this problem is quite sparse (due to locality of the governing equations).
+    \item \textbf{AeroSandbox (using GP formulation)}, where the problem is given in its log-transformed form to AeroSandbox, which is identical to what underlying solvers of GPkit would see. This case is perhaps the most interesting of the four, because it shows that even with the same mathematical structure, code transformations can enable accelerations beyond specialized solvers alone. In this case, subsequent benchmarking reveals that most of this additional speedup is due to sparsity detection and Jacobian compression, since the constraint Jacobian of this problem is quite sparse (due to locality of the governing equations).
 \end{enumerate}
 
 \begin{figure}[h]
@@ -220,7 +220,7 @@ In Figure \ref{fig:benchmark_gp_beam}, the wall-clock runtime of AeroSandbox and
     \label{fig:benchmark_gp_beam}
 \end{figure}
 
-Another interesting observation from Figure \ref{fig:benchmark_gp_beam} is the fact that the wall-clock runtime of the AeroSandbox case asymptotes to roughly 10 milliseconds in the limit of small $N$. This is rather large given the simplicity of the problem; if this analysis problem were explicitly formulated as a sparse linear program and given to such a specialized linear solver, it would likely be solved in a fraction of a millisecond. This discrepancy is due to the overhead of the optimization framework, which includes both tracing and applying code transformations. However, this overhead only scales weakly with problem size, and hence the runtime scales linearly with the number of elements $N$ in the limit of large $N$. This contrasts to the GPkit runtime, which scales superlinearly with $N$. This is a common tradeoff in optimization frameworks: the overhead of the framework is often fixed, and hence the framework is most efficient when solving large problems.
+Another interesting observation from Figure \ref{fig:benchmark_gp_beam} is the fact that the wall-clock runtime of the AeroSandbox case asymptotes to roughly 10 milliseconds in the limit of small $N$. This is rather large given the simplicity of the problem; if this analysis problem were explicitly formulated as a sparse linear program and given to such a specialized linear solver, it would likely be solved in a fraction of a millisecond. This discrepancy is due to the overhead of the optimization framework, which includes both tracing and applying code transformations. However, this overhead only scales weakly with problem size, and hence the runtime scales linearly with the number of elements $N$ in the limit of large $N$. This contrasts to the GPkit runtime, which scales superlinearly with $N$. This trend illustrates a common tradeoff in framework architectures: better asymptotic performance often comes at the cost of increased overhead for small problems, due to the need to find and exploit structure.
 
 The payoff of this computational overhead, however, is that an end-user can take advantage of the sparse linear structure of the problem without needing to explicitly recognize and formulate it as such. This trades engineering effort for computational effort, which may be a favorable tradeoff in the context of quick-turnaround conceptual design problems. This automation also lowers the expertise barrier for users, as they do not need to be aware of the underlying mathematical structure of the problem to achieve good performance.
 
@@ -245,7 +245,7 @@ The primary downside of this analytic-gradients paradigm is that it requires sub
 
 Because of this, a code transformations paradigm may be a promising alternative to analytic-gradient methods in lower-fidelity design optimization cases, such as conceptual design. In such cases, where the fine-grained control of analytic gradients is less crucial, a simpler user experience that automates some of this optimization machinery may yield reduced overall user frictions. Because of this, Table \ref{tab:paradigm_comparison} suggests that the main advantage of a code transformations paradigm over analytic-gradient methods is improved ease of implementation.
 
-To demonstrate this, we implement a benchmark problem from the user documentation of OpenMDAO, which is a popular MDO framework that supports analytic gradients.
+To demonstrate what this looks like in practice, we implement a benchmark problem for comparison between AeroSandbox and OpenMDAO, which is a popular MDO framework that supports analytic gradients \cite{gray_openmdao_2019}. The specific problem is reproduced from the user documentation of OpenMDAO, once again to ensure that a high-quality implementation is available for comparison \cite{om_beam}. This problem is based on Euler-Bernoulli beam theory, similar to the example of Section \ref{sec:benchmark_gpkit}. However, in this case it involves not just analysis but also optimziation: the thickness of the beam is allowed to vary along its span. A constraint on the total volume of the beam is imposed, and the objective is to minimize the tip deflection of the beam while a point load is applied at the tip. This problem is illustrated in Figure \ref{fig:om-beam-opt}.
 
 \begin{figure}[h]
     \centering
@@ -254,6 +254,16 @@ To demonstrate this, we implement a benchmark problem from the user documentatio
     \label{fig:om-beam-opt}
 \end{figure}
 
+In Figure \ref{fig:benchmark_om_beam}, we compare the wall-clock runtime of AeroSandbox and OpenMDAO as the number of elements $N$ is varied. % TODO continue
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{../figures/benchmark_om_beam.pdf}
+    \caption{Comparison of computational speed between AeroSandbox and OpenMDAO on the beam shape optimization benchmark problem. The problem is formulated as a static Euler-Bernoulli beam analysis with variable thickness, with the number of discretized elements, $N$, varied to test scalability.}
+    \label{fig:benchmark_om_beam}
+\end{figure}
+
+% OpenAeroStruct, OpenConcept - it's possible
 
 % Due
 
