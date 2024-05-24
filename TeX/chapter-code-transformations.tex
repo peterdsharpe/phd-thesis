@@ -198,7 +198,7 @@ However, the question remains whether this relaxation of mathematical restrictio
 \begin{figure}[h]
     \centering
     \includegraphics[width=3in,clip,trim={0} {4.5cm} {0} {6.5cm}]{../figures/gpkit-compare/cantilever-beam.png}
-    \caption{Setup for a cantilever beam analysis problem, which is directly reproduced from the GPkit user documentation \cite{gpkit} and used as a benchmark to compare solution performance across various frameworks. The beam is discretized into $N$ elements, and a uniform distributed load is applied.}
+    \caption{Setup for a cantilever beam analysis problem, which is identical to an example in the GPkit user documentation \cite{gpkit} and used as a benchmark to compare solution performance across various frameworks. The beam is discretized into $N$ elements, and a uniform distributed load is applied.}
     \label{fig:gpkit-cantilever-beam}
 \end{figure}
 
@@ -251,7 +251,7 @@ To demonstrate what this looks like in practice, we implement a benchmark proble
 \begin{figure}[h]
     \centering
     \includegraphics[width=4in]{../figures/om_beam-crop.pdf}
-    \caption{High-level formulation of a beam shape optimization problem, which is directly reproduced from the OpenMDAO user documentation \cite{gray_openmdao_2019} and used as a benchmark to compare solution performance across various frameworks. The beam is discretized into $N$ elements along its length, with a point load at the tip.}
+    \caption{High-level formulation of a beam shape optimization problem, which is identical to an example in the OpenMDAO user documentation \cite{gray_openmdao_2019} and used as a benchmark to compare solution performance across various frameworks. The beam is discretized into $N$ elements along its length, with a point load at the tip.}
     \label{fig:om-beam-opt}
 \end{figure}
 
@@ -267,7 +267,7 @@ In Figure \ref{fig:benchmark_om_beam}, we compare the wall-clock runtime of Aero
 However, the true advantage of a code transformations framework in this case study is not in runtime speed, but rather in a reduction in engineering time. This can be challenging to precisely quantify, but one possible approximate metric for this is the number of source lines of code required to implement the problem. Referencing the high-level overview of the optimization user experience in Figure \ref{fig:birds_eye_view}, this loosely corresponds to the amount of friction a user must overcome to implement a problem of interest. Table \ref{tab:benchmark_om_beam} shows that the AeroSandbox implementation of this problem is significantly shorter and simpler than the OpenMDAO one, with a roughly 8x decrease in the number of problem-specific lines of code.
 
 \begin{table}
-    \caption{Comparison of code size and wall-clock runtimes between AeroSandbox and OpenMDAO on the beam shape optimization benchmark problem.}
+    \caption{Comparison of user-written lines of code and wall-clock runtimes between AeroSandbox and OpenMDAO on the beam shape optimization benchmark problem.}
     \label{tab:benchmark_om_beam}
     \begin{centering}
         \begin{tblr}{
@@ -276,9 +276,9 @@ However, the true advantage of a code transformations framework in this case stu
         }
             \toprule
             & AeroSandbox & OpenMDAO  \\ \midrule
-            Source Lines of Code$^\dagger$ & 35          & 287       \\
-            Wall-Clock Runtime ($N=5$)     & 0.016 sec   & 0.253 sec \\
-            Wall-Clock Runtime ($N=500$)   & 0.235 sec   & 31 sec    \\
+            Problem-Specific Lines of Code$^\dagger$ & 35          & 287       \\
+            Wall-Clock Runtime ($N=5$)               & 0.016 sec   & 0.253 sec \\
+            Wall-Clock Runtime ($N=500$)             & 0.235 sec   & 31 sec    \\
             \bottomrule
         \end{tblr}
         \\
@@ -300,10 +300,10 @@ b = 0.1  # Beam width [m]
 volume = 0.01  # Total material allowed [m^3]
 tip_load = 1  # Tip load [N]
 
-x = np.linspace(0, L, N)  # Node locations [m]
+x = np.linspace(0, L, N)  # Node locations along beam length [m]
 
-opti = asb.Opti()
-h = opti.variable(init_guess=np.ones(N), lower_bound=1e-6)
+opti = asb.Opti()  # Initialize an optimization environment
+h = opti.variable(init_guess=np.ones(N), lower_bound=1e-6)  # Beam thickness [m]
 I = (1 / 12) * b * h ** 3  # Bending moment of inertia [m^4]
 
 V = np.ones(N) * (-tip_load)  # Shear force [N]
@@ -326,7 +326,7 @@ opti.minimize(w[-1])  # Objective: minimize tip deflection
 sol = opti.solve()
 print(sol(h))  # Gives the optimized beam thickness
     \end{minted}
-    \caption{AeroSandbox implementation of the beam shape optimization problem, which is directly reproduced from the OpenMDAO user documentation \cite{gray_openmdao_2019} and used as a benchmark to compare solution performance across various frameworks. The beam is discretized into $N$ elements along its length, with a point load at the tip.}
+    \caption{AeroSandbox implementation of the beam shape optimization problem.}
     \label{lst:om_beam}
 \end{listing}
 
@@ -335,6 +335,7 @@ It is important to emphasize that, although this study highlights the challenges
 Because of these reasons, we generally assess that a code transformations paradigm offers improved ease of implementation compared to analytic-gradient methods, as depicted in Table \ref{tab:paradigm_comparison}. This is especially true for conceptual design problems, where the user's primary goal is to quickly explore a large configuration space. However, for high-fidelity design optimization problems, where fine-grained control over the optimization process is required, an analytic-gradients paradigm is likely more suitable.
 
 In all three of the comparison case studies examined in this section, it becomes clear that most framework architecture decisions ultimately come down to tradeoffs: usability, runtime speed, and mathematical restrictions must all be considered. The best choice of MDO paradigm for a given design problem will depend on the specific requirements of that problem, and the user's expertise and preferences. However, the results of these benchmark studies suggest that a code transformations paradigm can offer a favorable general-purpose compromise between these factors, especially in the context of conceptual design optimization problems.
+
 
 \section{Syntax Considerations}
 
