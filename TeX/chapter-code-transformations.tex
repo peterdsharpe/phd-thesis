@@ -32,6 +32,7 @@ Another useful point of comparison for this code transformations definition is `
 % undersells impact—not just ml
 
 \subsection{Code Traceability}
+\label{sec:traceability}
 
 The main benefit of generalizing these techniques under a ``code transformations'' abstraction is to highlight that all of these advanced techniques essentially impose the same shared requirement on numerical code: a property we refer to as code \emph{traceability}. Here, a piece of numerical code is defined as ``traceable'' if we are able to construct and directly inspect some functional representation (often, a computational graph) of this code at runtime.
 
@@ -39,7 +40,7 @@ There are several possible ways to construct and access these functional represe
 
 In order for this tracing process to work, all mathematical functions used within this numerical code must be able to accept and return these tracer objects\footnote{Another observation is that this tracing process is generally easier to implement in languages with dynamic typing or multiple dispatch, as these languages make it easier to switch between traditional and tracer data types in numerical code.}. In practice, this often means that traceable code must be written with a specialized numerical framework that accepts that tracer type—we must be able to intercept math library calls in order to properly handle tracers. This also implies that traceability is a property that is defined with respect to a specific numerical framework, rather than a universal property of the code itself.
 
-This concept of traceability allows us to intuitively predict which operations are likely to ``break the trace'' and render the target code incompatible with code transformations. For example, explicit type casting often causes problems, since a tracer variable may be coerced into a concrete numerical type, resulting in a lost computational graph. Likewise, any interfaces between programming languages (e.g., a Python function calling a C function) will usually break the trace, as a tracer object cannot be passed across the language boundary. This insight can be used to guide the design of numerical code to be more traceable, and hence more amenable to code transformations.
+This concept of traceability allows us to intuitively predict which operations are likely to ``break the trace'' and render the target code incompatible with code transformations. For example, explicit type casting often causes problems, since a tracer variable may be coerced into a concrete numerical type, resulting in a lost computational graph. Likewise, any interfaces between programming languages (e.g., a Python function calling a C function) will usually break the trace, as type information is lost across the language boundary. This insight can be used to guide the design of numerical code to be more traceable, and hence more amenable to code transformations.
 
 %In summary, traceability effectively requires that
 
@@ -110,16 +111,16 @@ Accordingly, the contribution of this chapter is twofold. First, this chapter wi
 
 \section{AeroSandbox: A Proof-of-Concept Framework Implementation}
 
-To research the feasibility, opportunities, and limitations of a code transformations paradigm for engineering design optimization in greater detail, we have developed an experimental MDO framework called \emph{AeroSandbox}. AeroSandbox is implemented as a Python-based framework aimed primarily at supporting conceptual-level engineering design. As a design \emph{framework} (analogous to OpenMDAO \cite{gray_openmdao_2019} or GPkit \cite{gpkit}), AeroSandbox is a library that provides utilities for constructing and solving general design problems -- this is contrasted against a design \emph{tool} that specializes in a specific design application (e.g., TASOPT \cite{drela_tasopt_2010}). The code is made publicly available open-source under the permissive MIT license with the goal of gathering as much practical user feedback as possible; further access details are given in Section \ref{sec:asb-reproducibility}.
+To research the feasibility, opportunities, and limitations of a code transformations paradigm for engineering design optimization in greater detail, we have developed an experimental MDO framework called \emph{AeroSandbox}. AeroSandbox is implemented as a Python-based framework aimed primarily at supporting conceptual-level engineering design. As a design \emph{framework} (analogous to OpenMDAO \cite{gray_openmdao_2019} or GPkit \cite{gpkit}), AeroSandbox is a library that provides underlying utilities for formulating and solving general design problems -- this is contrasted against a design \emph{tool} that specializes in supporting a targeted design application (e.g., TASOPT \cite{drela_tasopt_2010}). The code is made publicly available under the open-source MIT license with the goal of gathering as much practical user feedback as possible; further access details are given in Section \ref{sec:asb-reproducibility}.
 
 \subsection{Graph Construction and Optimization}
 
-Fundamentally, AeroSandbox is a tool for building and transforming large computational graphs, and indeed these graphs can be directly inspected both computationally and visually, as Figure \ref{fig:computational-graph-aerosandbox} demonstrates. AeroSandbox uses its own specialized numerics module to intercept and trace user code, and it can interface with tracer-like objects from either the CasADi \cite{casadi} or JAX \cite{jax} libraries to produce a computational graph compatible with these respective libraries. Coverage is provided for a wide range of mathematical functions, including most of the popular NumPy library \cite{harris_array_2020} and key parts of the SciPy library \cite{scipy}.
+Fundamentally, AeroSandbox is a tool for building and transforming large computational graphs, and indeed these graphs can be directly inspected both computationally and visually, as Figure \ref{fig:computational-graph-aerosandbox} demonstrates. AeroSandbox uses its own specialized numerics module to intercept and trace user code, and it can interface with tracer-like objects from either the CasADi \cite{casadi} or JAX\footnote{Experimentally available via the \texttt{jaxify} branch of AeroSandbox} \cite{jax} libraries to produce a computational graph compatible with these respective libraries. Coverage is provided for a wide range of mathematical functions, including most of the popular NumPy library \cite{harris_array_2020} and key parts of the SciPy library \cite{scipy}.
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{../figures/large_computational_graph-crop.pdf} % TODO update
-    \caption{Computational graph of an airfoil aerodynamics analysis, as constructed by AeroSandbox at runtime. The analysis depicted here is NeuralFoil, which is described in more detail in Chapter \ref{chap:physics-informed-ml}. Elements of the analysis that are not functions of design variables are pre-computed and collapsed into a single node in the computational graph, so the exact runtime graph depends on the user-specified design problem.}
+    \caption{An example computational graph, as constructed by AeroSandbox at runtime. Zoomed-in view allows visualization of the scale of such graphs, which can grow to millions of nodes and edges for problems of practical interest. The analysis depicted here is an aerodynamics analysis of an airfoil at a given flow condition, using NeuralFoil (described further in Chapter \ref{chap:physics-informed-ml}). Elements of the analysis that are not functions of design variables are pre-computed and collapsed into a single node in the computational graph, so the exact runtime graph will depend on the user-specified optimization problem formulation.}
     \label{fig:computational-graph-aerosandbox}
 \end{figure}
 
@@ -349,21 +350,24 @@ In all three of the comparison case studies examined in this section, it becomes
 
 
 \section{Syntax and Interface Considerations}
+\label{sec:syntax-interface}
 
 The benchmark studies of Section \ref{sec:benchmarks} discuss a variety of considerations to be weighed when developing an engineering design optimization framework, and how different architectural choices link to these tradeoffs. From these studies, we can begin to extract a more concise list of the high-level opportunities and challenges of using a code transformations paradigm for engineering design optimization, relative to other options:
 
 \begin{itemize}
     \item \textbf{Opportunities} (in the context of conceptual-level engineering design optimization):
     \begin{enumerate}
-        \item Code transformations yield performance comparable to bespoke, efficient numerical code, while reducing the amount of problem-specific code that users must write. Although there are many cases where performance could be further accelerated with more specialized numerics, we contend that code transformations generally represent a useful ``80/20'' tradeoff for the end user: they achieve most of the performance of bespoke code with a fraction of the engineering effort.
+        \item Code transformations yield performance comparable to bespoke, efficient numerical code, while reducing the amount of problem-specific code that users must write. Although there are many cases where performance could be further accelerated with more specialized numerics, we contend that code transformations generally represent a useful ``80/20'' Pareto tradeoff for the end user: they achieve most of the performance of bespoke code with a fraction of the engineering effort.
         \item By adding more separation between the problem formulation (i.e., physics modeling) and the numerical optimization process, code transformations let engineers focus on asking the right design question. As noted by Drela \cite{drela_pros_1998}, developing a problem formulation that faithfully represents design intent is often the most challenging part of practical engineering design optimization. By abstracting away some elements of the numerical optimization process by default, code transformations can help users focus on this critical aspect of the design process.
     \end{enumerate}
     \item \textbf{Challenges}:
     \begin{enumerate}
-        \item % TODO
+        \item As alluded to in Section \ref{sec:traceability}, the traceability requirement of code transformations imposes more restrictions on how the user can write numerical code, compared to a black-box optimization or analytic-gradients approach. Most fundamentally, the user's numerical code must be intercepted via a tracing-compatible numerics library, which must be provided as part of the code transformations framework. This naturally creates a tension against usability—introducing too much special syntax within this numerics library results in a steep learning curve. The implication here is that keeping the learning curve of framework syntax becomes critically important, if the usability benefits depicted in Table \ref{tab:paradigm_comparison} are to be realized.
+        \item Beyond just the \emph{syntax} of a user's numerical code, a code transformations paradigm also favors a certain \emph{style} of numerical code. In particular, \emph{functional} coding styles that avoid side effects and mutable state are more easily traced and transformed. This is because a computational graph for code with in-place mutation tends to lead to the creation of redundant memory copies, lest information about intermediate states be lost\footnote{Bradbury et al. discuss methods for mitigating this by compiled graph transformations, though this behavior still tends to be memory-inefficient in practice \cite{jax}.}. We argue the workflow of engineers working on physics-based design optimization problems naturally tends to lead to \emph{procedural} coding styles, which creates another source of tension in framework development.
     \end{enumerate}
 \end{itemize}
 
+Notably, the challenges of code transformations are strongly coupled to syntax and interface choices during framework development, which are often underemphasized in the literature. In the following sections, we discuss these considerations in more detail, and propose some strategies for addressing them.
 
 \subsection{Procedural Coding Style}
 
