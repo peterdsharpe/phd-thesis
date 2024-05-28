@@ -1,0 +1,20 @@
+\begin{tikzpicture}[
+    auto,
+    node distance=3cm
+]
+    \tikzstyle{code} = [
+    draw = c1, fill = c1!20,
+    minimum height = 1cm,
+    rectangle, rounded corners, thick,
+%    text width = 7cm,
+    text centered,
+    ]
+
+    \tikzstyle{line} = [thick, ->, shorten >=2pt, shorten <=2pt]
+
+    \node[code](np) {\mintinline{python}{import numpy as np}};
+    \node[code, right=of np](asb) {\mintinline{python}{import aerosandbox.numpy as np}};
+
+    \draw [line](np) -- (asb) node [midway, above, sloped](text){becomes};
+
+\end{tikzpicture}
