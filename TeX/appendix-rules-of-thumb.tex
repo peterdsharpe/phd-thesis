@@ -1,7 +1,7 @@
 \chapter{Design Optimization Rules of Thumb}
 
 \begin{quote}
-    \emph{This appendix section includes content from the author's Master's thesis, revised with new insights} \cite{sharpe_aerosandbox_2021}.
+    \emph{This appendix includes content from the author's Master's thesis, revised with new insights} \cite{sharpe_aerosandbox_2021}.
 \end{quote}
 
 Here, we share some general advice for practical engineering design optimization that the author has collected across various aircraft development programs. These are especially applicable to the conceptual design of engineering systems, but can be considered in any part of the design cycle:
@@ -19,10 +19,10 @@ Here, we share some general advice for practical engineering design optimization
         \item Generally, the conceptual design studies that are the most practical, useful, and robust are those that model a vast number of disciplines at low fidelity, rather than those that model one or two disciplines at a high fidelity. Value simple physics models, and let the complexity come naturally from emergent cross-disciplinary behavior.
         \item In instances where high fidelity is truly required, consider surrogate modeling and reduced-order modeling. It is of paramount importance that the optimization problem can be solved in seconds or minutes. If this is not the case, interactive design becomes prohibitively tedious, and extracting engineering intuition becomes difficult.
     \end{enumerate}
-    \item \textbf{When building analysis models for optimization, bookkeep uncertainty meticulously.}
+    \item \textbf{When building analyses for optimization, be principled about how uncertainty is bookkept.}
     \begin{enumerate}
-        \item Analysis model results should be an \emph{unbiased} estimator of the author's belief state about some quantity. This is often \emph{not} the raw output of a first-principles physics model\footnote{For example, a wetted-area drag-buildup analysis that is suspected of biasing low should have a correction factor. Likewise, a wing weight model that is known to neglect some components should have a correction factor as a stand-in.}, which often bias optimistic due to assumptions. A good rough litmus test for biased outputs is to consider whether one would be more surprised to learn that the model was erring high versus low—these should ideally carry roughly equal surprise.
-        \item Account for margin separately and explicitly, and usually in key top-level closure loops (weight, drag, power, etc.). Remember that margin is performance beyond the \emph{limit} case, not the \emph{baseline} case\footnote{For example, in aircraft design, thrust margin is the excess beyond what is needed for \emph{climb} (possibly with one engine inoperative), not \emph{cruise}. If performance is ever intended to be used during limit-case operation of the system, this cannot be counted as margin.}. Correction for known unknowns does not count as margin, since margin is for mitigating unknown unknowns.
+        \item Analysis results used in MDO should be an \emph{unbiased} estimator of the author's belief state about some quantity. This is often \emph{not} the raw output of a first-principles physics model, which often bias optimistic due to assumptions\footnote{As aerospace examples: a) a RANS CFD study on defeatured geometry that ignores flap track fairings, skin gaps, or protuberances; b) an XFoil analysis that assumes laminar flow beyond a line of leading-edge rivets; or c) a wing weight model that neglects glue weight.}. A good rough litmus test for biased outputs is to consider whether one would be more surprised to learn that the model was erring high versus low—these should ideally carry roughly equal surprise.
+        \item Account for margin explicitly, and usually only in top-level closure loops and parameters (weight, drag, power, load factor, etc.). Remember that margin is performance beyond the \emph{limit} case, not the \emph{baseline} case\footnote{For example, in aircraft design, thrust margin is the excess beyond what is needed for \emph{climb} (possibly with one engine inoperative), not \emph{cruise}. If performance is ever intended to be used during limit-case operation of the system, this cannot be counted as margin.}. Correction for suspected bias does not count as margin: margin is for mitigating unknown unknowns, not known unknowns.
     \end{enumerate}
     \item \textbf{Do not blindly trust an optimizer.}
     \begin{enumerate}
