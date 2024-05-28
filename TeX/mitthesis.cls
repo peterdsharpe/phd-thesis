@@ -528,11 +528,15 @@ requirements for the \@degreeword\ of \\
 \def\MIT{MASSACHUSETTS INSTITUTE OF TECHNOLOGY}
 \def\Mit{Massachusetts Institute of Technology}
 
+%\def\permission{\par\noindent{\centering
+%   The author hereby grants to MIT permission to reproduce and to
+%   distribute publicly paper and electronic copies of this thesis
+%   document in whole or in part in any medium now known or hereafter
+%   created.}\par}
+
 \def\permission{\par\noindent{\centering
-   The author hereby grants to MIT permission to reproduce and to
-   distribute publicly paper and electronic copies of this thesis
-   document in whole or in part in any medium now known or hereafter
-   created.}\par}
+The author hereby grants to MIT a nonexclusive, worldwide, irrevocable, royalty-free license to exercise any and all rights under copyright, including to reproduce, preserve, distribute and publicly display copies of the thesis, or release the thesis under an open-access license.
+}\par}
 
 \def\signature#1#2{\par\noindent#1\dotfill\null\\*
   {\raggedleft #2\par}}

@@ -225,7 +225,7 @@ In Figure \ref{fig:benchmark_gp_beam}, the wall-clock runtime of AeroSandbox and
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{../figures/benchmark_gp_beam.pdf}
-    \caption{Comparison of optimization performance between AeroSandbox and GPkit on the cantilever beam analysis problem. The problem is formulated as a static Euler-Bernoulli beam analysis, with the number of discretized elements, $N$, varied to test scalability. The number of optimization variables (i.e., degrees of freedom) is $4N$, as the governing equation is originally a \nth{4}-order ODE and is decomposed to a larger system of first-order ODEs.}
+    \caption{Comparison of runtime speed between AeroSandbox and GPkit on the cantilever beam analysis problem. The problem is formulated as a static Euler-Bernoulli beam analysis, with the number of discretized elements, $N$, is varied to test scalability. The number of optimization variables (i.e., degrees of freedom) is $4N$, as the governing equation is originally a \nth{4}-order ODE and is decomposed to a larger system of first-order ODEs. In all cases, measured runtime includes both problem formulation and solution; time for library imports is excluded.}
     \label{fig:benchmark_gp_beam}
 \end{figure}
 
@@ -268,7 +268,7 @@ In Figure \ref{fig:benchmark_om_beam}, we compare the wall-clock runtime of Aero
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{../figures/benchmark_om_beam.pdf}
-    \caption{Comparison of computational speed between AeroSandbox and OpenMDAO on the beam shape optimization benchmark problem. The problem is formulated as a static Euler-Bernoulli beam analysis with variable thickness, with the number of discretized elements, $N$, varied to test scalability.}
+    \caption{Comparison of runtime speed between AeroSandbox and OpenMDAO on the beam shape optimization benchmark problem. The number of discretized beam elements, $N$, varied to test scalability. In all cases, measured runtime includes both problem formulation and solution; time for library imports is excluded.}
     \label{fig:benchmark_om_beam}
 \end{figure}
 
@@ -338,7 +338,7 @@ opti.minimize(w[-1])  # Objective: minimize tip deflection
 sol = opti.solve()
 print(sol(h))  # Gives the optimized beam thickness
     \end{minted}
-    \caption{AeroSandbox implementation of the beam shape optimization problem.}
+    \caption{AeroSandbox implementation of the beam shape optimization problem. Written in Python.}
     \label{lst:om_beam}
 \end{listing}
 
@@ -362,14 +362,29 @@ The benchmark studies of Section \ref{sec:benchmarks} discuss a variety of consi
     \end{enumerate}
     \item \textbf{Challenges}:
     \begin{enumerate}
-        \item As alluded to in Section \ref{sec:traceability}, the traceability requirement of code transformations imposes more restrictions on how the user can write numerical code, compared to a black-box optimization or analytic-gradients approach. Most fundamentally, the user's numerical code must be intercepted via a tracing-compatible numerics library, which must be provided as part of the code transformations framework. This naturally creates a tension against usability—introducing too much special syntax within this numerics library results in a steep learning curve. The implication here is that keeping the learning curve of framework syntax becomes critically important, if the usability benefits depicted in Table \ref{tab:paradigm_comparison} are to be realized.
-        \item Beyond just the \emph{syntax} of a user's numerical code, a code transformations paradigm also favors a certain \emph{style} of numerical code. In particular, \emph{functional} coding styles that avoid side effects and mutable state are more easily traced and transformed. This is because a computational graph for code with in-place mutation tends to lead to the creation of redundant memory copies, lest information about intermediate states be lost\footnote{Bradbury et al. discuss methods for mitigating this by compiled graph transformations, though this behavior still tends to be memory-inefficient in practice \cite{jax}.}. We argue the workflow of engineers working on physics-based design optimization problems naturally tends to lead to \emph{procedural} coding styles, which creates another source of tension in framework development.
+        \item As alluded to in Section \ref{sec:traceability}, the requirement that user-written numerical code be traceable imposes some restrictions on the end-user; the severity of this falls somewhere between that of the black-box- and disciplined-optimization paradigms. Most fundamentally, the user must formulate their design problem using syntax from a framework-provided numerics library, to allow tracing. This naturally creates a tension against usability, and choices about the syntax of this specialized numerical library can strongly affect the learning curve of an MDO framework.
+        \item Beyond just the \emph{syntax} of a user's numerical code, a code transformations paradigm also imposes certain preferences on the \emph{style} of a user's numerical code. In particular, for reasons discussed in Section \ref{sec:code_style}, this paradigm favors a \emph{functional} coding style that avoids side effects and mutable state, since this is more easily traced and transformed. In contrast to this, we later argue that the workflow of engineers working on physics-based design optimization problems naturally tends to lead to \emph{procedural} coding styles, which creates another source of tension in framework development.
     \end{enumerate}
 \end{itemize}
 
-Notably, the challenges of code transformations are strongly coupled to syntax and interface choices during framework development, which are often underemphasized in the literature. In the following sections, we discuss these considerations in more detail, and propose some strategies for addressing them.
+It is worth noting that both of the listed challenges of code transformations relate to framework-level tensions between the user experience and computational performance. This motivates a renewed focus on framework choices around syntax and interfaces, since these play a key role in determining the practicality of an MDO framework.
 
-\subsection{Procedural Coding Style}
+The author's prior Master's thesis \cite{sharpe_aerosandbox_2021} documents some of the author's early efforts to address these syntax-related challenges in the context of the AeroSandbox framework. To summarize the strategy that was pursued here, Aero
+
+
+In the following sections, we discuss these considerations in more detail, and propose some strategies for addressing them.
+
+
+%\subsection{Implications of Code Transformations on Coding Syntax}
+%\label{sec:code_syntax}
+
+
+
+\subsection{Implications of Code Transformations on Coding Style}
+\label{sec:code_style}
+
+%This is because representing mutating code in a computational graph tends to require redundant memory copies, in order to preserve information about intermediate states\footnote{Bradbury et al. discuss strategies for mitigating this by fusing in-place operations via compilation, though this behavior still tends to be memory-inefficient in practice \cite{jax}.}.
+
 
 \subsection{Miscellaneous} % TODO fix title
 % Discuss units: deliberate decision not to include, but an interesting one in the context of code transformations.
