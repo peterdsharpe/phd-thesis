@@ -1,0 +1,31 @@
+digraph {
+	graph [bgcolor="#FFFFFF" nodesep=0.1 rankdir=TB splines=ortho]
+	node [color="#333333" fillcolor="#E9F1F7" fontname=Helvetica fontsize=10 shape=box style="rounded,filled"]
+	edge [arrowhead=vee arrowtail=none color="#555555" fontname=Helvetica fontsize=10]
+	true [label="True data" fillcolor=white]
+	sensor [label="Sensor data"]
+	noise [label="True noise" fillcolor=white]
+	estimate [label="Estimate of
+true data"]
+	noise_estimate [label="(Explicit) Estimate of noise,
+computed from sensor data"]
+	true -> sensor [style=dashed]
+	noise -> sensor [style=dashed]
+	sensor -> estimate
+	sensor -> noise_estimate
+	model_unsolved [label="Aerodynamic / propulsive model
+with unknown parameters" fillcolor="#F7F1E9"]
+	newton [label="Newtonian dynamics
+for unsteady corrections" fillcolor="#F7F1E9"]
+	energy_balance [label="Energy-balance reconstruction
+(compute energy residuals)"]
+	opti [label="Numerical optimization
+(minimize residuals)" fillcolor="#F7F1E9"]
+	model_solved [label="Aerodynamic / propulsive model
+with known parameters" fillcolor="#F7F1E9"]
+	newton -> energy_balance
+	estimate -> energy_balance
+	model_unsolved -> energy_balance
+	energy_balance -> opti
+	opti -> model_solved
+}

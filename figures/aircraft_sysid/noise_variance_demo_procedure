@@ -1,0 +1,25 @@
+digraph {
+	graph [bgcolor="#FFFFFF" nodesep=0.1 rankdir=TB splines=ortho]
+	node [color="#333333" fillcolor="#E9F1F7" fontname=Helvetica fontsize=10 shape=box style="rounded,filled"]
+	edge [arrowhead=vee arrowtail=none color="#555555" fontname=Helvetica fontsize=10]
+	func [label="Underlying \"truth\" function
+(sinusoid with a known signal frequency)"]
+	draw [label="Take discrete samples
+at sample frequency"]
+	func -> draw
+	tvar [label="True variance" fillcolor="#F1F7E9"]
+	noise [label="Add noise
+(normally distributed, independent)"]
+	tvar -> noise
+	draw -> noise
+	syn [label="Synthetic Dataset" fillcolor="#F7E9F1"]
+	noise -> syn
+	est [label="Apply the noise estimator"]
+	evar [label="Estimated variance" fillcolor="#F1F7E9"]
+	syn -> est
+	est -> evar
+	c [label="Compare to
+assess performance" fillcolor=white shape=plaintext]
+	tvar -> c [arrowhead=none arrowtail=none color=gray dir=both penwidth=1 style=dashed]
+	evar -> c [arrowhead=none arrowtail=none color=gray dir=both penwidth=1 style=dashed]
+}
