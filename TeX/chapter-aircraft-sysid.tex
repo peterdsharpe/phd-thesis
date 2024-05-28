@@ -551,59 +551,15 @@ A fair point of hesitancy here might be the fact that applying these corrections
 
 
 
-\clearpage
-
-
-\section{Appendix}
-
-\subsection{Solar Surfer Design Drawing}
-\label{sec:solar_surfer_drawing}
-
-\begin{figure}[H]
-    \centering
-    \ifdraft{}{\includegraphics[page=1, width=\textwidth]{../figures/aircraft_sysid/seaway_mini_packet.pdf}}
-    \label{fig:solar_surfer_design}
-\end{figure}
-
-\newpage
-
-\subsection{Efficient Computational Implementation of Arbitrary-Order Noise Estimator}
-\label{sec:estimator_code_example}
-
-While the given equation for an arbitrary-order data-driven noise estimator (Equation \ref{eq:arbitrary_order_noise_estimator}) is mathematically correct, it is nontrivial to computationally implement. This is because an implementation as-written involves combinatorial coefficients that grow exponentially with the order of the estimator, quickly exceeding standard double-precision floating-point overflow. A naive implementation also has a runtime complexity that scales linearly with both with the number of samples in the dataset and the order of the estimator, making it computationally unattractive for large datasets or high-order estimators.
-
-An efficient computational implementation of the arbitrary-order noise estimator is given below. This example is based on syntax for NumPy 1.24.3 and SciPy 1.11.1 within Python 3. This implementation uses the log-gamma function, which is much faster for high-order estimators and delays numerical overflow until much higher orders. The implementation also uses a convolutional kernel to vectorize the summation, enabling further speedups.
-
-\begin{listing}[H]
-    \begin{minted}[mathescape=true]{python}
-import numpy as np
-from scipy.special import gammaln
-
-ln_factorial = lambda x: gammaln(x + 1)  # Returns $\ln(x!)$
-
-def estimate_noise_standard_deviation(data: np.ndarray, estimator_order: int = 10) -> float:
-    """
-    Estimates the standard deviation of noise in a time-series data set.
-
-    Args:
-        data: A 1D NumPy array of time-series data, assumed to consist of signal + noise.
-        estimator_order: The order of the estimator to use. A positive integer.
-
-    Returns: The estimated standard deviation of the noise in the data.
-    """
-    ln_f = ln_factorial(np.arange(estimator_order + 1))  # For speed, cache $\ln(x!)$ for $x \in [$0, estimator_order$]$
-    coefficients = np.exp(  # Create a convolutional kernel to vectorize the summation
-        2 * ln_f[estimator_order] - ln_f - ln_f[::-1] - 0.5 * ln_factorial(2 * estimator_order)
-    ) * (-1) ** np.arange(estimator_order + 1)
-    coefficients -= np.mean(coefficients)  # Remove any bias introduced by floating-point error
-    sample_stdev = np.convolve(data, coefficients[::-1], 'valid')  # Convolve the data with the kernel
-    return np.mean(sample_stdev ** 2) ** 0.5  # Return the standard deviation of the result
-
-
-    \end{minted}
-    \caption{Example efficient implementation of the arbitrary-order noise estimator using NumPy/SciPy in Python 3.}
-    \label{listing:efficient_arbitrary_order_noise_estimator}
-\end{listing}
+%
+%\subsection{Solar Surfer Design Drawing}
+%\label{sec:solar_surfer_drawing}
+%
+%\begin{figure}[H]
+%    \centering
+%    \ifdraft{}{\includegraphics[page=1, width=\textwidth]{../figures/aircraft_sysid/seaway_mini_packet.pdf}}
+%    \label{fig:solar_surfer_design}
+%\end{figure}
 
 \section*{Acknowledgments}
 The authors would like to thank the MIT AeroAstro 16.821 course staff for their support of this work, and the MIT AeroAstro department for their support of the course. The aircraft used to collect the example data in this work was constructed by the MIT AeroAstro 16.821 undergraduate student team.
