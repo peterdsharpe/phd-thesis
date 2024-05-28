@@ -258,7 +258,7 @@ During this sparsity pattern construction process using NaN-payload-encoding, th
 
 \subsection{Chunking}
 
-Another novel proposed acceleration, which we term ``chunking'', seeds multiple adjacent elements of the input vector with NaN values simultaneously. This is similar to the multiple seeding associated with payload NaN encoding, but its inclusion here is meant to emphasize that some benefits can be achieved even without uniquely identifying NaN values, in cases where this may not be possible or desirable.
+Another novel proposed acceleration, which we term ``chunking'', seeds multiple adjacent elements of the input vector with NaN values simultaneously. This is similar to the multiple seeding associated with payload NaN encoding, but its inclusion here is meant to emphasize that some benefits can be achieved even without uniquely identifying NaN values, in cases where this direct bit-manipulation may not be possible or desirable.
 
 As an example: if pairs of adjacent inputs are seeded, this has the benefit of halving the number of function calls, at the detriment of providing overly-conservative sparsity information\footnote{since one cannot determine which NaN input caused a given output to return NaN, so neither input can be ruled out -- both inputs must be assumed to be the possible cause} (i.e., one with false positives). This exploits the fact that a conservative sparsity pattern can still provide some speedup during Jacobian compression, even if it is less than what might be achieved with a more accurate sparsity pattern.
 
