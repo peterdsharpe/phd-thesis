@@ -74,7 +74,7 @@ Finally, there are characteristics about performance relations that we can be em
 
 The example given in the subsequent sections is for a small electric-driven propeller aircraft, although the methodology is applicable to any aircraft type. Some considerations for applying this methodology to other aircraft types are discussed in Section \ref{sec:sysid_conclusion}.
 
-\begin{figure}[H]
+\begin{figure}[h]
     \centering
     \ifdraft{}{\includegraphics[width=\textwidth, trim=1cm 1cm 1cm 1cm,clip=true]{../figures/aircraft_sysid/overall_procedure}}
     \caption{Process for inference-based performance reconstruction from flight data}
@@ -92,7 +92,7 @@ General specifications of the aircraft can be found in the early design drawing 
 
 The aircraft was flown in the vicinity of the Charles River basin near Cambridge, MA. Five tests were conducted on the morning of May 3, 2023, of which two were airborne flight tests. The final airborne flight test lasted approximately 260 seconds (4.3 minutes), beginning and ending with a successful water takeoff and landing. Figure \ref{fig:solar_surfer_flight} depicts a still image of the aircraft in flight. A simple racetrack-like pattern was flown, as shown in Figure \ref{fig:solar_surfer_track}. Winds were calm at roughly 1.5 m/s from the south.
 
-\begin{figure}[H]
+\begin{figure}[h]
     \centering
     \begin{subfigure}[b]{0.45\textwidth}
         \ifdraft{}{\includegraphics[width=\textwidth]{../figures/aircraft_sysid/Flight1_02549.JPG}}
@@ -111,7 +111,7 @@ The aircraft was flown in the vicinity of the Charles River basin near Cambridge
 
 Figure \ref{fig:raw_flight_data} illustrates the subset of the raw sensor data during flight that will be used for performance reconstruction. Overall, the data is reasonable, and we can clearly identify takeoff and landing by the strong increase in barometric altimeter noise near $t=0\ \rm sec$ and $t=263\ \rm sec$. We can also identify several distinct flight phases, such as a high-speed pass near $t=150\ \rm sec$ and gliding periods near $t=40\ \rm sec$, $t=210\ \rm sec$, and $t=250\ \rm sec$.
 
-\begin{figure}[H]
+\begin{figure}[h]
     \centering
     \ifdraft{}{\includegraphics[width=\textwidth]{../figures/aircraft_sysid/flight_raw_data}}
     \caption{Raw sensor data from \emph{Solar Surfer} aircraft test flight}
@@ -120,7 +120,7 @@ Figure \ref{fig:raw_flight_data} illustrates the subset of the raw sensor data d
 
 Summary statistics of this data are given in Table \ref{tab:aircraft_stats}.
 
-\begin{table}[H]
+\begin{table}[h]
     \centering
     \caption{Summary statistics of raw sensor data from \emph{Solar Surfer} aircraft test flight. Based on 1,315 samples per measured quantity.}
     \begin{tabular}{lcccc}
@@ -151,7 +151,7 @@ Figure \ref{fig:power_curve_naive} quickly illustrates the infeasibility of this
 
 Figure \ref{fig:power_curve_naive} also demonstrates the pitfalls of naive curve-fitting in the absence of any kind of physics-based model structure. Perhaps the most severe of these is the extrapolation to physically-impossible conclusions. For example, the naive linear fit shown in blue would imply that the power draw at zero airspeed is negative, which is clearly impossible. The naive cubic fit shown in red initially appears more reasonable, although it too makes erroneous conclusions: it implies that beyond $20\ \rm m/s$, the power draw decreases with increasing airspeed. Clearly, our intuitions about what the ``correct'' model would look are not being incorporated into the curve-fitting process, and hence we are leaving information on the table.
 
-\begin{figure}[H]
+\begin{figure}[h]
     \centering
     \ifdraft{}{\includegraphics[width=\textwidth]{../figures/aircraft_sysid/power_polar_naive}}
     \caption{Raw uncorrected data for the power curve, with naive curve fitting to demonstrate the infeasibility of this approach. Uncorrected data exhibits high amounts of unexplained variance. Naive curve fits extrapolate to physically-impossible conclusions and do not capture uncertainty.}
@@ -169,7 +169,7 @@ As an illustrative example, imagine that we wish to reconstruct a \emph{truth} e
 
 However, there are (literally) an infinite number of possible strategies that one can use to do this noise removal, depending on our embedded assumptions about how sensor noise is entering our data-generating process. For example, consider three different possible state estimations of the vehicle's airspeed, as illustrated in Figure \ref{fig:under_over_fitting}.
 
-\begin{figure}[H]
+\begin{figure}[h]
     \centering
     \ifdraft{}{\includegraphics[width=\textwidth]{../figures/aircraft_sysid/under_over_fitting}}
     \caption{Three possible curves that could be used to estimate the true underlying state of the vehicle. Airspeed data, zoomed to $t \in (60, 90)$; a subset of Figure \ref{fig:raw_flight_data}. 95\% confidence interval (CI) of reconstruction shaded in middle plot.}
@@ -436,7 +436,7 @@ The aerodynamic drag can be modeled as a function of airspeed, as required to cl
     \item Dimensionalize the computed $C_D$ to obtain the drag.
 \end{enumerate}
 
-\begin{figure}[H]
+\begin{figure}[h]
     \centering
     \includesvg{../figures/aircraft_sysid/aero_polar_form.svg}
     \caption{Assumed parameterized form of the aerodynamic polar, where drag coefficient is a piecewise-quadratic function of the lift coefficient. Same mathematical form as the profile drag function used by AVL \cite{drela_athena_2004}.}
