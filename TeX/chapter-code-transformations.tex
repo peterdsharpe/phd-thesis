@@ -369,14 +369,20 @@ The benchmark studies of Section \ref{sec:benchmarks} discuss a variety of consi
 
 It is worth noting that both of the listed challenges of code transformations relate to framework-level tensions between the user experience and computational performance. This motivates a renewed focus on framework choices around syntax and interfaces, since these play a key role in determining the practicality of an MDO framework.
 
+\subsection{Implications of Code Transformations on Coding Syntax}
+\label{sec:code_syntax}
+
+The main requirement for code transformations, traceability, requires user code to be built on top of a custom numerics library. To minimize the syntax burden associated with this library, one possible strategy is to design the library to closely resemble the syntax of a common numerical computing library, such as NumPy \cite{numpy}. This is the approach taken by AeroSandbox, which provides a NumPy-like interface for numerical operations, but with the added capability of tracing and transforming this code. This design choice is motivated by the fact that many engineers are already familiar with NumPy, and hence the learning curve for AeroSandbox is reduced.
+
+Each function in this specialized array library must be overwritten to allow for tracing, which can place a substantial burden on the framework developer. % TODO attack surface size
+
+Access % TODO
+
 The author's prior Master's thesis \cite{sharpe_aerosandbox_2021} documents some of the author's early efforts to address these syntax-related challenges in the context of the AeroSandbox framework. To summarize the strategy that was pursued here, Aero
 
 
 In the following sections, we discuss these considerations in more detail, and propose some strategies for addressing them.
 
-
-%\subsection{Implications of Code Transformations on Coding Syntax}
-%\label{sec:code_syntax}
 
 
 
