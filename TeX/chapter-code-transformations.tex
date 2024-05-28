@@ -376,20 +376,43 @@ The main requirement for code transformations, traceability, requires user code 
 
 Inspired by this, AeroSandbox takes a similar approach of mirroring a NumPy-like interface for numerical operations, but with the added capability of tracing code execution. Access to this interface is enabled by essentially hijacking the user's NumPy import, which commonly occurs at the beginning of a user-specified analysis; this is shown in Figure \ref{fig:asb-np-import}. Because many engineers already write analysis code with NumPy syntax, writing new code and migrating existing analyses becomes much easier -- in many cases, the only required change is a single import statement.
 
-Each function in this specialized array library must be overwritten to allow for tracing, which can place a substantial burden on the framework developer. % TODO attack surface size
+\begin{figure}[H]
+    \centering
+    \input{../figures/asb-np-import.tikz}
+    \caption{Standard import of the AeroSandbox numerics stack, which acts as a drop-in replacement for the user's NumPy code. Figure reproduced from Sharpe \cite{sharpe_aerosandbox_2021}.}
+    \label{fig:asb-np-import}
+\end{figure}
 
-Access % TODO
+In recent years, there has been growing momentum in the Python scientific computing community to develop a unified ``array API'' standard, to greatly expand interoperability and extensibility of numerical libraries \cite{array_api_2023}. This standard, which is being jointly developed by a consortium of developers representing various popular numerics libraries\footnote{such as NumPy, PyTorch, Tensorflow, JAX, and others}, aims to provide a common interface for numerical operations that can be implemented by any array library. If this standardization effort is successful, it may be possible within the next few years to hook into numerical function calls without replacing the imported library, making the end-user experience even more seamless.
 
-The author's prior Master's thesis \cite{sharpe_aerosandbox_2021} documents some of the author's early efforts to address these syntax-related challenges in the context of the AeroSandbox framework. To summarize the strategy that was pursued here, Aero
+When implementing a specialized array library such as the one illustrated in Figure \ref{fig:asb-np-import}, each function must be overwritten to allow for tracing. This can place a substantial burden on the framework developer, both in the initial development phase but also in terms of ongoing maintenance as the syntax of the mirrored library changes. Because of this, selecting the appropriate ``attack surface'' of numerical functions is crucial: too small, and the user's ability to express their design problem is limited; too large, and the framework developer is overwhelmed with maintenance tasks. To balance these competing tradeoffs, the AeroSandbox numerics library aims to recreate a carefully-chosen subset of commonly-used NumPy and SciPy functions, including:
 
+\begin{itemize}[noitemsep]
+    \item Array operations (initialization, indexing, concatenation, stacking, reshaping, etc.)
+    \item Elementary functions (arithmetic, trigonometry)
+    \item Conditionals, loops, and boolean logic
+    \item Linear algebra
+    \begin{itemize}[noitemsep]
+        \item Vector operations (dot, cross, outer products etc.)
+        \item Vector and matrix norms
+        \item Vector and matrix products
+        \item Linear solves, Moore-Penrose pseudoinverses
+        \item Eigenvalue decomposition and other factorizations
+    \end{itemize}
+    \item Many common utility functions (e.g. \texttt{linspace()})
+    \item Interpolation, including N-dimensional and higher-order variants, and both gridded and scattered methods
+    \item Higher-order discrete numerical differentiation (i.e., gradient reconstruction, for ODEs and PDEs)
+    \item Higher-order numerical integration and quadrature, in both continuous and discrete variants (e.g., acting on either functions or sampled data)
+    \item Coordinate transformations and rotations
+    \item Surrogate modeling and regression tools (e.g., curve fitting tools, kriging, neural network activation functions, etc.)
+\end{itemize}
 
-In the following sections, we discuss these considerations in more detail, and propose some strategies for addressing them.
-
-
-
+The author's prior Master's thesis \cite{sharpe_aerosandbox_2021} discusses these syntax-related challenges and tradeoffs further, using examples from the development of the AeroSandbox framework.
 
 \subsection{Implications of Code Transformations on Coding Style}
 \label{sec:code_style}
+
+Another relevant consideration in the development of a numerical framework that allows for code transformations is the coding style that is encouraged by the paradigm. In particular, it is much easier to write a traceable numerics stack if one can guarantee that the user's code follows a functional programming style, which avoids side effects and mutable state. This is because it is most natural to store intermediate values of a computational graph by attaching them to the underlying array data structures that % TODO
 
 %This is because representing mutating code in a computational graph tends to require redundant memory copies, in order to preserve information about intermediate states\footnote{Bradbury et al. discuss strategies for mitigating this by fusing in-place operations via compilation, though this behavior still tends to be memory-inefficient in practice \cite{jax}.}.
 
