@@ -16,7 +16,7 @@ A primary goal of a new aircraft's initial flight test campaign is to experiment
 
 \begin{enumerate}
     \item The aircraft's power curve, which gives the required power to maintain level flight as a function of airspeed.
-    \item The aircraft's $C_L$-$C_D$ aerodynamic polar (referred to throughout this work as simply the \textit{aerodynamic polar}). This gives the relationship between the aircraft's lift and drag coefficients as angle of attack is varied, representing the locus of possible aerodynamic operating points.
+    \item The aircraft's $C_L$-$C_D$ aerodynamic polar. This gives the relationship between the aircraft's lift and drag coefficients as angle of attack is varied, representing the locus of possible aerodynamic operating points.
     \item The aircraft's propulsive efficiency curve, which yields the overall propulsive efficiency, typically as a function of throttle setting and/or propeller advance ratio (if relevant).
 \end{enumerate}
 
@@ -60,13 +60,13 @@ Furthermore, the aircraft must be flown at precisely-controlled conditions. Trad
 
 Traditional methods also make no direct estimate of sensor noise (and hence, uncertainty) -- data is collected and averaged until the experimenter is satisfied that the data is ``good enough''. This is a subjective process that leaves it difficult to quantify the uncertainty in the resulting performance estimates.
 
-Nevertheless, the methodology described here provides a useful existence proof that airplane performance curves are fundamentally observable (and hence, able to be recovered) given airspeed, altitude, and power data of sufficiently varied flight. A primary goal of this work is to develop a methodology that can estimate these performance curves from a much smaller amount of flight data, which would decrease the cost and intentionality required to obtain these performance estimates.
+Nevertheless, the methodology described here provides a useful existence proof that airplane performance curves are fundamentally observable (and hence, able to be recovered) given airspeed, altitude, and power data of sufficiently varied flight. A primary goal of this chapter is to develop a methodology that can estimate these performance curves from a much smaller amount of flight data, which would decrease the cost and intentionality required to obtain these performance estimates.
 
 \subsection{Inference-Based Flight Data Reconstruction Methods}
 
-We propose a method of estimating these performance characteristics that views the aircraft flight test as a data-generating process, from which we can infer performance relationships. Figure \ref{fig:overall_procedure} broadly illustrates the toolchain for performance reconstruction that represents this work's central contribution. This approach contrasts with traditional methods, which view flight testing as a process of pure measurement, based only on analyzing the data itself. This distinction manifests in a few ways, each of which recognizes that we have process- or domain-specific information that collapses the possible solution space of possible performance models:
+We propose a method of estimating these performance characteristics that views the aircraft flight test as a data-generating process, from which we can infer performance relationships. Figure \ref{fig:overall_procedure} broadly illustrates the toolchain for performance reconstruction that represents this chapter's central contribution. This approach contrasts with traditional methods, which view flight testing as a process of pure measurement, based only on analyzing the data itself. This distinction manifests in a few ways, each of which recognizes that we have process- or domain-specific information that collapses the possible solution space of possible performance models:
 
-Firstly, with certain reasonable assumptions about the sensor noise characteristics, the data itself can reveal a surprisingly large amount of information about the sensor noise. Essentially, this involves using the data to estimate the ``trustworthiness'' \emph{of the data itself}, a process described more fully in Section \ref{subsec:optimal_sensor_data_reconstruction}. One contribution of this work is a new cross-validation-like approach for estimating the sensor noise using only the properties of the data itself. This allows cleaner raw data inputs to the subsequent performance analysis toolchain that we develop, ultimately resulting in more accurate performance estimates and aiding uncertainty quantification. In Figure \ref{fig:overall_procedure}, this is represented by the separation of sensor data into its signal and noise components.
+Firstly, with certain reasonable assumptions about the sensor noise characteristics, the data itself can reveal a surprisingly large amount of information about the sensor noise. Essentially, this involves using the data to estimate the ``trustworthiness'' \emph{of the data itself}, a process described more fully in Section \ref{subsec:optimal_sensor_data_reconstruction}. One contribution of this chapter is a new cross-validation-like approach for estimating the sensor noise using only the properties of the data itself. This allows cleaner raw data inputs to the subsequent performance analysis toolchain that we develop, ultimately resulting in more accurate performance estimates and aiding uncertainty quantification. In Figure \ref{fig:overall_procedure}, this is represented by the separation of sensor data into its signal and noise components.
 
 We also know certain characteristics of the aircraft's performance curve based on first-principles physics, which can further increase the effective information density and our resulting performance estimates. Another way to think about this is that the function space of performance curves is restricted to functions that generally follow first-principles physics, allowing us to reduce uncertainty on these resulting inferred relations. For example, we know that the true state of the aircraft must follow invariants from Newtonian physics (e.g., conservation of energy). Likewise, propulsive efficiency is a bounded function that must not exceed unity to be physically plausible. Embedding these constraints and invariants from physics reduces the number of unknowns, enabling more robust correction for unsteady effects. This is described in Section \ref{sec:physics_based_corrections}.
 
@@ -193,7 +193,7 @@ The key difference is that the middle chart embeds certain assumptions that we i
     \item The noise in each sample is independent (i.e., uncorrelated with previous samples) and normally-distributed
     \item The noise is unbiased (i.e., there are no systematic errors in the data, only random ones)
     \item The noise is homoscedastic (i.e., the standard deviation of the noise is constant across the entire dataset)
-    \item The sample rate is significantly higher than the underlying dynamics of the system that we aim to recover (i.e., the system is ``slow'' relative to the sample rate), with this assumption quantified later in the present work.
+    \item The sample rate is significantly higher than the underlying dynamics of the system that we aim to recover (i.e., the system is ``slow'' relative to the sample rate), with this assumption quantified later in Section \ref{sec:sysid_first_order_noise_estimator}.
 \end{itemize}
 
 Under these assumptions above, the probabilistic properties of the noise reduce to a single parameter: the variance of the noise $\sigma^2_n$. Thus, by constructing an estimator for this statistic, we can recover the probability distribution of the noise and hence an optimal estimator of the data.
@@ -209,6 +209,7 @@ In an ideal world, we would estimate this variance of the noise by taking a larg
 If we want to reconstruct data from unsteady measurement, however, we need to find a way to estimate the variance of the noise using the unsteady data itself, which is much more difficult.
 
 \subsubsection{Initial Approach and a First-Order Data-Based Noise Estimator}
+\label{sec:sysid_first_order_noise_estimator}
 
 One way to do this is by assuming that the data is ``slow'' relative to the sample rate, while the noise remains white. If this is true, then subsequent samples will effectively have the same underlying truth value, but with noise drawn independently from the same underlying distribution.
 
@@ -292,7 +293,7 @@ In contrast, the noise is assumed to be independent, which means that the noise 
 
 \subsubsection{Arbitrary-Order Estimators}
 
-Clearly, the second-order estimator improves performance compared to the first-order one. Interestingly, we can generalize the logic to an $d$-th order estimator by observing that the denominator is the sum of the squares of the first-order, $d$-th-degree, uniform-grid finite difference coefficients (or, perhaps more intuitively, the elements of the $d$-th row of Pascal's triangle). Then, we use the combinatorial trick that:
+Clearly, the second-order estimator improves performance compared to the first-order one. Interestingly, we can generalize the logic to an $d$-th order estimator by observing that the denominator is the sum of the squares of the first-order, $d$-th-degree, uniform-grid finite difference coefficients\footnote{Or, perhaps more intuitively, the elements of the $d$-th row of Pascal's triangle}. Then, we use the combinatorial trick that:
 
 \begin{equation}
 {d \choose 0}
@@ -536,17 +537,17 @@ Compared to the naive approach in Figure \ref{fig:power_curve_naive}, Figure \re
 
 \section{Computational Reproducibility}
 
-All code and data used in this paper is publicly available at \url{https://github.com/peterdsharpe/aircraft-polar-reconstruction-from-flight-test}.
+All code and data used in this chapter is publicly available at \url{https://github.com/peterdsharpe/aircraft-polar-reconstruction-from-flight-test}.
 
 
 \section{Summary and Future Work}
 \label{sec:sysid_conclusion}
 
-In this paper, we have demonstrated a rigorous method for reconstructing the performance characteristics of an aircraft from flight test data. This method is based on a physics-informed correction of the data and model, and is shown to be effective at recovering the true power curve and aerodynamic polar of an example aircraft from noisy, limited, unsteady data. This method is also shown to be robust to the presence of outliers in the data, and to be able to provide uncertainty estimates for the resulting aerodynamic polar. This method is also shown to be able to recover the propulsive efficiency curve of the aircraft, which is a critical quantity for understanding the performance of the aircraft. Finally, this method is shown to be able to recover the aerodynamic polar of the aircraft from only four minutes of flight test data, which is a significant reduction in the amount of data required compared to the state of the art.
+In this chapter, we have demonstrated a rigorous method for reconstructing the performance characteristics of an aircraft from flight test data. This method is based on a physics-informed correction of the data and model, and is shown to be effective at recovering the true power curve and aerodynamic polar of an example aircraft from noisy, limited, unsteady data. This method is also shown to be robust to the presence of outliers in the data, and to be able to provide uncertainty estimates for the resulting aerodynamic polar. This method is also shown to be able to recover the propulsive efficiency curve of the aircraft, which is a critical quantity for understanding the performance of the aircraft. Finally, this method is shown to be able to recover the aerodynamic polar of the aircraft from only four minutes of flight test data, which is a significant reduction in the amount of data required compared to the state of the art.
 
 This work has focused on the ability of these inference-based reconstruction procedures to significantly reduce the required flight hours to characterize an airplane's performance. However, an alternative way to ``spend'' this increased ability to extract information is on massively reducing instrumentation costs. For example, this approach makes it conceivable to ``estimate out'' the ambient wind field\footnote{An intuitive explanation for this is that if an airplane loiters in a circle at constant power setting, the upwind and downwind groundspeeds yield information about the wind field. In practice, some additional assumptions about wind steadiness and uniformity would likely be required to collapse the $(x, y, z, t)$ space; otherwise, it is likely too large to realistically span.} from groundspeed data and power measurement alone. If this is possible, it would enable flight test engineers to perform sufficient early-stage characterization of a new crewed airplane using nothing other than the sensors available on a modern smartphone. Here, GPS, IMU, and barometer sensors provide position and groundspeed information, and the phone's microphone can be used to infer engine RPM and hence power and advance ratio from an audio spectrum. If successful, this would be an enormous reduction in instrumentation cost and time compared to the state of the art.
 
-A fair point of hesitancy here might be the fact that applying these corrections to recover useful insights from noisy, limited, unsteady data takes a significant amount of algorithmic development and mathematical complexity. However, algorithms are cheap, and more importantly, scalable - so, once a computational workflow is established, it can easily be applied to a large number of flight test campaigns. By contrast, flight-test hours and improved instrumentation represent a recurring high cost. Therefore, it is worth investing in the development of algorithms that can extract the maximum amount of useful insight from the data that we do collect, even if this analysis is somewhat less simple.
+A fair point of hesitancy here might be the fact that applying these corrections to recover useful insights from noisy, limited, unsteady data takes a significant amount of algorithmic development and mathematical complexity. However, algorithms are cheap, and more importantly, scalable - so, once a computational chapterflow is established, it can easily be applied to a large number of flight test campaigns. By contrast, flight-test hours and improved instrumentation represent a recurring high cost. Therefore, it is worth investing in the development of algorithms that can extract the maximum amount of useful insight from the data that we do collect, even if this analysis is somewhat less simple.
 
 
 
@@ -605,6 +606,6 @@ def estimate_noise_standard_deviation(data: np.ndarray, estimator_order: int = 1
 \end{listing}
 
 \section*{Acknowledgments}
-The authors would like to thank the MIT AeroAstro 16.821 course staff for their support of this work, and the MIT AeroAstro department for their support of the course. The aircraft used to collect the example data in this work was constructed by the MIT AeroAstro 16.821 student team, and the authors would like to thank the team for their hard work and dedication to the project.
+The authors would like to thank the MIT AeroAstro 16.821 course staff for their support of this work, and the MIT AeroAstro department for their support of the course. The aircraft used to collect the example data in this work was constructed by the MIT AeroAstro 16.821 undergraduate student team.
 
 %    \bibliography{main, C:/Users/peter/Documents/Zotero/library, C:/Users/peter/Documents/Zotero/library-zotero}
