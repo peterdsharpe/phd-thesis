@@ -316,7 +316,7 @@ Clearly, the second-order estimator improves performance compared to the first-o
     \label{eq:arbitrary_order_noise_estimator}
 \end{equation}
 
-An example stable numerical implementation of this estimator is given in Appendix \ref{sec:estimator_code_example}.
+Though equation \ref{eq:arbitrary_order_noise_estimator} gives the correct expression for this estimator, numerically implementing this requires some care. Appendix \ref{sec:estimator_code_example} outlines some considerations here and gives an example stable numerical implementation of this estimator.
 
 While we have shown that the second-order estimator has improved robustness to low sample rates, it is not immediately clear that this will hold for arbitrary orders - as the order increases, we might expect to see some form of numerical instability as we take successively higher-order derivatives of noisy data. To test this, we can plot the performance of noise estimators of various orders, as shown in Figure \ref{fig:noise_variance_higher_order}.
 
