@@ -389,15 +389,14 @@ When implementing a specialized array library such as the one illustrated in Fig
 
 \begin{itemize}[noitemsep]
     \item Array operations (initialization, indexing, concatenation, stacking, reshaping, etc.)
-    \item Elementary functions (arithmetic, trigonometry)
-    \item Conditionals, loops, and boolean logic
+    \item Elementary functions (arithmetic, trigonometry, exponentials, some special functions, etc.)
+    \item Conditionals and boolean logic
     \item Linear algebra
     \begin{itemize}[noitemsep]
-        \item Vector operations (dot, cross, outer products etc.)
+        \item Einstein-summation operations (matrix products, dot products, outer products, etc.)
         \item Vector and matrix norms
-        \item Vector and matrix products
         \item Linear solves, Moore-Penrose pseudoinverses
-        \item Eigenvalue decomposition and other factorizations
+        \item Factorizations (e.g., eigenvalue decomposition)
     \end{itemize}
     \item Many common utility functions (e.g. \texttt{linspace()})
     \item Interpolation, including N-dimensional and higher-order variants, and both gridded and scattered methods
@@ -407,33 +406,122 @@ When implementing a specialized array library such as the one illustrated in Fig
     \item Surrogate modeling and regression tools (e.g., curve fitting tools, kriging, neural network activation functions, etc.)
 \end{itemize}
 
-The author's prior Master's thesis \cite{sharpe_aerosandbox_2021} discusses these syntax-related challenges and tradeoffs further, using examples from the development of the AeroSandbox framework.
+The author's prior Master's thesis \cite{sharpe_aerosandbox_2021} further discusses these syntax-related choices and tradeoffs that should be considered when developing an MDO framework, using examples from the development of AeroSandbox.
 
 \subsection{Implications of Code Transformations on Coding Style}
 \label{sec:code_style}
 
-Another relevant consideration in the development of a numerical framework that allows for code transformations is the coding style that is encouraged by the paradigm. In particular, it is much easier to write a traceable numerics stack if one can guarantee that the user's code follows a functional programming style, which avoids side effects and mutable state. This is because it is most natural to store intermediate values of a computational graph by attaching them to the underlying array data structures that % TODO
+Another relevant consideration in the development of a numerical framework that allows for code transformations is the coding style that is encouraged by the paradigm. In particular, it is much easier to write a traceable numerics stack if one can guarantee that the user's code follows a \emph{functional} programming style, which avoids side effects and mutable state (collectively called ``in-place operations'', since they modify an array without allocating a new memory register). This is because it the most natural way to store intermediate values of a computational graph during evaluation is by directly attaching them to graph nodes. If code is mutable, then different nodes in the graph may point to the same array -- in other words, the same memory location. (An example of this is a pair of nodes that occur immediately before and after an indexed array assignment). This leads to a overwriting of intermediate values during execution. Unfortunately, many code transformations rely on accessing these intermediate values -- for example, reverse-mode automatic differentiation requires these values to evaluate the backward pass.
 
-%This is because representing mutating code in a computational graph tends to require redundant memory copies, in order to preserve information about intermediate states\footnote{Bradbury et al. discuss strategies for mitigating this by fusing in-place operations via compilation, though this behavior still tends to be memory-inefficient in practice \cite{jax}.}.
+To address this, some early numerics libraries that support dynamic tracing, like Autograd \cite{maclaurin_autograd_2015, maclaurin_modeling_2016}, simply forbid mutable state in user code -- a functional programming style is required. Pytorch takes a similar approach, though a bit less severe: instead, the developers heavily discourage in-place operations, though still makes an attempt to handle them by attaching a ``version counter'' to each array that is incremented upon mutation \cite{paszke_pytorch_2019}. This approach does not work in a fair number of cases\footnote{for example, when the array is externally-referenced both before and after mutation, since this requires memory duplication and a computational graph rewrite}, but a critical advantage is that Pytorch can alert the user upon mutation errors, rather than silently producing incorrect results.
 
+On the other hand, other tracing-compatible numerics libraries make an attempt to work around this limitation, which can allow the use of other coding styles (to varying degrees). For example, while JAX \cite{jax} does not directly support in-place operations, it does offer the user alternative syntax that can be used to replace in-place array element assignments with functional-style array transformations\footnote{For example, the in-place code \mintinline{python}{x[0] = 5} can be roughly replaced by the functional code \mintinline{python}{x_new = x.at[0].set(5)}. This places some burden of understanding mutability on the end-user, but in most cases it at least allows some workaround to be performed here.}.
+
+The CasADi numerics library implements an particularly sophisticated approach that completely allows for in-place mutation; to the best of the author's knowledge, this is the only Python-based automatic differentiation library\footnote{among those that support both forward- and reverse-mode automatic differentiation} that achieves this. This is done by completely decoupling the tracing and evaluation of the computational graph, with two independent ``register-based virtual machines'' that separately store the traced graph and the executed graph. As described by Andersson et al. \cite{andersson_casadi_2019}:
+
+\begin{quote}
+    ``The creation of [an executable expression] in CasADi essentially amounts to topological sorting the expression graph, turning the directed acyclic graph (DAG) into an \emph{algorithm} that can be evaluated. Unlike traditional tools for AD\ldots, there is no relation between the order in which expressions were created (i.e., a \emph{tracing step}) and the order in which they appear in the sorted algorithm.''
+\end{quote}
+
+\noindent This solves the problem of intermediate value preservation at its root, since during evaluation, these values are no longer directly attached to graph nodes, but instead stored in a separate memory register. To the end user, the net result is that they can write code in a procedural style, with in-place operations, and still have it be traced and differentiated. This is one of the main reasons why AeroSandbox makes the framework-level design decision to default to a CasADi-based numerical backend: it gives the user flexibility to write mutating code.
+
+\subsubsection{Coding Styles and the Engineering Design Workflow}
+
+We contend that lifting this restriction on only using functional coding styles offers significant usability advantages for engineering design applications. This stems from a belief that the natural workflow of engineers often leads to \emph{procedural} coding styles, where the bulk of the logic is expressed as a sequence of (possibly stateful) instructions, rather than within the stricter confines of pure functions. To put it more colloquially, engineers tend to write their analyses into things that look more like scripts or spreadsheets, and less like libraries. To illustrate why this procedural coding style is popular in engineering practice, consider a representative hypothetical example of how an industry engineer might arrive at the decision to use a design optimization framework:
+
+\begin{enumerate}
+    \item When an engineer initially embarks on a new development effort, the first computational task that an engineer will usually perform is a quick back-of-the-envelope forward analysis to develop some intuition: ``Assuming some reasonable design, what information do I need to make a reasonable estimate about its performance?'' This is usually done as a simple procedural script or spreadsheet, and the goal is not to optimize the design but rather to start understanding the problem physics and design drivers.
+
+    For example, suppose an engineer wants to perform basic wing sizing. Often, the first attempt at this problem will be to simply implement a forward analysis: assume a representative wing, and estimate its lift and drag using basic aerodynamic theory. The assumed wing might look something like Figure \ref{fig:proc_wing}. In code, this might look like Listing \ref{lst:proc_wing}.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=4in]{../figures/wing_proc-crop.pdf}
+        \caption{An example of an initially-assumed problem geometry for a wing sizing analysis.}
+        \label{fig:proc_wing}
+    \end{figure}
+
+    \begin{listing}[H]
+        \begin{minted}{python}
+import numpy as np
+
+kinematic_viscosity = 1.461e-5  # air, at 20 C [m^2/s]
+airspeed = 10  # [m/s]
+alpha = 3 # Angle of attack [deg]
+chord = 1  # [m]
+span = 5  # [m]
+
+CL = (2 * np.pi) * np.radians(alpha)  # Lift coeff., based on thin airfoil theory
+
+Re = airspeed * chord / kinematic_viscosity  # Reynolds number [-]
+CD_p = 1.328 / np.sqrt(Re)  # Profile drag coeff., based on Blasius BL
+
+AR = span / chord  # Aspect ratio [-]
+CD_i = CL ** 2 / (np.pi * AR)  # Induced drag coeff., based on theory
+
+CD = CD_p + CD_i  # Total drag coefficient
+
+print(CL / CD)  # Result: 38.7
+        \end{minted}
+        \caption{Example of a simple forward analysis script to estimate the aerodynamic performance of an untapered, unswept, untwisted, planar wing using napkin-math-level theory.}
+        \label{lst:proc_wing}
+    \end{listing}
+
+    \item So far, one could argue that the code in Listing \ref{lst:proc_wing} could be considered both procedural and functional, because despite the single-level scope of the analysis, it is stateless and non-mutating. However, consider what happens when the engineer wants to build on top of this analysis and start asking natural next-step questions. For example, ``What is the minimum-drag wing that is possible, if the geometry and angle of attack are varied?'', and ``How does the resulting design need to change if an implicit lift-weight closure is enforced, with some assumed wing weight model?''
+
+    In frameworks that require a functional style, we would need to rewrite the script with several major changes. First, the problem would need to be structured as a single top-level function wrapper that takes in all variables and returns all constraints and the objective. Secondly, as a practical matter, all analyses would need to be rewritten as standalone pure functions. (This makes little difference in this simple example, but in more complex MDO problems with hundreds of interacting models, this creates an enormous amount of boilerplate code and obfuscates design intent.)
+
+    Within frameworks that allow optimization formulation in a procedural style, however, converting this initial analysis into a design problem becomes far easier. Expressing this optimization problem becomes a natural extension of the initial analysis, and this can be achieved \emph{without adding new scopes}.
+
+    To show this more concretely, Listing \ref{lst:proc_wing_opt} gives an example of how a user might extend the initial analysis from Listing \ref{lst:proc_wing} to a simple design optimization problem that answers these questions. This listing uses syntax from AeroSandbox, a design optimization framework that supports procedural coding styles. Notably, new variables and constraints are simply ``tagged'' during the problem specification, rather than requiring a functional-style rewrite of the entire analysis. Even an implicit constraint (the lift-weight closure) can be expressed in a single line of code, without pulling out the evaluation of this constraint into a separate function.
+
+    \begin{listing}[H]
+        \begin{minted}[highlightlines={1-2,4,9,11-12,24-26,28-29}]{python}
+import aerosandbox as asb
+import aerosandbox.numpy as np
+
+opti = asb.Opti()  # Start an optimization environment
+
+kinematic_viscosity = 1.461e-5  # at 20 C [m^2/s]
+
+airspeed = 10  # [m/s]
+alpha = opti.variable(init_guess=3) # Angle of attack [deg]
+
+chord = opti.variable(init_guess=1, lower_bound=0)  # [m]
+span = opti.variable(init_guess=5, lower_bound=0)  # [m]
+
+CL = (2 * np.pi) * np.radians(alpha)  # Lift coeff., based on thin airfoil theory
+
+Re = airspeed * chord / kinematic_viscosity  # Reynolds number [-]
+CD_p = 1.328 / np.sqrt(Re)  # Profile drag coeff., based on Blasius BL
+
+AR = span / chord  # Aspect ratio [-]
+CD_i = CL ** 2 / (np.pi * AR)  # Induced drag coeff., based on theory
+
+CD = CD_p + CD_i  # Total drag coefficient
+
+lift = 0.5 * 1.225 * airspeed ** 2 * CL * chord * span  # Lift force [N]
+weight = (1 + chord * span ** 2) * 9.81  # Simple hypothetical weight model [N]
+opti.subject_to(lift == weight)  # Implicit L=W constraint
+
+opti.minimize(CD)  # Objective function
+sol = opti.solve()  # Solves the problem
+
+print(sol(CL / CD))  # Result: 115.2
+        \end{minted}
+        \caption{Example of a simple design optimization problem to find the minimum-drag wing, starting from the initial analysis in Listing \ref{lst:proc_wing}. Highlighted lines show elements added or modified from the initial analysis.}
+        \label{lst:proc_wing_opt}
+    \end{listing}
+
+    The ability to support these inline definitions of optimization problem elements makes it much easier to rapidly ``turn the problem around'' and change the problem formulation between the forward problem (analysis) and the inverse problem (optimization). For example, changing the problem parameterization (i.e., which variables is the optimizer free to modify, and which are frozen to assumed constants) typically requires significant rewriting in a functional problem formulation, but in a procedural one this becomes a seamless one-line code change. This becomes especially apparent in large-scale MDO problems, where restricting the user to a functional coding style forces them to be much more careful with sequencing the analysis order to maximize feed-forward information flow.
+
+\end{enumerate}
+
+Based on this example, we contend that optimization applications to engineering design benefit strongly from a framework that allows for a procedural coding style -- this tends to naturally mimic the workflow of practicing engineers as they incrementally develop their problem from analysis into optimization. An interesting observation is that this contrasts against the needs of other applications of traceable numerics frameworks, like machine learning. For example, Maclaurin et al. \cite{maclaurin_modeling_2016} state that ``Our experience using Autograd has been that a functional style is a natural fit for the sorts of modeling and inference problems we like to solve in machine learning, and it rarely feels burdensome.'' This makes sense, because machine learning workflows tend to involve relatively simple expressions that are data-heavy but operator-light\footnote{Consider that a multi-layer perceptron may consist of millions of parameters, but the forward pass can still be expressed in a dozen or so large kernel operators in code. By contrast, an engineering MDO tool may have hundreds of empirical curve-fit-style models, and disciplinary interactions make the order of information flow more complex.}, while engineering workflows tend to use expressions that are data-light but operator-heavy. (This can be seen in the example engineering computational graph of Figure \ref{fig:computational-graph-aerosandbox}.) This highlights that, although engineering design optimization has benefited heavily from machine learning advances in the past decade, there are some fundamental reasons why tools developed for machine learning are often less suitable for engineering design optimization \cite{rackauckas_engineering_2021}.
 
 \subsection{Miscellaneous} % TODO fix title
 % Discuss units: deliberate decision not to include, but an interesting one in the context of code transformations.
 
-
-\section{Aircraft Design Case Studies}
-
-% Spiral development process
-
-\subsection{Firefly} % TODO name
-
-\subsection{Dawn} % TODO name
-
-\subsection{Hydrogen} % ?
-
-\subsection{Solar Seaplane} % ?
-
-\subsection{Other Case Studies} % TODO name
 
 
 \section{Computational Reproducibility}
