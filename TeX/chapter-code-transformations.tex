@@ -42,7 +42,7 @@ In order for this tracing process to work, all mathematical functions used withi
 
 This concept of traceability allows us to intuitively predict which operations are likely to ``break the trace'' and render the target code incompatible with code transformations. For example, explicit type casting often causes problems, since a tracer variable may be coerced into a concrete numerical type, resulting in a lost computational graph. Likewise, any interfaces between programming languages (e.g., a Python function calling a C function) will usually break the trace, as type information is lost across the language boundary. This insight can be used to guide the design of numerical code to be more traceable, and hence more amenable to code transformations.
 
-%In summary, traceability effectively requires that
+Traceability is also the reason why it can be challenging to add many of these advanced techniques (e.g., end-to-end problem-level automatic differentiation) into an MDO framework unless it was designed to support these from the start. For example, often standard MDO disciplinary interfaces only allow for concrete numerical data types; so, while individual analyses may be traceable, tracing the full optimization problem end-to-end is usually not possible unless the framework accommodates this. This inherently limits the kinds of problem accelerations that can be applied. As a more concrete example of this, one may find themselves able to use AD to find the partials of a single analysis, but directly computing the constraint Jacobian of the full MDO problem may not be possible\footnote{Instead, the framework needs to stitch these partials together. This becomes particularly messy if tracers cannot be end-to-end propagated through analyses that project from low- to high- to low-dimensionality spaces, like from a design space (low-dim) to a mesh space (high-dim) to an output space (low-dim). Here, the user needs to manually implement some kind of forward-over-reverse AD gradient stitching, rather than letting the framework handle it end-to-end. This may be acceptable for one or two disciplines, but for problems with dozens of interacting submodels it becomes overly burdensome for the user. It also splits the computational graph at these large intermediate data structures, which can cost speed.}. This is a key motivation for the development of a new paradigm for MDO frameworks that considers traceability from the start, as opposed to simply adding on these advanced scientific computing techniques to existing paradigms.
 
 \subsection{Implications for Engineering Design}
 
@@ -75,6 +75,7 @@ A crucial advantage of code transformation over many state-of-the-art methods is
     \label{tab:paradigm_comparison}
 
     \begin{adjustbox}{width=\textwidth}
+        \setstretch{1.25}
         \begin{tabular}{M E I S Q}
             \toprule
             \textbf{MDO Framework Paradigm}                 & \textbf{Example Frameworks and Tools}                                                                                                                                                                                                       & \textbf{Ease of \mbox{Implementation}}\ (sketchpad-to-code) & \textbf{Runtime Speed and Scalability}\ (code-to-result) & \textbf{Modeling Flexibility} \\ \toprule
@@ -384,22 +385,24 @@ When implementing a specialized array library such as the one illustrated in Fig
 
 \begin{itemize}[noitemsep]
     \item Array operations (initialization, indexing, concatenation, stacking, reshaping, etc.)
-    \item Elementary functions (arithmetic, trigonometry, exponentials, some special functions, etc.)
-    \item Conditionals and boolean logic
+    \item Elementary functions (arithmetic, trigonometry, special functions, etc.)
+    \item Conditionals and boolean logic\footnote{A particularly useful inclusion is the NumPy \texttt{where()} function, which allows element-wise conditional assignment. Note that the framework does not explicitly enforce $C^1$-continuity of the user's code across conditional boundaries, but attempting to optimize while using $C^1$-discontinous functions will often cause convergence issues. Further discussion is given in prior work by Sharpe \cite{sharpe_aerosandbox_2021}.}
     \item Linear algebra
     \begin{itemize}[noitemsep]
         \item Einstein-summation operations (matrix products, dot products, outer products, etc.)
         \item Vector and matrix norms
         \item Linear solves, Moore-Penrose pseudoinverses
-        \item Factorizations (e.g., eigenvalue decomposition)
+        \item Various factorizations (e.g., eigenvalue decomposition)
     \end{itemize}
-    \item Many common utility functions (e.g. \texttt{linspace()})
+    \item Various common utility functions (e.g., \texttt{linspace()})
     \item Interpolation, including N-dimensional and higher-order variants, and both gridded and scattered methods
     \item Higher-order discrete numerical differentiation (i.e., gradient reconstruction, for ODEs and PDEs)
     \item Higher-order numerical integration and quadrature, in both continuous and discrete variants (e.g., acting on either functions or sampled data)
     \item Coordinate transformations and rotations
-    \item Surrogate modeling and regression tools (e.g., curve fitting tools, kriging, neural network activation functions, etc.)
+    \item Surrogate modeling and regression tools (e.g., curve fitting tools, kriging, neural network activation functions, orthogonal polynomial families, etc.)
 \end{itemize}
+
+In the author's experience, this subset of functions is sufficient to express a wide variety of engineering design problems, and is a good starting point for a general-purpose engineering design optimization framework. However, the exact choice of functions to include will depend on the specific application domain of the framework.
 
 The author's prior Master's thesis \cite{sharpe_aerosandbox_2021} further discusses these syntax-related choices and tradeoffs that should be considered when developing an MDO framework, using examples from the development of AeroSandbox.
 
@@ -408,9 +411,9 @@ The author's prior Master's thesis \cite{sharpe_aerosandbox_2021} further discus
 
 Another relevant consideration in the development of a numerical framework that allows for code transformations is the coding style that is encouraged by the paradigm. In particular, it is much easier to write a traceable numerics stack if one can guarantee that the user's code follows a \emph{functional} programming style, which avoids side effects and mutable state (collectively called ``in-place operations'', since they modify an array without allocating a new memory register). This is because it the most natural way to store intermediate values of a computational graph during evaluation is by directly attaching them to graph nodes. If code is mutable, then different nodes in the graph may point to the same array -- in other words, the same memory location. (An example of this is a pair of nodes that occur immediately before and after an indexed array assignment). This leads to a overwriting of intermediate values during execution. Unfortunately, many code transformations rely on accessing these intermediate values -- for example, reverse-mode automatic differentiation requires these values to evaluate the backward pass.
 
-To address this, some early numerics libraries that support dynamic tracing, like Autograd \cite{maclaurin_autograd_2015, maclaurin_modeling_2016}, simply forbid mutable state in user code -- a functional programming style is required. Pytorch takes a similar approach, though a bit less severe: instead, the developers heavily discourage in-place operations, though still makes an attempt to handle them by attaching a ``version counter'' to each array that is incremented upon mutation \cite{paszke_pytorch_2019}. This approach does not work in a fair number of cases\footnote{for example, when the array is externally-referenced both before and after mutation, since this requires memory duplication and a computational graph rewrite}, but a critical advantage is that Pytorch can alert the user upon mutation errors, rather than silently producing incorrect results.
+To address this, some early numerics libraries that support dynamic tracing, like Autograd \cite{maclaurin_autograd_2015, maclaurin_modeling_2016}, simply forbid mutable state in user code -- a functional programming style is required. Pytorch takes a similar approach, though a bit less severe: instead, the developers heavily discourage in-place operations, though still makes an attempt to handle them by attaching a ``version counter'' to each array that is incremented upon mutation \cite{paszke_pytorch_2019}. This approach does not work in a fair number of cases\footnote{An example of this is when the array is externally-referenced both before and after mutation, since this makes memory duplication unavoidable and requires a computational graph rewrite}, but it allows Pytorch to support limited mutation in user code. Critically, in cases where this is not possible, the counter system allows Pytorch to alert the user, rather than silently producing incorrect results.
 
-On the other hand, other tracing-compatible numerics libraries make an attempt to work around this limitation, which can allow the use of other coding styles (to varying degrees). For example, while JAX \cite{jax} does not directly support in-place operations, it does offer the user alternative syntax that can be used to replace in-place array element assignments with functional-style array transformations\footnote{For example, the in-place code \mintinline{python}{x[0] = 5} can be roughly replaced by the functional code \mintinline{python}{x_new = x.at[0].set(5)}. This places some burden of understanding mutability on the end-user, but in most cases it at least allows some workaround to be performed here.}.
+On the other hand, other tracing-compatible numerics libraries make an attempt to work around this limitation syntactically, which can allow the use of other coding styles (to varying degrees). For example, while JAX \cite{jax} does not directly support in-place operations, it does offer the user alternative syntax that can be used to replace in-place array element assignments with functional-style array transformations\footnote{For example, in JAX, the in-place code \mintinline{python}{x[0] = 5} can be roughly replaced by the functional code \mintinline{python}{x_new = x.at[0].set(5)}. This places some burden of understanding mutability on the end-user, but in most cases it at least allows some workaround to be performed here.}.
 
 The CasADi numerics library implements an particularly sophisticated approach that completely allows for in-place mutation; to the best of the author's knowledge, this is the only Python-based automatic differentiation library\footnote{among those that support both forward- and reverse-mode automatic differentiation} that achieves this. This is done by completely decoupling the tracing and evaluation of the computational graph, with two independent ``register-based virtual machines'' that separately store the traced graph and the executed graph. As described by Andersson et al. \cite{andersson_casadi_2019}:
 
@@ -418,7 +421,7 @@ The CasADi numerics library implements an particularly sophisticated approach th
     ``The creation of [an executable expression] in CasADi essentially amounts to topological sorting the expression graph, turning the directed acyclic graph (DAG) into an \emph{algorithm} that can be evaluated. Unlike traditional tools for AD\ldots, there is no relation between the order in which expressions were created (i.e., a \emph{tracing step}) and the order in which they appear in the sorted algorithm.''
 \end{quote}
 
-\noindent This solves the problem of intermediate value preservation at its root, since during evaluation, these values are no longer directly attached to graph nodes, but instead stored in a separate memory register. To the end user, the net result is that they can write code in a procedural style, with in-place operations, and still have it be traced and differentiated. This is one of the main reasons why AeroSandbox makes the framework-level design decision to default to a CasADi-based numerical backend: it gives the user flexibility to write mutating code.
+\noindent This solves the problem of intermediate value preservation at its root, since during evaluation, these numerical values are no longer directly attached to graph nodes, but instead stored in a separate memory register (possibly, with different graph topology than the initial computational graph). To the end user, the net result is that they can write code in a procedural style, with in-place operations, and still have it be traced and differentiated. This is one of the main reasons why AeroSandbox makes the framework-level design decision to default to a CasADi-based numerical backend: it gives the user flexibility to write mutating code.
 
 \subsubsection{Coding Styles and the Engineering Design Workflow}
 
@@ -464,16 +467,16 @@ print(CL / CD)  # Result: 38.7
 
     \item So far, one could argue that the code in Listing \ref{lst:proc_wing} could be considered both procedural and functional, because despite the single-level scope of the analysis, it is stateless and non-mutating. However, consider what happens when the engineer wants to build on top of this analysis and start asking natural next-step questions. For example, ``What is the minimum-drag wing that is possible, if the geometry and angle of attack are varied?'', and ``How does the resulting design need to change if an implicit lift-weight closure is enforced, with some assumed wing weight model?''
 
-    In frameworks that require a functional style, we would need to rewrite the script with several major changes. First, the problem would need to be structured as a single top-level function wrapper that takes in all variables and returns all constraints and the objective. Secondly, as a practical matter, all analyses would need to be rewritten as standalone pure functions. (This makes little difference in this simple example, but in more complex MDO problems with hundreds of interacting models, this creates an enormous amount of boilerplate code and obfuscates design intent.)
+    In frameworks that require a functional style, we would need to rewrite the script with several major changes. First, the problem would need to be structured as a single top-level function wrapper that takes in all variables and returns all constraints and the objective\footnote{A code example of this, for the curious reader, is in the publically-available FBHALE MDO code. Here, a single top-level master function takes in all variables and returns all constraints.}. Secondly, as a practical matter, all disciplinary analyses would need to be rewritten as standalone pure functions. (This makes little difference in this simple example, but in more complex MDO problems with hundreds of interacting models, this creates an enormous amount of boilerplate code and obfuscates design intent.) An undesirable side effect of all of this added boilerplate code is that it ``locks in'' the problem formulation -- changing what is a variable and what is a constraint requires a substantial rewrite of the entire analysis.
 
     Within frameworks that allow optimization formulation in a procedural style, however, converting this initial analysis into a design problem becomes far easier. Expressing this optimization problem becomes a natural extension of the initial analysis, and this can be achieved \emph{without adding new scopes}.
 
-    To show this more concretely, Listing \ref{lst:proc_wing_opt} gives an example of how a user might extend the initial analysis from Listing \ref{lst:proc_wing} to a simple design optimization problem that answers these questions. This listing uses syntax from AeroSandbox, a design optimization framework that supports procedural coding styles. Notably, new variables and constraints are simply ``tagged'' during the problem specification, rather than requiring a functional-style rewrite of the entire analysis. Even an implicit constraint (the lift-weight closure) can be expressed in a single line of code, without pulling out the evaluation of this constraint into a separate function.
+    To show this more concretely, Listing \ref{lst:proc_wing_opt} gives an example of how a user might extend the initial analysis from Listing \ref{lst:proc_wing} to a simple design optimization problem that answers these questions. This listing uses syntax from AeroSandbox, a design optimization framework that supports procedural coding styles. In Listing \ref{lst:proc_wing_opt}, the lines of code that differ from the original code of Listing \ref{lst:proc_wing} are highlighted, which shows the minimal change in overall code structure. Notably, new variables and constraints are simply ``tagged'' during the problem specification, rather than requiring a functional-style rewrite of the entire analysis. Even an implicit constraint (the lift-weight closure) can be expressed in a single line of code, without pulling out the evaluation of this constraint into a separate function.
 
     \begin{listing}[H]
         \begin{minted}[highlightlines={1-2,4,9,11-12,24-26,28-29}]{python}
 import aerosandbox as asb
-import aerosandbox.numpy as np
+import aerosandbox.numpy as np  # Patches in the AeroSandbox numerics stack
 
 opti = asb.Opti()  # Start an optimization environment
 
@@ -496,7 +499,7 @@ CD_i = CL ** 2 / (np.pi * AR)  # Induced drag coeff., based on theory
 CD = CD_p + CD_i  # Total drag coefficient
 
 lift = 0.5 * 1.225 * airspeed ** 2 * CL * chord * span  # Lift force [N]
-weight = (1 + chord * span ** 2) * 9.81  # Simple hypothetical weight model [N]
+weight = (1 + chord * span ** 2) * 9.81  # A simple hypothetical weight model [N]
 opti.subject_to(lift == weight)  # Implicit L=W constraint
 
 opti.minimize(CD)  # Objective function
@@ -522,7 +525,7 @@ Even if this traceability issue is fixed, boxing all quantities in units objects
 
 Because of these reasons, even though explicitly storing units in engineering analyses and MDO frameworks may initially seem attractive, it usually results in significant headaches down the line. Of course, it is still useful to have some strategy for preventing potentially-costly unit misunderstandings. Over the years, several strategies have emerged that, in the author's opinion, are superior to the direct unit-boxing approach:
 
- One possible existing strategy is aggressive non-dimensionalization, where all user inputs and outputs are either expressed in nondimensional quantities, or (in cases where this is not possible) immediately nondimensionalized after input. This is a particularly common strategy in aerodynamics codes, as seen in codes like AVL \cite{avl}, SU2 \cite{economon_su2_2016}, Flow360, and others. However, while this strategy works well within a single tightly-scoped analysis, is not necessarily scalable for large multidisciplinary problems. In these large MDO codes, attempting to pass around a set of global reference quantities to all analyses quickly becomes unwieldy, so global nondimensionalization is not a practical solution.
+One possible existing strategy is aggressive non-dimensionalization, where all user inputs and outputs are either expressed in nondimensional quantities, or (in cases where this is not possible) immediately nondimensionalized after input. This is a particularly common strategy in aerodynamics codes, as seen in codes like AVL \cite{avl}, SU2 \cite{economon_su2_2016}, Flow360, and others. However, while this strategy works well within a single tightly-scoped analysis, is not necessarily scalable for large multidisciplinary problems. In these large MDO codes, attempting to pass around a set of global reference quantities to all analyses quickly becomes unwieldy, so global nondimensionalization is not a practical solution.
 
 An alternative strategy, and the one used by AeroSandbox, is simply to establish a convention that all variables are in base units from some globally-used \emph{coherent}\footnote{I.e., a system of units that involves no internal conversion factors; all derived units are products of powers of base units, with no scaling factors.} units system, or derived units thereof. The most obvious such coherent system is SI, but others (e.g., foot-pound-second, using slugs for mass) are also feasible. AeroSandbox assumes an SI system, and hence all variables are in base or derived quantities (e.g., m, kg, sec, N, m/s, J, Pa, etc.). Regardless of the system chosen, coherence allows all derived units to be implemented without any scaling factors or unit wrappers, which improves both readability and computational performance.
 
@@ -538,6 +541,7 @@ In this strategy, unit interpretation can be facilitated by clear, interpretable
 A consequence of this strategy is that quantities may differ in numerical value by many orders of magnitude; an elastic modulus may be on the order of $10^{11}$ Pa, while a wing skin thickness may be on the order of $10^{-3}$ m. Many years ago, when single-precision floating-point arithmetic was the norm, this could cause numerical issues due to the limited dynamic range of the data type. However, with the advent of double-precision floating-point arithmetic as the standard, this is nearly never an issue in practice. One could also be reasonably concerned that this scaling difference could cause optimization difficulties\footnote{because, although most second-order gradient-based optimziation algorithms are mathematically scale-invariant, the poor condition number of the Hessian (or Hessian approximation) could make for inaccurate steps}; however, with the automatic scaling performed with AeroSandbox, all quantities are brought to a similar order of magnitude before the problem is passed to the optimizer, and this is not an issue.
 
 Because of these considerations, the author recommends that code-transformation-based MDO frameworks avoid explicitly embedding units in the code via unit-boxing strategies, and instead rely on a coherent units system and clear variable naming conventions to prevent unit misunderstandings. This strategy is both more performant and more flexible, and industrial users of AeroSandbox have generally reported that this approach is intuitive and easy to adopt.
+
 
 \section{Computational Reproducibility}
 \label{sec:asb-reproducibility}
