@@ -1,14 +1,139 @@
-
 \chapter{Aircraft Design Case Studies}
 
-% Spiral development process
+As indicated in Table \ref{tab:paradigm_comparison}, the main benefit of the proposed code transformations paradigm is to achieve runtime performance comparable to specialized methods, but without sacrificing ease-of-use and mathematical flexibility. Because this value proposition hinges on this usability, it becomes especially important to demonstrate the effectiveness of the proposed paradigm in real-world engineering applications.
+
+In order to support this goal, Chapter \ref{chapter-code-transformations} introduced an example framework, AeroSandbox, which implements the proposed code transformations paradigm. AeroSandbox was developed using an iterative ``spiral development process'', which is depicted in Figure \ref{fig:spiral}. In short, at every step of the development process, a symbiotic bidirectional relationship between the framework and the case studies was maintained; the goal of this was to simultaneously ask and answer two questions:
+
+\begin{enumerate}[noitemsep]
+    \item Using the capabilities of this design framework, how can we improve this airplane and gain practical insight into the specific design space at hand?
+    \item Based on this airplane case study, what broadly-applicable user needs and workflows can we identify, and how can we improve our design framework accordingly?
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \includesvg[width=0.8\textwidth]{../figures/spiral.svg}
+    \caption{}
+    \label{fig:spiral}
+\end{figure}
+
+Over the development of AeroSandbox, this spiral process was iterated upon multiple times, with each iteration resulting in a more refined and capable framework. This chapter presents a few vignettes of the various case studies that were used to develop AeroSandbox, which provides a fruitful opportunity to discuss the practical capabilities enabled by a code transformations MDO paradigm. It is important to emphasize that, although the aircraft design case studies presented in this chapter are fascinating real-world problems, the main intended intellectual contribution of this portion of the thesis is not the design of these specific aircraft (or even the example framework itself\footnote{MDO frameworks naturally come and go over the years as new opportunities in scientific computing and programming languages emerge. It is not the author's intent that AeroSandbox be the ``end-all'' framework for aircraft design. Rather, it is a proof-of-concept implementation that aims to demonstrate the potential utility of one possible approach for readers interested in building a future framework.}). Instead, the deeper goal is to introduce a principled paradigm for building engineering design optimization frameworks. Because of this, complete detailed enumeration of all modeling assumptions for specific problems is omitted in this chapter for brevity; however, both references to literature discussing these details and links to the raw source code itself are provided for each case study, for the interested reader.
+
+
+\section{Simple Aircraft Design Problem}
+\label{sect:simpleac}
+
+\begin{quote}
+    \emph{This section includes content adapted from the author's prior work} \cite{sharpe_aerosandbox_2021}.
+\end{quote}
+
+A first simple aircraft design problem, called \emph{simpleAC},
+
+
+Now armed with more understanding of the problem transformations available in AeroSandbox, we can also demonstrate performance on a more sophisticated aircraft design problem. This problem, known as \textit{SimpleAC}, models a simple aircraft by extending the Simple Wing problem in Section \ref{sect:simple-wing} with fuel weight and volume models. It was proposed by Hoburg in \cite{hoburg} and is reproduced by both Ozturk \cite{Ozturk2018} and Kirschen \cite{kirschen}. It is restated here in full form:
+
+\begin{example}
+    \textbf{Simple Aircraft (SimpleAC)}
+    \begin{mini}
+        |l|
+            {\AR, S, V, W, C_L, W_f, V_\text{f, fuse}}{W_f}
+            {}{}
+        \addConstraint{W \geq W_0 + W_w + W_f}
+        \addConstraint{W_0 + W_w + \frac{1}{2} W_f \leq L_\text{cruise}}
+        \addConstraint{W \leq L_\text{takeoff}}
+        \addConstraint{W_f \geq \text{TSFC} \cdot t_\text{flight} \cdot D}
+        \addConstraint{V_\text{f, wing} + V_\text{f, fuse} \geq V_f}
+        \label{eq:simpleac}
+    \end{mini}
+    \begin{eqexpl}
+        \item{$D$} Cruise drag
+        \item{$\AR$} Wing aspect ratio (here, the wing is assumed to be rectangular)
+        \item{$S$} Wing area
+        \item{$V$} Cruise airspeed
+        \item{$W$} Total weight
+        \item{$C_L$} Cruise lift coefficient
+        \item{$W_f$} Fuel weight
+        \item{$V_\text{f, fuse}$} Volume of fuel in fuselage
+    \end{eqexpl}
+
+    \noindent
+    We are also given the following physics models:
+
+    \begin{itemize}[noitemsep]
+        \item The chord $c = \sqrt{S / \AR}$, from geometric relations.
+        \item The drag $D = \frac{1}{2} \rho V^2 C_D S$
+        \item The drag coefficient $C_D = \frac{\mathrm{CDA}_0}{S} + k C_f \frac{S_\text{wet}}{S} + \frac{C_L^2}{\pi \AR e}$
+        \begin{itemize}[noitemsep]
+            \item $C_f = 0.074 \cdot \text{Re}^{-0.2}$, the Schlichting turbulent flat plate boundary layer model
+            \item $\text{Re} = \frac{\rho V c}{\mu}$
+        \end{itemize}
+        \item The cruise lift $L_\text{cruise}=\frac{1}{2}\rho V^2 C_L S$
+        \item The takeoff lift $L_\text{takeoff}=\frac{1}{2}\rho V_\text{min}^2 C_{L, \text{max}} S$
+        \item The wing weight $W_{\text{wing}}= W_\text{w, structural} + W_\text{w, surface}$
+        \begin{itemize}[noitemsep]
+            \item $W_\mathrm{w,\ structural} = W_\text{w, c1} \cdot \frac{N \AR^{1.5} \sqrt{W_0 W S}}{\tau}$
+            \item $W_\mathrm{w,\ surface} = W_\text{w, c2} \cdot S$
+        \end{itemize}
+        \item The aircraft's endurance $t_\text{flight} = \text{Range} / V$
+        \item The fuselage drag area scales with fuel volume as $\text{CDA}_0 = V_\text{f, fuse} / (10\ \si{\meter})$
+        \item The total fuel volume $V_f = \frac{W_f}{g\rho_f}$
+        \item The fuel volume in the wing $V_\text{f, wing} = 0.03 S^{1.5} \AR^{-0.5} \tau$
+    \end{itemize}
+
+    \begin{eqexpl}
+        \item {$g$} $9.81\ \si{\meter/\second\squared}$, Earth gravity.
+        \item {$\rho_f$} $817\ \si{\kg/\meter\cubed}$, the density of fuel.
+        \item {$\text{Range}$} $1000\ \si{\kilo\meter}$, the aircraft mission range.
+        \item {$\text{TSFC}$} $0.6\ \si{\per\hour} = 1.67 \times 10^{-4}\ \si{\per\second}$, the thrust-specific fuel consumption.
+        \item {$k$} $1.17$, the form factor.
+        \item {$e$} $0.92$, the Oswald efficiency factor.
+        \item {$\mu$} $1.775 \times 10^{-5}$ \si{\kg\per\meter\per\second}, the sea-level dynamic viscosity of air.
+        \item {$\rho$} $1.23\ \si{\kg/\meter\cubed}$, the sea-level density of air.
+        \item {$\tau$} $0.12$, the airfoil thickness-to-chord ratio.
+        \item {$N$} $3.3$, the ultimate load factor.
+        \item {$V_\text{min}$} $25\ \si{\meter/\second}$, the takeoff airspeed.
+        \item {$C_{L, \text{max}}$} $1.6$, the takeoff lift coefficient.
+        \item {$S_\text{wet}/S$} $2.075$, the wetted area ratio.
+        \item {$W_0$} $6250 \si{\newton}$, the aircraft weight excluding the wing and fuel.
+        \item {$W_\text{w, c1}$} $2 \times 10^{-5}\ \si{\per\meter}$, a wing weight coefficient.
+        \item {$W_\text{w, c2}$} $60\ \si{\Pa}$, another wing weight coefficient.
+    \end{eqexpl}
+
+\end{example}
+
+SimpleAC clearly borrows many models from Simple Wing, although it has a different optimization objective: instead of minimizing drag, here we minimize fuel burn for a fixed mission range. Intuitively, we expect this to drive the optimizer to faster designs, and this is what is observed.
+
+This problem is solved in AeroSandbox, employing log-transformation on all variables, as discussed in Section \ref{sect:problem-transformations}. Code to solve this problem is available in Appendix \ref{sect:simpleac-code}. This converges to a solution in 23 milliseconds and 14 iterations. The results of this AeroSandbox solve are shown in Table \ref{tab:simpleac}.
+
+\begin{table}[H]
+    \centering
+    \caption{Solution of SimpleAC (Eq. \ref{eq:simpleac}), found with AeroSandbox.}
+    \label{tab:simpleac}
+    \begin{tabular}[t]{ll}
+        \toprule
+        Figure of Merit                            & Optimal Value             \\
+        \midrule
+        Fuel weight $W_f$                          & 937.8 \si{\newton}        \\
+        Aspect ratio $\AR$                         & 12.10                     \\
+        Wing area $S$                              & 14.15 \si{\meter\squared} \\
+        Cruise airspeed $V$                        & 57.11 \si{\meter/\second} \\
+        All-up weight $W$                          & 8705 \si{\newton}         \\
+        Cruise lift coefficient $C_L$              & 0.2901                    \\
+        Fuel volume in fuselage $V_\text{f, fuse}$ & 0.0619 \si{\meter\cubed}  \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
 
 \section{Firefly} % TODO name
 
+
 \section{Dawn} % TODO name
 
-\section{Hydrogen} % ?
 
-\section{Solar Seaplane} % ?
+\section{Hydrogen} % TODO name
+
+
+\section{Solar Seaplane} % TODO name
+
 
 \section{Other Case Studies} % TODO name
