@@ -18,8 +18,8 @@ text width=11em, text centered,
 ]
     \node (opti) [int] {\ntxt{ASB Core: \texttt{Opti} Stack}{Optimization interface}};
     \node (num) [int, right=of opti] {\ntxt{ASB Core: Numerics}{Unified numerics stack}};
-    \node (cas) [ext, below=of opti] {\ntxt{CasADi or JAX \cite{casadi, jax}}{Computational graph framework}};
-    \node (numpy) [ext, right=of cas] {\ntxt{NumPy \cite{numpy}}{Pre-computed numerics}};
+    \node (cas) [ext, below=of opti] {\ntxt{CasADi or JAX \cite{andersson_casadi_2019, jax}}{Computational graph framework\\(abstract numerics)}};
+    \node (numpy) [ext, right=of cas] {\ntxt{NumPy \cite{harris_array_2020}}{Concrete numerics}};
     \node (ipopt) [ext, below=of cas] {\ntxt{IPOPT \cite{ipopt}}{Optimizer}};
     \node (surr) [int, above=of opti] {\ntxt{ASB Surrogate Modeling Tools}{}};
     \node (geom) [int, right=of surr] {\ntxt{ASB Geometry Stack}{}};
