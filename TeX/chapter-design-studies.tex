@@ -12,24 +12,21 @@ In order to support this goal, Chapter \ref{chapter-code-transformations} introd
 \begin{figure}[H]
     \centering
     \includesvg[width=0.8\textwidth]{../figures/spiral.svg}
-    \caption{}
+    \caption{The iterative spiral development process used to develop AeroSandbox, where applied use and framework development are intertwined. The aircraft in the figure is a visualization output using the AeroSandbox geometry stack, and depicts the hydrogen-fueled aircraft from the case study of Section \ref{sec:hydrogen}.}
     \label{fig:spiral}
 \end{figure}
 
-Over the development of AeroSandbox, this spiral process was iterated upon multiple times, with each iteration resulting in a more refined and capable framework. This chapter presents a few vignettes of the various case studies that were used to develop AeroSandbox, which provides a fruitful opportunity to discuss the practical capabilities enabled by a code transformations MDO paradigm. It is important to emphasize that, although the aircraft design case studies presented in this chapter are fascinating real-world problems, the main intended intellectual contribution of this portion of the thesis is not the design of these specific aircraft (or even the example framework itself\footnote{MDO frameworks naturally come and go over the years as new opportunities in scientific computing and programming languages emerge. It is not the author's intent that AeroSandbox be the ``end-all'' framework for aircraft design. Rather, it is a proof-of-concept implementation that aims to demonstrate the potential utility of one possible approach for readers interested in building a future framework.}). Instead, the deeper goal is to introduce a principled paradigm for building engineering design optimization frameworks. Because of this, complete detailed enumeration of all modeling assumptions for specific problems is omitted in this chapter for brevity; however, both references to literature discussing these details and links to the raw source code itself are provided for each case study, for the interested reader.
+Over the development history of AeroSandbox, this spiral process was iterated upon multiple times, with each iteration resulting in a more refined and capable framework. This chapter presents a few vignettes of the various case studies that were used to develop AeroSandbox, which provides a fruitful opportunity to discuss the practical capabilities enabled by a code transformations MDO paradigm. It is important to emphasize that, although the aircraft design case studies presented in this chapter are fascinating real-world problems, the main intended intellectual contribution of this portion of the thesis is not the design of these specific aircraft (or even the example framework itself\footnote{MDO frameworks naturally come and go over the years as new opportunities in scientific computing and programming languages emerge. It is not the author's intent or expectation that AeroSandbox be the ``end-all'' framework for aircraft design. Rather, it is a proof-of-concept implementation that aims to demonstrate the potential utility of one possible framework approach for readers interested in building a future framework.}). Instead, the deeper goal is to introduce a principled paradigm for building engineering design optimization frameworks. Because of this, complete detailed enumeration of all modeling assumptions for specific problems is omitted in this chapter for brevity; however, both references to literature discussing these details and links to the raw source code itself are provided for most case studies, for the interested reader.
 
 
 \section{Simple Aircraft Design Problem}
-\label{sect:simpleac}
+\label{sec:simpleac}
 
 \begin{quote}
     \emph{This section includes content adapted from the author's prior work} \cite{sharpe_aerosandbox_2021}.
 \end{quote}
 
-A first simple aircraft design problem, called \emph{simpleAC},
-
-
-Now armed with more understanding of the problem transformations available in AeroSandbox, we can also demonstrate performance on a more sophisticated aircraft design problem. This problem, known as \textit{SimpleAC}, models a simple aircraft by extending the Simple Wing problem in Section \ref{sect:simple-wing} with fuel weight and volume models. It was proposed by Hoburg in \cite{hoburg} and is reproduced by both Ozturk \cite{Ozturk2018} and Kirschen \cite{kirschen}. It is restated here in full form:
+A first simple aircraft design problem, called \emph{SimpleAC}, is included here to show what design code might look like in code transformations framework at the early stages of conceptual aircraft sizing. At this ``napkin-math'' stage, the main analyses (e.g., aerodynamics, structures, propulsion) can be cleanly expressed in simple analytical expressions, and the optimizer fulfills the role of closing the sizing loop. Because of this, this problem is simple enough to include both the complete problem statement and the complete solution code directly here, which is useful for readers interested in observing the mapping between these. This design problem itself was proposed by Hoburg \cite{hoburg} and is reproduced (with slight modifications) by both Ozturk \cite{Ozturk2018} and Kirschen \cite{kirschen}. It is restated here in full form:
 
 \begin{example}
     \textbf{Simple Aircraft (SimpleAC)}
@@ -100,9 +97,9 @@ Now armed with more understanding of the problem transformations available in Ae
 
 \end{example}
 
-SimpleAC clearly borrows many models from Simple Wing, although it has a different optimization objective: instead of minimizing drag, here we minimize fuel burn for a fixed mission range. Intuitively, we expect this to drive the optimizer to faster designs, and this is what is observed.
+This design problem can be translated from the formulation above into the solution code, which is given in Appendix \ref{sec:simpleac-code}. Notably, the code of this problem is essentially a 1:1 translation of the problem statement into Python code, with almost zero additional boilerplate code required to set up this problem beyond the raw physics models and constants definitions. In fact, the solution code corresponding to this problem is shorter than the natural-language problem statement itself. This conciseness is a good approximate measure of the framework's usability, since it allows the user to focus on the problem physics and mathematical formulation, rather than the numerical mechanics of the optimization process.
 
-This problem is solved in AeroSandbox, employing log-transformation on all variables, as discussed in Section \ref{sect:problem-transformations}. Code to solve this problem is available in Appendix \ref{sect:simpleac-code}. This converges to a solution in 23 milliseconds and 14 iterations. The results of this AeroSandbox solve are shown in Table \ref{tab:simpleac}.
+The code given in Appendix \ref{sec:simpleac-code} converges to a solution in 14 iterations, with a median runtime\footnote{Measured on a laptop a Ryzen 7 5800H CPU. Measures end-to-end wall-clock runtime, including problem formulation (i.e., tracing, in Python), optimization (via IPOPT, in C++), and function evaluation (i.e., on the CasADi VM, in C++).} of 18 milliseconds. The results of this AeroSandbox solve are shown in Table \ref{tab:simpleac}.
 
 \begin{table}[H]
     \centering
@@ -124,16 +121,21 @@ This problem is solved in AeroSandbox, employing log-transformation on all varia
 \end{table}
 
 
+
 \section{Firefly} % TODO name
+\label{sec:firefly}
 
 
 \section{Dawn} % TODO name
+\label{sec:dawn}
 
 
 \section{Hydrogen} % TODO name
+\label{sec:hydrogen}
 
 
 \section{Solar Seaplane} % TODO name
+\label{sec:solar-seaplane}
 
 
-\section{Other Case Studies} % TODO name
+%\section{Other Case Studies} % TODO name
