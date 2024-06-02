@@ -97,9 +97,9 @@ A first simple aircraft design problem, called \emph{SimpleAC}, is included here
 
 \end{example}
 
-This design problem can be translated from the formulation above into the solution code, which is given in Appendix \ref{sec:simpleac-code}. Notably, the code of this problem is essentially a 1:1 translation of the problem statement into Python code, with almost zero additional boilerplate code required to set up this problem beyond the raw physics models and constants definitions. In fact, the solution code corresponding to this problem is shorter than the natural-language problem statement itself. This conciseness is a good approximate measure of the framework's usability, since it allows the user to focus on the problem physics and mathematical formulation, rather than the numerical mechanics of the optimization process.
+This design problem can be translated from the formulation above into the solution code, which is given in Appendix \ref{sec:simpleac-code}. Notably, the code of this problem is essentially a 1:1 translation of the problem statement into Python code, with almost zero additional boilerplate code required to set up this problem beyond the raw physics models and constants definitions. In fact, the code version of this problem is actually shorter on-the-page than the natural-language problem statement itself. This conciseness is a good approximate measure of the framework's usability, since it allows the user to focus on the problem physics and mathematical formulation, rather than the numerical mechanics of the optimization process.
 
-The code given in Appendix \ref{sec:simpleac-code} converges to a solution in 14 iterations, with a median runtime\footnote{Measured on a laptop a Ryzen 7 5800H CPU. Measures end-to-end wall-clock runtime, including problem formulation (i.e., tracing, in Python), optimization (via IPOPT, in C++), and function evaluation (i.e., on the CasADi VM, in C++).} of 18 milliseconds. The results of this AeroSandbox solve are shown in Table \ref{tab:simpleac}.
+The code given in Appendix \ref{sec:simpleac-code} converges to a solution in 14 iterations, with a median runtime\footnote{Measured on a laptop a Ryzen 7 5800H CPU. Measures end-to-end wall-clock runtime, including problem formulation (i.e., tracing, in Python), optimization (via IPOPT, in C++), and function evaluation (i.e., on the CasADi VM, in C++).} of 18 milliseconds. This is effectively-instantaneous for a human user, and this speed combined with the conciseness of the code gives the user great flexibility to explore the design space. The results of this AeroSandbox solve are shown in Table \ref{tab:simpleac}, and are consistent with the results of Ozturk \cite{ozturk_conceptual_2018}.
 
 \begin{table}[H]
     \centering
@@ -120,14 +120,156 @@ The code given in Appendix \ref{sec:simpleac-code} converges to a solution in 14
     \end{tabular}
 \end{table}
 
+% TODO elaborate
 
 
-\section{Firefly} % TODO name
+\section{MIT Firefly Micro-UAV} % TODO name
 \label{sec:firefly}
+
+\subsection{Vehicle Overview}
+
+One of the first aircraft design case studies used to develop AeroSandbox was the \emph{MIT Firefly}, a small tube-stowed, rocket-propelled, transonic micro-UAV. The concept of operations of this air vehicle is summarized in Figure \ref{fig:firefly_conops}. Firefly is designed to be deployed in-flight from a host aircraft, launching from a small standardized canister. This requires that the aircraft fit within a $70 \times 70 \times 480$ mm box in its stowed configuration, but the requirements admit the option of unfolding the vehicle into a flight configuration immediately after launch. After launch, the air vehicle is required to maintain an airspeed of Mach 0.8 for at least 60 seconds, without loss of altitude; this is termed the ``dash phase''. After the dash phase, the vehicle continues to fly in a ``glide phase'' until it runs out of both propulsive energy and altitude, at which point it performs a controlled crash landing. During this glide phase, there are no airspeed or other trajectory restrictions. The objective of the vehicle design is to maximize the \emph{total mission range}, including both the dash and glide phases.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{../figures/firefly_conops-crop.pdf}
+    \caption{Concept of operations for the MIT Firefly UAV, adapted from Vernacchia \cite{vernacchia_development_2020}. CAD renders prepared by Julia Gaubatz. F/A-18 image reproduced from McDonnell Douglas.}
+    \label{fig:firefly_conops}
+\end{figure}
+
+As explained by Vernacchia \cite{vernacchia_development_2020}, Firefly aims to fill a previously-unexplored ``small and fast gap'' in the aircraft design space, with sustained cruise speeds of Mach 0.8 and a gross weight of 2.2 kg\footnote{For comparison: most air vehicles at this size scale are propeller-driven and fly at roughly Mach 0.2 or less. Most air vehicles capable of this sustained speed have gross weights at least an order of magnitude larger.}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{../figures/firefly_cutout-crop.pdf}
+    \caption{Cutout-view of MIT Firefly, showing various unique features. CAD render prepared by Julia Gaubatz.}
+    \label{fig:firefly_cutout}
+\end{figure}
+
+Before even beginning the computational design process, we can observe some high-level design drivers from first principles. First, the vehicle is relatively insensitive to mass, which contrasts strongly with most aircraft design problems. This is because of a few reasons:
+\begin{itemize}[noitemsep]
+    \item The vehicle is air-launched at the dash speed and altitude, which means that no additional propulsive energy need be expended to reach this state. Although some of this initial kinetic energy is lost to drag during the initial stabilization transient upon deployment\footnote{and added mass tends to increase the moments of inertia, which slows down the short-period flight dynamics mode}, this is a relatively minor effect.
+    \item During the dash phase, the freestream dynamic pressure is extremely high relative to the vehicle's projected area. In fact, were it not for the glide phase, the folding wing shown in Figure \ref{fig:firefly_conops} could be discarded, and body lift alone would be easily produce sufficient aerodynamic lift. Because of where this vehicle operates on the drag polar during the dash phase, the drag force is relatively insensitive to lift, and hence, vehicle weight.
+    \item During the glide phase, the vehicle can be trimmed to any preferred airspeed, and naturally, the range-maximizing trajectory will have the aircraft fly at the best-glide speed. The glide ratio is essentially invariant to vehicle mass\footnote{barring some slight Reynolds number effects due to best-glide speed change, which are higher-order effects.}, so the range is also relatively insensitive to vehicle weight.
+\end{itemize}
+
+Because of this insensitivity to mass and the focus on total range, one can predict that the major design drivers for Firefly should essentially distill into the following:
+\begin{itemize}[noitemsep]
+    \item To maximize range during the dash phase: a) pack as much useful propulsive energy into the specified volume as possible, such that this dash phase can be sustained as long as possible and b) reduce drag, even at the expense of lift.
+    \item To maximize range during the glide phase: achieve the highest $L/D$ ratio possible.
+\end{itemize}
+
+This first-principles design driver calling for the highest-possible volumetric energy storage naturally leads to hydrocarbon fuels\footnote{as opposed to electric batteries}. To achieve reasonable propulsive efficiency at Mach 0.8, the practical propulsion architectures are either a turbine engine or a rocket engine (which may be solid, liquid, or hybrid); tradeoffs are discussed by Vernacchia \cite{vernacchia_development_2020}. In short, a solid rocket engine requires far less ``volume overhead'' to be spent on the engine itself than any other option, especially at this size scale\footnote{Though first-principles physics favor a solid rocket, implementing this comes with some challenges. A particularly interesting one is how to slow down the burn such that the total impulse can be spread across a long enough duration. Vernacchia \cite{vernacchia_development_2020} and Mathesius \cite{mathesius_integrated_2023, mathesius_firefly_2019} explore a mix of clever chemical and physical strategies to achieve this.}. This allows the most possible volume to be spent on energy-rich propellant.
+
+These design drivers also allow one to easily foresee that volume allocations will come at a premium when designing Firefly: expanding the volume available for propellant will inevitably result in fuselage shapes that generate more wave drag at the M0.8 dash condition\footnote{because these higher-volume shapes are blunter, and hence cause a deeper low-pressure spike resulting in stronger shock formation}. This sets the stage for an interesting multidisciplinary design optimization problem, where these coupled relationships can be explored further.
+
+\subsection{MDO Problem Formulation}
+
+The design of Firefly is formulated as a combined vehicle-and-trajectory optimization problem, as these two are inextricably linked. The trajectory is represented via a predetermined number of discrete points in time (roughly $N=200$), which are connected via a direct collocation method\footnote{A introduction to the math representing the dynamics here is given by Kelly \cite{kelly_introduction_2017}.}. This is depicted in Figure \ref{fig:firefly_time_discretization}.
+
+Because the flight physics fundamentally change between dash and glide phases (as the rocket motor no longer produces thrust after this point, and some aerodynamic changes regarding base drag occur), Firefly is inherently a multi-phase dynamics problem. Accordingly, the discretized dynamics are partitioned into two phases. Critically, to maintain $C^1$-continuity (and hence, optimization friendliness), we employ a strategy that we call \emph{stretchy time} that ensures that any given discretization node never crosses this phase boundary, as this would cause a discontinuous change in the problem physics. In this strategy, the time values corresponding to phase transitions (e.g., when rocket motor burnout occurs; when the vehicle contacts the ground and terminates the mission) are free variables in the optimization problem. In contrast, the time values corresponding to intermediate points have their relative spacing within a phase fixed \emph{a priori}. (In this case, this is done with ``cosine-spaced'', also called Chebyshev node, relative positions in time.) Points in time that fall exactly on a phase boundary are included in both phases, with a zero-time-difference collocation constraint that stitches the two phases together; this adds a few degrees of freedom but greatly simplifies indexing.
+
+\begin{figure}[H]
+    \centering
+    \includesvg[width=0.7\textwidth]{../figures/firefly_time_discretization.svg}
+    \caption{``Stretchy time'' time discretization strategy used for the MIT Firefly MDO problem and other multi-phase combined-vehicle-and-dynamics optimization problems.}
+    \label{fig:firefly_time_discretization}
+\end{figure}
+
+The physics formulation of the optimization problem can be summarized as follows:
+
+\begin{example}
+    \textbf{MIT Firefly MDO Problem Formulation}
+
+    \begin{itemize}
+        \item \textbf{Objective Function}: Maximize the total mission range, defined as the sum of the dash and glide phases.
+
+        \item \textbf{Design Variables} (in total, 3,910 variables):
+        \begin{itemize}
+            \item A series of trajectory design variables, including downrange distance, altitude, airspeed, flight path angle, angle of attack, and control surface deflections. Note that this parameterization a) is two-dimensional, representing the trajectory in range-altitude space and b) makes a quasi-steady assumption\footnote{using the definition from Drela \cite{drela_flight_2013}}, which essentially assumes that the short-period mode is much faster than the meaningful trajectory dynamics\footnote{Equivalent ways to state this are that we assume the vehicle an instantaneously trim to a desired angle of attack, or that the nondimensionalized angular rates (e.g., $\bar{p}, \bar{q}, \bar{r}$) are very small.}.
+
+            \item Various other time-dependent variables, such as the instantaneous fuel mass, chamber pressure, and nozzle exit pressure. These variables dynamically change vehicle mass properties (and hence stability and control) as well as propulsion performance (e.g., specific impulse), causing both to vary at each discrete time point that is analyzed.
+
+            \item The vehicle design itself, which includes:
+            \begin{itemize}
+                \item Geometric shape variables. The wing and tail geometries are parameterized by a collection of planform variables; airfoils were optimized separately, as the integrated high-dimensional airfoil shape optimization capabilities described in Chapter \ref{chap:physics-informed-ml} were not yet developed at the time of this study. The general fuselage shape topology was fixed \emph{a priori} based on manufacturing considerations detailed by Vernacchia \cite{vernacchia_development_2020}, consisting of an ellipsoidal nose, a cylindrical midsection, and a conical boattail\footnote{Original versions of this problem allowed far more geometric degrees of freedom, such as non-circular fuselages. Research in collaboration with Vernacchia \cite{vernacchia_development_2020} revealed that non-circular fuselages lead to unacceptable solid rocket grain cracking due to the pressure chamber's deformation under high pressure.}. Various dimensions of this fuselage were allowed to vary, such as the fineness ratio of the nose (which has important wave drag implications) and the angle of the boattail. The relative position and incidence of all lifting surfaces was also left free.
+
+                \item Propulsion design variables. These include both chemistry considerations (e.g., the mass fraction of oxamide, a burn rate suppressant) as well as physical parameters (e.g., throat diameter, expansion ratio, ablative liner thicknesses)
+
+                \item Variables giving a detailed component-wise weight and volume breakdowns of the aircraft, which allows satisfaction of implicit structural analysis models, as well as mass properties modeling. This approach allows natural inclusion of components like ballast, which may be needed for acceptable handling qualities.
+
+            \end{itemize}
+        \end{itemize}
+
+        \textbf{Constraints} (in total, 8,420 constraints), which are primarily drawn from six interacting disciplinary analyses:
+        \begin{itemize}
+            \item \textbf{Aerodynamics}: a component-wise buildup of lift, drag, and moment using AeroSandbox AeroBuildup, detailed in Section TODO.
+            \item \textbf{Structures \& Mass Properties}: weight closure and structural analysis using first-order models, calibrated to test articles for as-built Firefly prototypes.
+            \item \textbf{Stability \& Control}: a linearized flight dynamics modal analysis, which uses stability derivatives computed by directly differentiating the aerodynamics model and constrains the spectral characteristics of the short-period, Dutch roll, and spiral mode dynamics.
+            \item \textbf{Propulsion}: A 1D nozzle flow analysis (and in later versions, a detailed reacting chemical kinetics model implemented by Mathesius \cite{mathesius_integrated_2023}), which computes the thrust and specific impulse of the rocket motor at each time point.
+            \item \textbf{Trajectory / Dynamics}: A direct collocation method, which enforces the equations of motion at each time point, as well as the boundary conditions at the start and end of each phase.
+            \item \textbf{Volume accounting / Packaging}: A series of geometric constraints that ensure that the vehicle fits within the specified stowage volume, as well as that the propellant grain fits within the pressure chamber.
+        \end{itemize}
+
+    \end{itemize}
+
+\end{example}
+
+Because every analysis module used in this Firefly design problem is compatible with a code transformations paradigm, formulating this as an ``all-in-one'' optimization problem within a simultaneous analysis and design (SAND) architecture is straightforward \cite{haftka_simultaneous_1985, martins_multidisciplinary_2013}. This overall MDO problem architecture is loosely depicted in Figure \ref{fig:sand}, where most constraints are formulated implicitly. (This contrasts with nested approaches to closure, which is shown in Figure \ref{fig:nested})
+
+\begin{figure}[h]
+    \centering
+    \includesvg[width=\textwidth]{../figures/sand.svg}
+    \caption{Schematic of the simultaneous analysis and design (SAND) architecture used for the MIT Firefly MDO problem.}
+    \label{fig:sand}
+\end{figure}
+
+% TODO detail solution time, etc.
+
+% TODO add XDSM?
+
+\subsection{Results}
+
+The point results of the Firefly design % TODO
+
+
+\begin{table}
+    \centering
+    \caption{}
+    \label{tab:}
+    \begin{tblr}{
+        colspec={@{} l m{4cm} m{4cm} m {4cm} @{}},
+        row{1}={font=\bfseries},
+        column{1}={font=\bfseries},
+    }
+        \toprule
+        Component      & Internal Volume [$\rm in^3$] (Percentage) & Mass [gram] (Percentage of all-up) & $x_g$ of CG [mm] \\
+        \midrule
+        Fuel (all-up)  & 38.8 (54.2\%)                             & 1019 (42.7\%)                      & 321              \\
+        Battery        & 9.8 (13.7\%)                              & 322 (13.5\%)                       & 58               \\
+        Case           & 7.9 (11.0\%)                              & 579 (24.2\%)                       & 230              \\
+        Liner          & 5.7 (7.9\%)                               & 136 (5.7\%)                        & 321              \\
+        Mechanisms     & 4.1 (5.8\%)                               & 20 (0.8\%)                         & 447              \\
+        Payload        & 2.5 (3.5\%)                               & 100 (4.2\%)                        & 78               \\
+        Avionics       & 2.1 (2.9\%)                               & 75 (3.1\%)                         & 100              \\
+        Nozzle         & 0.7 (1.0\%)                               & 15 (0.6\%)                         & 447              \\
+        Wing           & -                                         & 53 (2.2\%)                         & 188              \\
+        Tails          & -                                         & 70 (2.9\%)                         & 436              \\
+        \midrule
+        Total (all-up) & 71.5 (100\%)                              & 2389 (100\%)                       & 248              \\
+        Total (empty)  & 71.5 (100\%)                              & 1370 (57.3\%)                      & 195              \\
+        \bottomrule
+    \end{tblr}
+\end{table}
+
+
+% SAND formulation
 
 
 \section{Dawn} % TODO name
 \label{sec:dawn}
+
+% Grab an XDSM from paper
 
 
 \section{Hydrogen} % TODO name
