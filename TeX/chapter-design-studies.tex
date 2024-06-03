@@ -123,17 +123,17 @@ The code given in Appendix \ref{sec:simpleac-code} converges to a solution in 14
 % TODO elaborate
 
 
-\section{MIT Firefly Micro-UAV} % TODO name
+\section{MIT Firefly Micro-UAV}
 \label{sec:firefly}
 
 \subsection{Vehicle Overview}
 
-One of the first aircraft design case studies used to develop AeroSandbox was the \emph{MIT Firefly}, a small tube-stowed, rocket-propelled, transonic micro-UAV. The concept of operations of this air vehicle is summarized in Figure \ref{fig:firefly_conops}. Firefly is designed to be deployed in-flight from a host aircraft, launching from a small standardized canister. This requires that the aircraft fit within a $70 \times 70 \times 480$ mm box in its stowed configuration, but the requirements admit the option of unfolding the vehicle into a flight configuration immediately after launch. After launch, the air vehicle is required to maintain an airspeed of Mach 0.8 for at least 60 seconds, without loss of altitude; this is termed the ``dash phase''. After the dash phase, the vehicle continues to fly in a ``glide phase'' until it runs out of both propulsive energy and altitude, at which point it performs a controlled crash landing. During this glide phase, there are no airspeed or other trajectory restrictions. The objective of the vehicle design is to maximize the \emph{total mission range}, including both the dash and glide phases.
+One of the first aircraft design case studies used to develop AeroSandbox was the \emph{MIT Firefly}, a small tube-stowed, rocket-propelled, transonic micro-UAV. The concept of operations of this air vehicle is summarized in Figure \ref{fig:firefly_conops}. Firefly is designed to be deployed in-flight from a host aircraft, launching from a small standardized canister. This requires that the aircraft fit within a $70 \times 70 \times 480$ mm box in its stowed configuration, but the requirements admit the option of unfolding the vehicle into a flight configuration immediately after launch. After launch, the air vehicle is required to maintain an airspeed of at least Mach 0.8 for at least 60 seconds, without loss of altitude; this is termed the ``dash phase''. After the dash phase, the vehicle continues to fly in a ``glide phase'' until it runs out of both propulsive energy and altitude, at which point it performs a controlled crash landing. During this glide phase, there are no airspeed or other trajectory restrictions. The objective of the vehicle design is to maximize the \emph{total mission range}, including both the dash and glide phases.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{../figures/firefly_conops-crop.pdf}
-    \caption{Concept of operations for the MIT Firefly UAV, adapted from Vernacchia \cite{vernacchia_development_2020}. CAD renders prepared by Julia Gaubatz. F/A-18 image reproduced from McDonnell Douglas.}
+    \caption{Concept of operations for the MIT Firefly UAV, adapted from Vernacchia \cite{vernacchia_development_2020}. CAD renders prepared by Julia Gaubatz \cite{gaubatz_design_2024}. F/A-18 image reproduced from McDonnell Douglas.}
     \label{fig:firefly_conops}
 \end{figure}
 
@@ -142,7 +142,7 @@ As explained by Vernacchia \cite{vernacchia_development_2020}, Firefly aims to f
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{../figures/firefly_cutout-crop.pdf}
-    \caption{Cutout-view of MIT Firefly, showing various unique features. CAD render prepared by Julia Gaubatz.}
+    \caption{Cutout-view of MIT Firefly, showing various unique features. CAD render prepared by Julia Gaubatz \cite{gaubatz_design_2024}.}
     \label{fig:firefly_cutout}
 \end{figure}
 
@@ -164,6 +164,7 @@ This first-principles design driver calling for the highest-possible volumetric 
 These design drivers also allow one to easily foresee that volume allocations will come at a premium when designing Firefly: expanding the volume available for propellant will inevitably result in fuselage shapes that generate more wave drag at the M0.8 dash condition\footnote{because these higher-volume shapes are blunter, and hence cause a deeper low-pressure spike resulting in stronger shock formation}. This sets the stage for an interesting multidisciplinary design optimization problem, where these coupled relationships can be explored further.
 
 \subsection{MDO Problem Formulation}
+\label{sec:firefly-mdo}
 
 The design of Firefly is formulated as a combined vehicle-and-trajectory optimization problem, as these two are inextricably linked. The trajectory is represented via a predetermined number of discrete points in time (roughly $N=200$), which are connected via a direct collocation method\footnote{A introduction to the math representing the dynamics here is given by Kelly \cite{kelly_introduction_2017}.}. This is depicted in Figure \ref{fig:firefly_time_discretization}.
 
@@ -208,7 +209,7 @@ The physics formulation of the optimization problem can be summarized as follows
             \item \textbf{Stability \& Control}: a linearized flight dynamics modal analysis, which uses stability derivatives computed by directly differentiating the aerodynamics model and constrains the spectral characteristics of the short-period, Dutch roll, and spiral mode dynamics.
             \item \textbf{Propulsion}: A 1D nozzle flow analysis (and in later versions, a detailed reacting chemical kinetics model implemented by Mathesius \cite{mathesius_integrated_2023}), which computes the thrust and specific impulse of the rocket motor at each time point.
             \item \textbf{Trajectory / Dynamics}: A direct collocation method, which enforces the equations of motion at each time point, as well as the boundary conditions at the start and end of each phase.
-            \item \textbf{Volume accounting / Packaging}: A series of geometric constraints that ensure that the vehicle fits within the specified stowage volume, as well as that the propellant grain fits within the pressure chamber.
+            \item \textbf{Volume accounting / Packaging}: A series of geometric constraints that ensure that the vehicle fits within the specified stowage volume\footnote{A notable constraint is that the trailing edge of the main wing cannot be swept backwards for packaging reasons, as the wing is a single rotating piece. A two-part jackknife wing (e.g., \emph{MIT Perdix} \cite{tao_design_2012}) was considered, but we find that the propellant volume penalty of the added mechanisms thickness does not outweigh the aerodynamic gain.}, as well as that the propellant grain fits within the pressure chamber.
         \end{itemize}
 
     \end{itemize}
@@ -224,47 +225,127 @@ Because every analysis module used in this Firefly design problem is compatible 
     \label{fig:sand}
 \end{figure}
 
-% TODO detail solution time, etc.
-
-% TODO add XDSM?
+The Firefly MDO problem is relatively high-dimensional, with 3,910 decision variables and 8,420 constraints, many of which are nonlinear and nonconvex. Evaluation of the problem constraints and objective take the bulk of the runtime; in particular, the $N=200$ workbook-style aerodynamic analyses (one for each discrete point along the trajectory) performed at each iteration tend to be the most computationally expensive elements. Nevertheless, using AeroSandbox with CasADi and IPOPT backends, the problem converges to a solution in a wall-clock runtime of just 6.9 seconds on a laptop\footnote{with a Ryzen 5800H CPU}. Equally notable is the fact that this problem can be implemented using only 613 lines of Firefly-specific Python code, which is possible because many of the constituent analyses use general-purpose aerospace physics models that are optionally provided by AeroSandbox. This speed and conciseness allows the user to rapidly and interactively explore the design space, as well as to perform sensitivity analyses and trade studies.
 
 \subsection{Results}
 
-The point results of the Firefly design % TODO
+The point results of the Firefly design optimization problem yields the vehicle design shown in the CAD render of Figure \ref{fig:firefly_cutout}. However, one of the first compelling framework-level observations that was made during this case study was how useful it is to be able to immediately visualize the aircraft geometry within seconds of solving the optimization problem. As quipped by aircraft designer Bob Liebeck\footnote{personal correspondence}, ``you can tell a lot about an airplane by whether it passes the TLAR: `That Looks About Right' .'' Therefore, this case study was the motivation for building the AeroSandbox aircraft geometry stack, a code-transformations-compatible library that allows for rapid visualization of new designs. The raw outputs of this geometry stack are shown in Figure \ref{fig:firefly_geometry}, and the resemblance between this initial OML render from AeroSandbox and the final CAD render of Figure \ref{fig:firefly_cutout} is apparent.
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{../figures/firefly_geometry.png}
+    \caption{Raw user-facing output of the AeroSandbox geometry stack for the MIT Firefly UAV.}
+    \label{fig:firefly_geometry}
+\end{figure}
+
+Internal volume and mass accounting of various components at the design point are shown in Table \ref{tab:firefly_mass}, with values that were later validated against as-built prototypes.
 
 \begin{table}
     \centering
-    \caption{}
-    \label{tab:}
+    \caption{Mass and volume accounting of various components of the MIT Firefly UAV, at the point design resulting from the formulation given in Section \ref{sec:firefly-mdo}. Mixed units are the result of preferences by various project stakeholders.}
+    \label{tab:firefly_mass}
     \begin{tblr}{
         colspec={@{} l m{4cm} m{4cm} m {4cm} @{}},
         row{1}={font=\bfseries},
         column{1}={font=\bfseries},
     }
         \toprule
-        Component      & Internal Volume [$\rm in^3$] (Percentage) & Mass [gram] (Percentage of all-up) & $x_g$ of CG [mm] \\
+        Component         & Internal volume [$\rm in^3$] (Percentage) & Mass [gram] (Percentage of gross) & $x_g$ of CG, relative to nose datum [mm] \\
         \midrule
-        Fuel (all-up)  & 38.8 (54.2\%)                             & 1019 (42.7\%)                      & 321              \\
-        Battery        & 9.8 (13.7\%)                              & 322 (13.5\%)                       & 58               \\
-        Case           & 7.9 (11.0\%)                              & 579 (24.2\%)                       & 230              \\
-        Liner          & 5.7 (7.9\%)                               & 136 (5.7\%)                        & 321              \\
-        Mechanisms     & 4.1 (5.8\%)                               & 20 (0.8\%)                         & 447              \\
-        Payload        & 2.5 (3.5\%)                               & 100 (4.2\%)                        & 78               \\
-        Avionics       & 2.1 (2.9\%)                               & 75 (3.1\%)                         & 100              \\
-        Nozzle         & 0.7 (1.0\%)                               & 15 (0.6\%)                         & 447              \\
-        Wing           & -                                         & 53 (2.2\%)                         & 188              \\
-        Tails          & -                                         & 70 (2.9\%)                         & 436              \\
+        Fuel (at gross)   & 38.8 (54.2\%)                             & 1019 (42.7\%)                     & 321                                      \\
+        Battery           & 9.8 (13.7\%)                              & 322 (13.5\%)                      & 58                                       \\
+        Case              & 7.9 (11.0\%)                              & 579 (24.2\%)                      & 230                                      \\
+        Liner             & 5.7 (7.9\%)                               & 136 (5.7\%)                       & 321                                      \\
+        Mechanisms        & 4.1 (5.8\%)                               & 20 (0.8\%)                        & 447                                      \\
+        Payload           & 2.5 (3.5\%)                               & 100 (4.2\%)                       & 78                                       \\
+        Avionics          & 2.1 (2.9\%)                               & 75 (3.1\%)                        & 100                                      \\
+        Nozzle            & 0.7 (1.0\%)                               & 15 (0.6\%)                        & 447                                      \\
+        Wing              & -                                         & 53 (2.2\%)                        & 188                                      \\
+        Tails             & -                                         & 70 (2.9\%)                        & 436                                      \\
         \midrule
-        Total (all-up) & 71.5 (100\%)                              & 2389 (100\%)                       & 248              \\
-        Total (empty)  & 71.5 (100\%)                              & 1370 (57.3\%)                      & 195              \\
+        Total (gross)     & 71.5 (100\%)                              & 2389 (100\%)                      & 248                                      \\
+        Total (zero-fuel) & 71.5 (100\%)                              & 1370 (57.3\%)                     & 195                                      \\
         \bottomrule
     \end{tblr}
 \end{table}
 
+The resulting trajectory, which was simultaneously optimized with the vehicle, is shown in Figure \ref{fig:firefly_trajectory}. Here, a number of notable findings can be observed:
 
-% SAND formulation
+\begin{enumerate}
+    \item The vehicle is capable of achieving far greater operational range than had been initially anticipated. Initial hand-calculated estimates based on an assumed vehicle design and trajectory had estimated that total ranges of 70 kilometers might be possible\footnote{As a rough napkin-math calculation, a 60-second dash at Mach 0.8, followed by a glide at a $L/D$ of 7 (owing to the low Reynolds number and assumed low-aspect-ratio wing) yields a range of 70 km.}, while the combined optimization result yields ranges of over 230 kilometers.
+    \item This massive range increase is achieved partially by co-optimization of various aircraft subsystems, like making aeropropulsive trades on the fuselage shape, which influences dash range. This was expected, and is typical of the power of an MDO approach. However, the majority of the range increase was due to the unique trajectory that the optimizer found, which is shown in Figure \ref{fig:firefly_trajectory}. Here, the vehicle rapidly climbs to a very high altitude—well into the stratosphere—before gliding down. This allows the vehicle to take advantage of two clever effects:
+    \begin{enumerate}
+        \item The arcing trajectory effectively lets the vehicle use gravitational potential energy as a battery. Because of this, the burn duration of the solid rocket motor can be much shorter for a given impulse, as excess energy goes somewhere useful (i.e., altitude) rather than somewhere wasteful (i.e., wave drag). By allowing a shorter burn, the propellant chemistry can be tweaked to use less burn rate suppressant (oxamide), which increases the specific impulse of the motor. This dynamics-propulsion coupling was not foreseen.
+        \item By climbing high, the \emph{indicated} airspeed of the vehicle is much lower while holding the Mach 0.8 constraint. This reduces the dash-phase drag penalty of having a large, high-aspect-ratio, high-$L/D$ wing. By increasing the wingspan, the glide-phase $L/D$ becomes much larger, which gives a large range increase. In addition to enhancing the glide ratio, climbing high also simply increases the glide range directly. This inter-phase aerodynamic trade was also unexpected.
+    \end{enumerate}
+\end{enumerate}
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{../figures/BAE-2022-06-17-Peter/ppt/media/image7.png}
+    \caption{Trajectory that maximizes vehicle total range, resulting from the combined vehicle-and-trajectory MDO problem formulation given in Section \ref{sec:firefly-mdo}.}
+    \label{fig:firefly_trajectory}
+\end{figure}
+
+This trajectory, while unexpected, indeed satsifies requirements, and its discovery was only possible through the use of a combined vehicle-and-trajectory optimization approach. This is a key benefit of the code transformations paradigm: the ability to rapidly explore the design space and discover unexpected interactions between subsystems.
+
+\subsection{Design Space Sweeps}
+
+As discussed further in Appendix \ref{appendix:rules-of-thumb}, the value of an engineering design optimization framework is not just in the point design, but also in the insight that it provides. An early example of this observation was made during the Firefly design study, where the optimizer was used to explore the tradeoffs between optimizing for total range (dash + glide) vs. optimizing for dash range alone. In AeroSandbox, this can be easily performed, all without leaving a procedural coding style with the following syntax:
+
+\begin{enumerate}[noitemsep]
+    \item Replace the objective function with a simple linear combination of the total and dash ranges, with a weighting factor $w \in [0, 1]$. Define $w$ as an optimization parameter, using:
+    \begin{minted}[highlightlines={5}]{python}
+        import aerosandbox as asb
+        opti = asb.Opti()  # Initialize an optimization environment
+        ... # Define the rest of the optimization problem
+
+        w = opti.parameter()
+    \end{minted}
+
+    \item Instead of solving the problem with \mintinline{python}{opti.solve()}, solve it with:
+
+    \begin{minted}[highlightlines={1}]{python}
+        sols = opti.solve_sweep({w: np.linspace(0, 1)})
+    \end{minted}
+
+\end{enumerate}
+
+Using this syntax, the user can convert a point design optimization problem to a design sweep (i.e., looking at a set of optimal points, as some parameter is varied) in just two lines of code.
+
+For this particular case study, the results of such a sweep are shown in Figure \ref{fig:firefly_pareto}. Clearly, though designs can be optimized purely for total range or only for dash range, there are many opportunities where a small sacrifice in one can yield large gains in the other—this may be of interest to the practical designer. Likewise, it shows how the vehicle resulting from the optimizer (in the lower-right) differs dramatically from the original napkin-math ``mental model'' that was used for initial performance estimates. Because this initial design did not use an arcing trajectory, the wing area (and hence, glide-phase $L/D$) was quite limited.
+
+Charts like these can be crucial in high-level conceptual decisionmaking, where an entire family of aircraft can be depicted in a single chart. The results of this design sweep take a few minutes to compute in serial, but parallelization across cores or computers can allow this to be presented to the user in seconds.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{../figures/firefly_pareto-crop.pdf}
+    \caption{Pareto front of the MIT Firefly UAV design space, showing the tradeoff between total range and dash range. Each point represents both a unique vehicle design and trajectory.}
+    \label{fig:firefly_pareto}
+\end{figure}
+
+\subsection{Supporting Flight Test}
+
+Finally, AeroSandbox-based performance calculations were used to support the Firefly air vehicle through manufacturing, first flight, and a controls characterization flight test campaign \cite{gaubatz_design_2024}. Media from this flight test campaign are given in Figure \ref{fig:firefly_flight_test}. The vehicle was found to be stable and controllable, and the flight test data was used to validate the aerodynamics model used in the optimization problem.
+
+This experience emphasized how useful it is to have an MDO tool that can switch between analysis (e.g., only closure, no optimization) and design modes, as discussed in the birds-eye view of optimization shown in Figure \ref{fig:birds_eye_view}. An MDO tool, if built correctly, has the potential to follow the vehicle through its lifecycle similar to a digital twin, providing value from the conceptual design phase through to flight test.
+
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}[b]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{../figures/firefly_flight_1.png}
+        \caption{As-built Firefly air vehicle, prepared for first flight.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.432\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{../figures/firefly_flight_2.png}
+        \caption{Photograph of the MIT Firefly air vehicle in-flight, cruising at roughly 40 m/s.}
+    \end{subfigure}
+    \caption{Photos of the MIT Firefly prototype. Vehicle constructed by Julia Gaubatz \cite{gaubatz_design_2024}.}
+    \label{fig:firefly_flight_test}
+\end{figure}
 
 \section{Dawn} % TODO name
 \label{sec:dawn}
