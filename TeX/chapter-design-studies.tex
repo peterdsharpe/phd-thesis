@@ -116,7 +116,7 @@ The code given in Appendix \ref{sec:simpleac-code} converges to a solution in 14
         Aspect ratio $\AR$                         & 12.10                     \\
         Wing area $S$                              & 14.15 \si{\meter\squared} \\
         Cruise airspeed $V$                        & 57.11 \si{\meter/\second} \\
-        All-up weight $W$                          & 8,705 \si{\newton}         \\
+        All-up weight $W$                          & 8,705 \si{\newton}        \\
         Cruise lift coefficient $C_L$              & 0.2901                    \\
         Fuel volume in fuselage $V_\text{f, fuse}$ & 0.0619 \si{\meter\cubed}  \\
         \bottomrule
@@ -408,20 +408,20 @@ Table \ref{tab:baseline_design} summarizes various key parameters of the aircraf
         row{1} = {font=\bfseries},
     }
         \toprule
-        Figure of Merit          & Value at Design Point                                 \\
+        Figure of Merit         & Value at Design Point                                 \\
         \midrule
-        Gross weight             & 375 kg                                                \\
-        Wingspan                 & 39.9 m                                                \\
-        Wing aspect ratio        & 23.4                                                  \\
-        Wing area                & 67.9 m$^2$                                            \\
-        Wing loading             & 54.2 Pa                                               \\
-        Cruise airspeed (true)   & 30.4 m/s                                              \\
-        Altitude                 & 18.7 km nighttime and peaking at 19.7 km on Aug. 31st \\
-        Total power output       & Peak net battery draw: 5.07 kW                           \\
-        Battery capacity         & 75.4 kWh                                              \\
-        Wing Reynolds number     & $383\times 10^3$ ($c_\text{ref}=\bar{c}$)                      \\
-        Cruise lift coefficient  & 1.11                                                  \\
-        Cruise $L/D$ Ratio       & 30.8                                                  \\
+        Gross weight            & 375 kg                                                \\
+        Wingspan                & 39.9 m                                                \\
+        Wing aspect ratio       & 23.4                                                  \\
+        Wing area               & 67.9 m$^2$                                            \\
+        Wing loading            & 54.2 Pa                                               \\
+        Cruise airspeed (true)  & 30.4 m/s                                              \\
+        Altitude                & 18.7 km nighttime and peaking at 19.7 km on Aug. 31st \\
+        Total power output      & Peak net battery draw: 5.07 kW                        \\
+        Battery capacity        & 75.4 kWh                                              \\
+        Wing Reynolds number    & $383\times 10^3$ ($c_\text{ref}=\bar{c}$)             \\
+        Cruise lift coefficient & 1.11                                                  \\
+        Cruise $L/D$ Ratio      & 30.8                                                  \\
         \bottomrule
     \end{tblr}
 \end{table}
@@ -437,28 +437,57 @@ Table \ref{tab:baseline_design} summarizes various key parameters of the aircraf
 \label{sec:dawn-mdo}
 
 \begin{quote}
-    \emph{This subsection includes content from prior work by Sharpe, Dewald, and Hansman} \cite{sharpe_optimization_2021}.
+    \emph{This subsection includes content from the author's contributions to prior work by Sharpe, Dewald, and Hansman} \cite{sharpe_optimization_2021}.
 \end{quote}
 
+Just as with the Firefly design problem, the MIT Dawn design problem was formulated as a combined vehicle-and-trajectory optimization problem. The trajectory represents a 24-hour cycle, beginning and ending at solar noon. This periodic interval is of interest here because of the inherent challenge of \emph{diurnal energy closure}: a solar aircraft must be capable of ending any given 24-hour period within the mission envelope with more potential energy (in the forms of battery charge state and altitude) than it started with\footnote{Some additional energy margin must be included here, for robustness. In this study, we add energy generation margin by effectively decreasing the solar insolation in all conditions by a flat 5\% knockdown.}.
+
+While sufficient energy generation is key to ensuring energy closure, energy storage also constrains the design space. The aircraft's battery must be sized so that its charge state remains within allowable bounds\footnote{A maximum allowable battery depth-of-discharge of 95\% was assumed.} - given the time-varying solar insolation and unsteady power draws (from the propulsion system, payload, and avionics), evaluating the feasibility of this constraint for a given solution becomes nontrivial. Furthermore, one would expect that a system with cyclic power injections might be optimally operated using a cyclic strategy; and indeed this is observed via altitude cycling under some assumptions.
+
+To incorporate this trajectory information into the optimization problem, the flight equations of motion are once again embedded via a direct collocation method, with trapezoidal quadrature. A convergence study was performed for the solar aircraft design problem in order to determine an appropriate temporal resolution. Testing indicated that grid-independence was reliably achieved at a temporal resolution of 150 collocation points uniformly spaced over a 24-hour interval; therefore, this was the discretization resolution used in all further studies.
+
+The physics formulation of the optimization problem can be summarized as follows:
+
+\begin{example}
+    \textbf{MIT Dawn MDO Problem Formulation}
+
+    \begin{itemize}
+        \item \textbf{Objective Function}: Minimize the wingspan of the aircraft. This choice of objective is somewhat unusual, and it is chosen as a proxy for measuring an important technical risk. Historically, the most common failure modes of solar aircraft have been aerostructural in nature\footnote{Example solar aircraft with at least one documented in-flight aeroelastic failure include NASA Helios, Google/Titan Solara 50, Facebook Aquila, and Airbus Zephyr.}, and wingspan is a good first-order measure of how severe these aeroelastic challenges will be. In addition, previous development programs for large solar aircraft (such as Aurora’s Odysseus, at 74 meters wingspan) have attributed significant operational challenges (e.g., runway width, transport & support equipment) directly to wingspan.
+
+        \item \textbf{Design Variables} (in total, roughly 2,500 variables)
+        \begin{itemize}
+            \item Trajectory
+
+            \item Other t % TODO
+
+            \item The vehicle design itself, which includes:
+            \begin{itemize}
+                \item Geometric shape variables, with similar parameterization methodology as the Firefly MDO setup of Section \ref{sec:firefly-mdo}.
 
 
-\begin{figure}[h]
-    \centering
-    \begin{adjustbox}{width=\textwidth,center,trim={3.5in 0 0.25in 0}}
-        \setstretch{1.0}
-        \input{../figures/dawn_xdsm.tikz}
-    \end{adjustbox}
-    \caption{Extended Design Structure Matrix (XDSM) representation of the MIT Dawn solar-electric HALE aircraft design optimization problem.}
-    \label{fig:dawn_xdsm}
-\end{figure}
+                \item Variables giving a detailed component-wise weight and volume breakdowns of the aircraft, which allows satisfaction of implicit structural analysis models, as well as mass properties modeling. This approach allows natural inclusion of components like ballast, which may be needed for acceptable handling qualities.
+
+    \end{itemize}
+
+    \end{example}
+
+    \begin{figure}[h]
+        \centering
+        \begin{adjustbox}{width=\textwidth,center,trim={3.5in 0 0.25in 0}}
+            \setstretch{1.0}
+            \input{../figures/dawn_xdsm.tikz}
+        \end{adjustbox}
+        \caption{Extended Design Structure Matrix (XDSM) representation of the MIT Dawn solar-electric HALE aircraft design optimization problem.}
+        \label{fig:dawn_xdsm}
+    \end{figure}
 
 
-\section{Hydrogen} % TODO name
-\label{sec:hydrogen}
+    \section{Hydrogen} % TODO name
+    \label{sec:hydrogen}
 
 
-\section{Solar Seaplane} % TODO name
-\label{sec:solar-seaplane}
+    \section{Solar Seaplane} % TODO name
+    \label{sec:solar-seaplane}
 
 
 %\section{Other Case Studies} % TODO name
