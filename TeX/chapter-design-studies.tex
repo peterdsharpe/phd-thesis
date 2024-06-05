@@ -23,7 +23,7 @@ Over the development history of AeroSandbox, this spiral process was iterated up
 \label{sec:simpleac}
 
 \begin{quote}
-    \emph{This section includes content adapted from the author's prior work} \cite{sharpe_aerosandbox_2021}.
+    \emph{This section includes content adapted from the author's prior publication} \cite{sharpe_aerosandbox_2021}.
 \end{quote}
 
 A first simple aircraft design problem, called \emph{SimpleAC}, is included here to show what design code might look like in code transformations framework at the early stages of conceptual aircraft sizing. At this ``napkin-math'' stage, the main analyses (e.g., aerodynamics, structures, propulsion) can be cleanly expressed in simple analytical expressions, and the optimizer fulfills the role of closing the sizing loop. Because of this, this problem is simple enough to include both the complete problem statement and the complete solution code directly here, which is useful for readers interested in observing the mapping between these. This design problem itself was proposed by Hoburg \cite{hoburg} and is reproduced (with slight modifications) by both Ozturk \cite{Ozturk2018} and Kirschen \cite{kirschen}. It is restated here in full form:
@@ -105,7 +105,10 @@ The code given in Appendix \ref{sec:simpleac-code} converges to a solution in 14
     \centering
     \caption{Solution of SimpleAC (Eq. \ref{eq:simpleac}), found with AeroSandbox.}
     \label{tab:simpleac}
-    \begin{tabular}[t]{ll}
+    \begin{tblr}{
+        colspec={@{} l l @{}},
+        row{1}={font=\bfseries},
+    }
         \toprule
         Figure of Merit                            & Optimal Value             \\
         \midrule
@@ -113,11 +116,11 @@ The code given in Appendix \ref{sec:simpleac-code} converges to a solution in 14
         Aspect ratio $\AR$                         & 12.10                     \\
         Wing area $S$                              & 14.15 \si{\meter\squared} \\
         Cruise airspeed $V$                        & 57.11 \si{\meter/\second} \\
-        All-up weight $W$                          & 8705 \si{\newton}         \\
+        All-up weight $W$                          & 8,705 \si{\newton}         \\
         Cruise lift coefficient $C_L$              & 0.2901                    \\
         Fuel volume in fuselage $V_\text{f, fuse}$ & 0.0619 \si{\meter\cubed}  \\
         \bottomrule
-    \end{tabular}
+    \end{tblr}
 \end{table}
 
 % TODO elaborate
@@ -204,7 +207,7 @@ The physics formulation of the optimization problem can be summarized as follows
 
         \textbf{Constraints} (in total, 8,420 constraints), which are primarily drawn from six interacting disciplinary analyses:
         \begin{itemize}
-            \item \textbf{Aerodynamics}: a component-wise buildup of lift, drag, and moment using AeroSandbox AeroBuildup, detailed in Section TODO.
+            \item \textbf{Aerodynamics}: a component-wise buildup of lift, drag, and moment using AeroSandbox's AeroBuildup model, detailed in Section TODO.
             \item \textbf{Structures \& Mass Properties}: weight closure and structural analysis using first-order models, calibrated to test articles for as-built Firefly prototypes.
             \item \textbf{Stability \& Control}: a linearized flight dynamics modal analysis, which uses stability derivatives computed by directly differentiating the aerodynamics model and constrains the spectral characteristics of the short-period, Dutch roll, and spiral mode dynamics.
             \item \textbf{Propulsion}: A 1D nozzle flow analysis (and in later versions, a detailed reacting chemical kinetics model implemented by Mathesius \cite{mathesius_integrated_2023}), which computes the thrust and specific impulse of the rocket motor at each time point.
@@ -328,6 +331,8 @@ Charts like these can be crucial in high-level conceptual decisionmaking, where 
 
 Finally, AeroSandbox-based performance calculations were used to support the Firefly air vehicle through manufacturing, first flight, and a controls characterization flight test campaign \cite{gaubatz_design_2024}. Media from this flight test campaign are given in Figure \ref{fig:firefly_flight_test}. The vehicle was found to be stable and controllable, and the flight test data was used to validate the aerodynamics model used in the optimization problem.
 
+This experience also motivated the development of purpose-built aircraft flight dynamics tools within AeroSandbox, which can be used to directly reconstruct and visualize the flight trajectory of the vehicle. This can be performed for both computationally-optimized trajectories as well as from actual measured flight test data, allowing both design and post-flight analysis to be conducted in the same environment for easy model validation. An example of this is shown in Figure \ref{fig:firefly_flight_render}, which shows the trajectory of Firefly's first flight test, reconstructed and visualized in AeroSandbox. Notably, during this flight test the vehicle was air-dropped from a quadcopter\footnote{with further details given by Gaubatz \cite{gaubatz_design_2024}}, which can be seen in the steep vertical trajectory at the beginning of the flight as the vehicle stabilizes.
+
 This experience emphasized how useful it is to have an MDO tool that can switch between analysis (e.g., only closure, no optimization) and design modes, as discussed in the birds-eye view of optimization shown in Figure \ref{fig:birds_eye_view}. An MDO tool, if built correctly, has the potential to follow the vehicle through its lifecycle similar to a digital twin, providing value from the conceptual design phase through to flight test.
 
 \begin{figure}[h]
@@ -347,10 +352,105 @@ This experience emphasized how useful it is to have an MDO tool that can switch 
     \label{fig:firefly_flight_test}
 \end{figure}
 
-\section{Dawn} % TODO name
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.95\textwidth,trim={0 0.2in 0 0.8in}]{../figures/firefly_flight_render.png}
+    \caption{Flown trajectory of the first flight of MIT Firefly, reconstructed and visualized in the AeroSandbox dynamics stack. Vehicle is drawn using a generic aircraft model and at roughly 30x scale, which allows easier visualization of vehicle orientation. Flight test was air-dropped from a quadrotor, with the stabilization period visible at the beginning of the trajectory.}
+    \label{fig:firefly_flight_render}
+\end{figure}
+
+
+\section{MIT Dawn (Electra.aero SACOS) Solar-Electric HALE Aircraft} % TODO name
 \label{sec:dawn}
 
-% Grab an XDSM from paper
+\subsection{Problem Overview}
+
+A second aircraft design case study that contributed heavily to the development of AeroSandbox was \emph{MIT Dawn}, a solar-electric high-altitude long-endurance (HALE) aircraft. This aircraft development program was later transferred to industry partner Electra.aero and incorporated into the Stratospheric Airborne Climate Observatory System (SACOS) program, where the aircraft has achieved first flight and is undergoing further development.
+
+The Dawn aircraft development program began as a set of solution-agnostic requirements aimed at supporting a climate science mission \cite{dewald_multidisciplinary_2023, sharpe_optimization_2021, avery_16_}. This science mission, conceived by an atmospheric chemistry research group at Harvard\footnote{The Anderson Research Group, under the direction of Professor James Anderson.}, aims to take atmospheric chemistry measurements of various free radicals in the stratosphere, which must be performed in-situ over long durations. This information would allow scientists to further reduce the uncertainty about the rate of climate change, which could allow for more precise and effective policy measures to be implemented \cite{dykema_feasibility_2023}. A variety of aircraft design requirements were developed and negotiated with the science team, with the major driving ones as follows:
+
+\begin{itemize}[noitemsep]
+    \item \textbf{Payload}: 30 kg science package, with 500 W electrical power draw during daylight hours and 150 W at night
+    \item \textbf{Altitude}: sustained flight at 60,000 ft. MSL (18.3 km) or above
+    \item \textbf{Endurance}: 6 weeks continuous flight during July–August
+    \item \textbf{Stationkeeping}: with the ability to maneuver and maintain position over any location in the continental United States, in 95th-percentile winds
+\end{itemize}
+
+We initially approached this aircraft design problem by exploring a wide range of conceptual solutions. In addition to a solar aircraft, the team considered a superpressure balloon (E.g., Google Loon), a powered airship, a rotating fleet of conventional aircraft (e.g., Aurora Flight Sciences Orion), long-endurance hydrogen aircraft (E.g., AeroVironment Global Observer), ground-tethered balloons, and numerous others\footnote{Even some nuclear-powered aircraft concepts were briefly considered.}. Each of these had a rapid feasiblity analysis conducted in AeroSandbox based on first-principles physics, similar in scope to the SimpleAC problem given in Section \ref{sec:simpleac}. This capability to quickly pose sizing studies allowed these proposed concepts to be matured to the point where a meaningful and fair comparison\footnote{i.e., a true apples-to-apples comparison, where an \emph{optimized} variant of concept A is compared to an \emph{optimized} variant of concept B} could be made; ultimately, a solar-powered HALE aircraft was selected, with further reasoning available in Sharpe \cite{sharpe_optimization_2021}.
+
+\subsection{Vehicle Overview}
+
+The MIT Dawn aircraft is a sailplane-like configuration, as shown in Figure \ref{fig:dawn_overview}. On the outboard sections of the wing, two small all-moving aerodynamic surfaces are mounted on booms extending from the wing trailing edge. These two unique surfaces, called \emph{tailerons}, are used for roll control and aeroelastic stabilization; further details on these surfaces are given in recent work by Sharpe, Ulker, and Drela \cite{sharpe_tailerons_2023}. Propulsion is provided by two propellers, which are wing-mounted and driven by electric motors. The payload is held in a separate pod, mounted with a truss beneath the main wing to allow for propeller clearance.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{../figures/dawn1_3view.pdf}
+    \includegraphics[width=\textwidth]{../figures/dawn1b.pdf}
+    \caption{Basic aircraft configuration, approximate scale, and major components of the MIT Dawn solar-electric HALE aircraft. Exact aircraft dimensions vary depending on technology assumptions. Figure illustrated by Mark Drela.}
+    \label{fig:dawn_overview}
+\end{figure}
+
+
+The aircraft is powered by a series of solar cells, which are mounted on the main wing in spanwise strings\footnote{This arrangement keeps each cell within the string at similar solar incidence angles, which makes them impedence-matched and results in fewer power-point-tracking losses.}. Approximately 80\% of the wing's surface is covered with solar cells, with this solar area fraction limited by the curvature tolerance of cells when mounted near the leading edge. Various solar cells were considered, with the baseline design using Sunpower C60 cells with an assumed realizable efficiency of 21.9\%.
+
+Overnight flight is supported by a large battery, which is mounted in the pod. Due to the project's experimental nature, relatively advanced battery technologies are assumed; the baseline design assumes a cell-level battery specific energy of 450 Wh/kg\footnote{This is already achievable by a few commercially-available cells at the time of writing, such as the Amprius Technologies silicon-anode cells and Sion Power lithium-sulfur cells. These cells use exotic chemistries that come with some (acceptable) design considerations; further discussion is available in Sharpe \cite{sharpe_optimization_2021}.}. Pack-level specific energy is slightly lower, as we assume the cells form 89\% of the overall pack mass; this is based on as-built weights from the prior Aurora Odysseus solar aircraft.
+
+The aircraft cruises at an altitude of between 60,000 and 65,000 ft. MSL, which is above the tropopause at most latitudes and seasons. This essentially nullifies the possibility of cloud cover, reduces exposure to aeroelastically-risky gusts, and reduces steady wind speeds\footnote{At most points in the latitude-seasonality space, this altitude is above the jet stream.} (reducing the required cruise speed for stationkeeping). An interesting mission strategy that is used here (which was discovered using the MDO process described in Section \ref{sec:dawn-mdo}) is the idea of \emph{altitude cycling}: during the day, the aircraft recharges its batteries until approximately 3 p.m. local solar time, after which it uses the excess solar power to climb higher. During the night, the vehicle glides lower (though never below 60,000 ft.), which reduces power draw and required battery mass. This essentially allows the vehicle to use gravitational potential energy as a battery, which is a similar clever combined-vehicle-and-trajectory optimization exploit that was found in the Firefly design.
+
+Table \ref{tab:baseline_design} summarizes various key parameters of the aircraft in its cruise condition, and a high-level mass budget is given in Figure \ref{fig:dawn_mass_budget}. From this figure, the difficulty of designing a solar-electric HALE aircraft with overnight endurance is apparent: the battery is nearly half the gross weight of the aircraft, and the payload mass fraction is a mere 8\%.
+
+\begin{table}[h]
+    \centering
+    \caption{Key specifications for the point design corresponding to the baseline mission. Reproduced from Sharpe et al. \cite{sharpe_optimization_2021}.}
+    \label{tab:baseline_design}
+    \begin{tblr}{
+        colspec={@{} l l @{}},
+        row{1} = {font=\bfseries},
+    }
+        \toprule
+        Figure of Merit          & Value at Design Point                                 \\
+        \midrule
+        Gross weight             & 375 kg                                                \\
+        Wingspan                 & 39.9 m                                                \\
+        Wing aspect ratio        & 23.4                                                  \\
+        Wing area                & 67.9 m$^2$                                            \\
+        Wing loading             & 54.2 Pa                                               \\
+        Cruise airspeed (true)   & 30.4 m/s                                              \\
+        Altitude                 & 18.7 km nighttime and peaking at 19.7 km on Aug. 31st \\
+        Total power output       & Peak net battery draw: 5.07 kW                           \\
+        Battery capacity         & 75.4 kWh                                              \\
+        Wing Reynolds number     & $383\times 10^3$ ($c_\text{ref}=\bar{c}$)                      \\
+        Cruise lift coefficient  & 1.11                                                  \\
+        Cruise $L/D$ Ratio       & 30.8                                                  \\
+        \bottomrule
+    \end{tblr}
+\end{table}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{../figures/dawnfigures/Mass_breakdown_baseline.png}
+    \caption{High-level mass budget for the MIT Dawn solar-electric HALE aircraft. Large pie chart shows total breakdown, with the smaller pie charts showing subsystem-level breakdowns for the structural and power systems components. Reproduced from Sharpe \cite{sharpe_optimization_2021}.}
+    \label{fig:dawn_mass_budget}
+\end{figure}
+
+\subsection{MDO Problem Formulation}
+\label{sec:dawn-mdo}
+
+\begin{quote}
+    \emph{This subsection includes content from prior work by Sharpe, Dewald, and Hansman} \cite{sharpe_optimization_2021}.
+\end{quote}
+
+
+
+\begin{figure}[h]
+    \centering
+    \begin{adjustbox}{width=\textwidth,center,trim={3.5in 0 0.25in 0}}
+        \setstretch{1.0}
+        \input{../figures/dawn_xdsm.tikz}
+    \end{adjustbox}
+    \caption{Extended Design Structure Matrix (XDSM) representation of the MIT Dawn solar-electric HALE aircraft design optimization problem.}
+    \label{fig:dawn_xdsm}
+\end{figure}
 
 
 \section{Hydrogen} % TODO name
