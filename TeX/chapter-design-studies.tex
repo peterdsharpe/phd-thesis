@@ -190,9 +190,9 @@ The physics formulation of the optimization problem can be summarized as follows
 
         \item \textbf{Design Variables} (in total, 3,910 variables):
         \begin{itemize}
-            \item A series of trajectory design variables, including downrange distance, altitude, airspeed, flight path angle, angle of attack, and control surface deflections. Note that this parameterization a) is two-dimensional, representing the trajectory in range-altitude space and b) makes a quasi-steady assumption\footnote{using the definition from Drela \cite{drela_flight_2013}}, which essentially assumes that the short-period mode is much faster than the meaningful trajectory dynamics\footnote{Equivalent ways to state this are that we assume the vehicle an instantaneously trim to a desired angle of attack, or that the nondimensionalized angular rates (e.g., $\bar{p}, \bar{q}, \bar{r}$) are very small.}.
+            \item A series of trajectory design variables, including downrange distance, altitude, airspeed, flight path angle, and angle of attack. Note that this parameterization a) is two-dimensional, representing the trajectory in range-altitude space and b) makes a quasi-steady assumption\footnote{using the definition from Drela \cite{drela_flight_2013}}, which essentially assumes that the short-period mode is much faster than the meaningful trajectory dynamics\footnote{Equivalent ways to state this are that we assume the vehicle an instantaneously trim to a desired angle of attack, or that the nondimensionalized angular rates (e.g., $\bar{p}, \bar{q}, \bar{r}$) are very small.}. This quasi-steady assumption does not, however, assume that the vehicle is in force equilibrium at each time point; the ``raw input'' of the control algorithm can be thought of as the angle of attack.
 
-            \item Various other time-dependent variables, such as the instantaneous fuel mass, chamber pressure, and nozzle exit pressure. These variables dynamically change vehicle mass properties (and hence stability and control) as well as propulsion performance (e.g., specific impulse), causing both to vary at each discrete time point that is analyzed.
+            \item Various other time-dependent variables, such as the control surface deflections, instantaneous fuel mass, chamber pressure, and nozzle exit pressure. These variables dynamically change vehicle mass properties (and hence stability and control) as well as propulsion performance (e.g., specific impulse), causing both to vary at each discrete time point that is analyzed.
 
             \item The vehicle design itself, which includes:
             \begin{itemize}
@@ -208,8 +208,8 @@ The physics formulation of the optimization problem can be summarized as follows
         \textbf{Constraints} (in total, 8,420 constraints), which are primarily drawn from six interacting disciplinary analyses:
         \begin{itemize}
             \item \textbf{Aerodynamics}: a component-wise buildup of lift, drag, and moment using AeroSandbox's AeroBuildup model, detailed in Section TODO.
-            \item \textbf{Structures \& Mass Properties}: weight closure and structural analysis using first-order models, calibrated to test articles for as-built Firefly prototypes.
             \item \textbf{Stability \& Control}: a linearized flight dynamics modal analysis, which uses stability derivatives computed by directly differentiating the aerodynamics model and constrains the spectral characteristics of the short-period, Dutch roll, and spiral mode dynamics.
+            \item \textbf{Structures \& Mass Properties}: weight closure and structural analysis using first-order models, calibrated to test articles for as-built Firefly prototypes.
             \item \textbf{Propulsion}: A 1D nozzle flow analysis (and in later versions, a detailed reacting chemical kinetics model implemented by Mathesius \cite{mathesius_integrated_2023}), which computes the thrust and specific impulse of the rocket motor at each time point.
             \item \textbf{Trajectory / Dynamics}: A direct collocation method, which enforces the equations of motion at each time point, as well as the boundary conditions at the start and end of each phase.
             \item \textbf{Volume accounting / Packaging}: A series of geometric constraints that ensure that the vehicle fits within the specified stowage volume\footnote{A notable constraint is that the trailing edge of the main wing cannot be swept backwards for packaging reasons, as the wing is a single rotating piece. A two-part jackknife wing (e.g., \emph{MIT Perdix} \cite{tao_design_2012}) was considered, but we find that the propellant volume penalty of the added mechanisms thickness does not outweigh the aerodynamic gain.}, as well as that the propellant grain fits within the pressure chamber.
@@ -293,6 +293,7 @@ The resulting trajectory, which was simultaneously optimized with the vehicle, i
 This trajectory, while unexpected, indeed satsifies requirements, and its discovery was only possible through the use of a combined vehicle-and-trajectory optimization approach. This is a key benefit of the code transformations paradigm: the ability to rapidly explore the design space and discover unexpected interactions between subsystems.
 
 \subsection{Design Space Sweeps}
+\label{sec:firefly_sweeps}
 
 As discussed further in Appendix \ref{appendix:rules-of-thumb}, the value of an engineering design optimization framework is not just in the point design, but also in the insight that it provides. An early example of this observation was made during the Firefly design study, where the optimizer was used to explore the tradeoffs between optimizing for total range (dash + glide) vs. optimizing for dash range alone. In AeroSandbox, this can be easily performed, all without leaving a procedural coding style with the following syntax:
 
@@ -360,7 +361,7 @@ This experience emphasized how useful it is to have an MDO tool that can switch 
 \end{figure}
 
 
-\section{MIT Dawn (Electra.aero SACOS) Solar-Electric HALE Aircraft} % TODO name
+\section{MIT Dawn (Electra.aero SACOS) Solar-Electric HALE Aircraft}
 \label{sec:dawn}
 
 \subsection{Problem Overview}
@@ -376,7 +377,7 @@ The Dawn aircraft development program began as a set of solution-agnostic requir
     \item \textbf{Stationkeeping}: with the ability to maneuver and maintain position over any location in the continental United States, in 95th-percentile winds
 \end{itemize}
 
-We initially approached this aircraft design problem by exploring a wide range of conceptual solutions. In addition to a solar aircraft, the team considered a superpressure balloon (E.g., Google Loon), a powered airship, a rotating fleet of conventional aircraft (e.g., Aurora Flight Sciences Orion), long-endurance hydrogen aircraft (E.g., AeroVironment Global Observer), ground-tethered balloons, and numerous others\footnote{Even some nuclear-powered aircraft concepts were briefly considered.}. Each of these had a rapid feasiblity analysis conducted in AeroSandbox based on first-principles physics, similar in scope to the SimpleAC problem given in Section \ref{sec:simpleac}. This capability to quickly pose sizing studies allowed these proposed concepts to be matured to the point where a meaningful and fair comparison\footnote{i.e., a true apples-to-apples comparison, where an \emph{optimized} variant of concept A is compared to an \emph{optimized} variant of concept B} could be made; ultimately, a solar-powered HALE aircraft was selected, with further reasoning available in Sharpe \cite{sharpe_optimization_2021}.
+We initially approached this aircraft design problem by exploring a wide range of conceptual solutions. In addition to a solar aircraft, the team considered a superpressure balloon (E.g., Google Loon), a powered airship, a rotating fleet of conventional aircraft (e.g., Aurora Flight Sciences Orion), long-endurance hydrogen aircraft (E.g., AeroVironment Global Observer), ground-tethered balloons, and numerous others\footnote{Even some nuclear-powered aircraft concepts were briefly considered.}. Each of these had a rapid feasiblity analysis conducted in AeroSandbox based on first-principles physics, similar in scope to the SimpleAC problem given in Section \ref{sec:simpleac}. This capability to quickly pose sizing studies allowed these proposed concepts to be matured to the point where a meaningful and fair comparison\footnote{i.e., a true apples-to-apples comparison, where an \emph{optimized} variant of concept A is compared to an \emph{optimized} variant of concept B} could be made; ultimately, a solar-powered HALE aircraft was selected, with further reasoning available in Sharpe et al. \cite{sharpe_optimization_2021}.
 
 \subsection{Vehicle Overview}
 
@@ -391,18 +392,18 @@ The MIT Dawn aircraft is a sailplane-like configuration, as shown in Figure \ref
 \end{figure}
 
 
-The aircraft is powered by a series of solar cells, which are mounted on the main wing in spanwise strings\footnote{This arrangement keeps each cell within the string at similar solar incidence angles, which makes them impedence-matched and results in fewer power-point-tracking losses.}. Approximately 80\% of the wing's surface is covered with solar cells, with this solar area fraction limited by the curvature tolerance of cells when mounted near the leading edge. Various solar cells were considered, with the baseline design using Sunpower C60 cells with an assumed realizable efficiency of 21.9\%.
+The aircraft is powered by a series of solar cells, which are mounted on the main wing in spanwise strings\footnote{This arrangement keeps each cell within the string at similar solar incidence angles, which makes them impedence-matched and results in fewer power-point-tracking losses.}. Approximately 80\% of the wing's surface is covered with solar cells, with this solar area fraction limited by the curvature tolerance of cells when mounted near the leading edge. Various solar cells were considered, with the baseline design using Sunpower C60 cells with a cell-level efficiency of 24.3\%\footnote{Further modifications to the actual cell energy generation based on line-of-sight airmass absorption, atmospheric refraction, backscattering, surface albedo, covering transparency, and other effects are also considered.}.
 
-Overnight flight is supported by a large battery, which is mounted in the pod. Due to the project's experimental nature, relatively advanced battery technologies are assumed; the baseline design assumes a cell-level battery specific energy of 450 Wh/kg\footnote{This is already achievable by a few commercially-available cells at the time of writing, such as the Amprius Technologies silicon-anode cells and Sion Power lithium-sulfur cells. These cells use exotic chemistries that come with some (acceptable) design considerations; further discussion is available in Sharpe \cite{sharpe_optimization_2021}.}. Pack-level specific energy is slightly lower, as we assume the cells form 89\% of the overall pack mass; this is based on as-built weights from the prior Aurora Odysseus solar aircraft.
+Overnight flight is supported by a large battery, which is mounted in the pod. Due to the project's experimental nature, relatively advanced battery technologies are assumed; the baseline design assumes a cell-level battery specific energy of 450 Wh/kg\footnote{This is already achievable by a few commercially-available cells at the time of writing, such as the Amprius Technologies silicon-anode cells and Sion Power lithium-sulfur cells. These cells use exotic chemistries that come with some (acceptable) design considerations; further discussion is available in Sharpe et al. \cite{sharpe_optimization_2021}.}. Pack-level specific energy is slightly lower, as we assume the cells form 89\% of the overall pack mass; this is based on as-built weights from the prior Aurora Odysseus solar aircraft.
 
 The aircraft cruises at an altitude of between 60,000 and 65,000 ft. MSL, which is above the tropopause at most latitudes and seasons. This essentially nullifies the possibility of cloud cover, reduces exposure to aeroelastically-risky gusts, and reduces steady wind speeds\footnote{At most points in the latitude-seasonality space, this altitude is above the jet stream.} (reducing the required cruise speed for stationkeeping). An interesting mission strategy that is used here (which was discovered using the MDO process described in Section \ref{sec:dawn-mdo}) is the idea of \emph{altitude cycling}: during the day, the aircraft recharges its batteries until approximately 3 p.m. local solar time, after which it uses the excess solar power to climb higher. During the night, the vehicle glides lower (though never below 60,000 ft.), which reduces power draw and required battery mass. This essentially allows the vehicle to use gravitational potential energy as a battery, which is a similar clever combined-vehicle-and-trajectory optimization exploit that was found in the Firefly design.
 
-Table \ref{tab:baseline_design} summarizes various key parameters of the aircraft in its cruise condition, and a high-level mass budget is given in Figure \ref{fig:dawn_mass_budget}. From this figure, the difficulty of designing a solar-electric HALE aircraft with overnight endurance is apparent: the battery is nearly half the gross weight of the aircraft, and the payload mass fraction is a mere 8\%.
+Table \ref{tab:dawn_overview} summarizes various key parameters of the aircraft in its cruise condition, and a high-level mass budget is given in Figure \ref{fig:dawn_mass_budget}. From this figure, the difficulty of designing a solar-electric HALE aircraft with overnight endurance is apparent: the battery is nearly half the gross weight of the aircraft, and the payload mass fraction is a mere 8\%.
 
 \begin{table}[h]
     \centering
     \caption{Key specifications for the point design corresponding to the baseline mission. Reproduced from Sharpe et al. \cite{sharpe_optimization_2021}.}
-    \label{tab:baseline_design}
+    \label{tab:dawn_overview}
     \begin{tblr}{
         colspec={@{} l l @{}},
         row{1} = {font=\bfseries},
@@ -429,7 +430,7 @@ Table \ref{tab:baseline_design} summarizes various key parameters of the aircraf
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{../figures/dawnfigures/Mass_breakdown_baseline.png}
-    \caption{High-level mass budget for the MIT Dawn solar-electric HALE aircraft. Large pie chart shows total breakdown, with the smaller pie charts showing subsystem-level breakdowns for the structural and power systems components. Reproduced from Sharpe \cite{sharpe_optimization_2021}.}
+    \caption{High-level mass budget for the MIT Dawn solar-electric HALE aircraft. Large pie chart shows total breakdown, with the smaller pie charts showing subsystem-level breakdowns for the structural and power systems components. Reproduced from Sharpe et al. \cite{sharpe_optimization_2021}.}
     \label{fig:dawn_mass_budget}
 \end{figure}
 
@@ -442,7 +443,7 @@ Table \ref{tab:baseline_design} summarizes various key parameters of the aircraf
 
 Just as with the Firefly design problem, the MIT Dawn design problem was formulated as a combined vehicle-and-trajectory optimization problem. The trajectory represents a 24-hour cycle, beginning and ending at solar noon. This periodic interval is of interest here because of the inherent challenge of \emph{diurnal energy closure}: a solar aircraft must be capable of ending any given 24-hour period within the mission envelope with more potential energy (in the forms of battery charge state and altitude) than it started with\footnote{Some additional energy margin must be included here, for robustness. In this study, we add energy generation margin by effectively decreasing the solar insolation in all conditions by a flat 5\% knockdown.}.
 
-While sufficient energy generation is key to ensuring energy closure, energy storage also constrains the design space. The aircraft's battery must be sized so that its charge state remains within allowable bounds\footnote{A maximum allowable battery depth-of-discharge of 95\% was assumed.} - given the time-varying solar insolation and unsteady power draws (from the propulsion system, payload, and avionics), evaluating the feasibility of this constraint for a given solution becomes nontrivial. Furthermore, one would expect that a system with cyclic power injections might be optimally operated using a cyclic strategy; and indeed this is observed via altitude cycling under some assumptions.
+While sufficient energy generation is key to ensuring energy closure, energy storage also constrains the design space. The aircraft's battery must be sized so that its charge state remains within allowable bounds\footnote{A maximum allowable battery depth-of-discharge of 85\% was assumed.} - given the time-varying solar insolation and unsteady power draws (from the propulsion system, payload, and avionics), evaluating the feasibility of this constraint for a given solution becomes nontrivial. Furthermore, one would expect that a system with cyclic power injections might be optimally operated using a cyclic strategy; and indeed this is observed via altitude cycling under some assumptions.
 
 To incorporate this trajectory information into the optimization problem, the flight equations of motion are once again embedded via a direct collocation method, with trapezoidal quadrature. A convergence study was performed for the solar aircraft design problem in order to determine an appropriate temporal resolution. Testing indicated that grid-independence was reliably achieved at a temporal resolution of 150 collocation points uniformly spaced over a 24-hour interval; therefore, this was the discretization resolution used in all further studies.
 
@@ -452,42 +453,136 @@ The physics formulation of the optimization problem can be summarized as follows
     \textbf{MIT Dawn MDO Problem Formulation}
 
     \begin{itemize}
-        \item \textbf{Objective Function}: Minimize the wingspan of the aircraft. This choice of objective is somewhat unusual, and it is chosen as a proxy for measuring an important technical risk. Historically, the most common failure modes of solar aircraft have been aerostructural in nature\footnote{Example solar aircraft with at least one documented in-flight aeroelastic failure include NASA Helios, Google/Titan Solara 50, Facebook Aquila, and Airbus Zephyr.}, and wingspan is a good first-order measure of how severe these aeroelastic challenges will be. In addition, previous development programs for large solar aircraft (such as Aurora’s Odysseus, at 74 meters wingspan) have attributed significant operational challenges (e.g., runway width, transport & support equipment) directly to wingspan.
+        \item \textbf{Objective Function}: Minimize the wingspan of the aircraft. This choice of objective is somewhat unusual, and it is chosen as a proxy for measuring an important technical risk. Historically, the most common failure modes of solar aircraft have been aerostructural in nature\footnote{Example solar aircraft with at least one documented in-flight aeroelastic failure include NASA Helios, Google/Titan Solara 50, Facebook Aquila, and Airbus Zephyr.}, and wingspan is a good first-order measure of how severe these aeroelastic challenges will be. In addition, previous development programs for large solar aircraft (such as Aurora’s Odysseus, at 74 meters wingspan) have attributed significant operational challenges (e.g., runway width, transport, support equipment, and cost) directly to wingspan.
 
         \item \textbf{Design Variables} (in total, roughly 2,500 variables)
         \begin{itemize}
-            \item Trajectory
+            \item Trajectory design variables, with a similar 2D parameterization as in Section \ref{sec:firefly-mdo}. Unlike the Firefly problem, however, the steady assumption is taken further, and instantaneous force equilibrium is assumed at each time point; in this way, the flight dynamics essentially become an energy accounting problem, with all velocity derivative terms dropped. In other words, the ``raw input'' of the control algorithm can be thought of as velocity. This neglects direct simulation of \emph{both} the short-period and phugoid flight dynamics modes, which are assumed to be much faster than the problem dynamics of interest (i.e., diurnal changes in energy injection from solar power).
 
-            \item Other t % TODO
+            \item Other time-dependent variables, such as the throttle setting, control surface deflections, and battery state of charge. Time-dependent cross-discipline coupling variables, like overall vehicle net power are also added.
 
             \item The vehicle design itself, which includes:
             \begin{itemize}
-                \item Geometric shape variables, with similar parameterization methodology as the Firefly MDO setup of Section \ref{sec:firefly-mdo}.
+                \item Geometric shape variables, with a similar general parameterization methodology as the Firefly MDO setup of Section \ref{sec:firefly-mdo}.
 
+                \item Propulsion sizing, including battery capacity, propeller diameters, motor voltage constants, and rated power of various electrical components
 
-                \item Variables giving a detailed component-wise weight and volume breakdowns of the aircraft, which allows satisfaction of implicit structural analysis models, as well as mass properties modeling. This approach allows natural inclusion of components like ballast, which may be needed for acceptable handling qualities.
+                \item Detailed structural design variables, such as the wing rib count and payload truss sizing. Never-exceed speeds and ultimate load factors during gusts are also optimized, allowing the creation of a $V-N$ flight envelope with appropriate margins. As in Section \ref{sec:firefly-mdo}, component-wise weights are also included as variables that are satisfied by implicit structural analysis models.
+            \end{itemize}
+        \end{itemize}
+
+        \item \textbf{Constraints} (in total, roughly 4,000 constraints), drawn directly and indirectly from several interacting disciplinary analyses, with the major ones as follows:
+        \begin{itemize}
+
+            \item \textbf{Aerodynamics}: a component-wise buildup of lift, drag, and moment using AeroSandbox's AeroBuildup model, detailed in Section TODO. A nonlinear lifting line method and a vortex lattice method were also included as alternate options used to validate the buildup model. Optimization solutions typically differ by only a few percent between models, which implies good cross-validation. This is unsurprising, as a solar airplane represents a near-ideal case for typical theoretical assumptions for 3D aerodynamics (high aspect ratios, well-separated lifting surfaces).
+
+            \item \textbf{Stability \& Control}: Static stability is verified through a workbook-style buildup of the location of the aircraft's neutral point, with static margin set as 20\% of mean aerodynamic chord\footnote{This static margin, which is a hair high for a high-$L/D$ aircraft, is intended to mitigate risk. Fixing a too-aft CG during detailed design usually costs more weight than fixing a too-forward CG, due to differences in available moment arms.}.
+
+            \item \textbf{Structures \& Mass Properties}: Primary structure weights are physics-based where possible. For example, the wing spar weight and carbon fiber layup schedule are the result of an Euler-Bernoulli beam model with both bending and torsion\footnote{For speed, this is broken out as a separate optimization sub-problem, which is pre-computed for a wide range of spans and load distributions. A closed-form solution is then used as the ``online'' model during the broader MDO problem.}. Secondary structures are generally modeled using empirical statistical models. For example, many wing secondary structures are modeled based on data from the \emph{MIT Daedalus} project \cite{cruz_weight_1989, cruz_structural_1989, langford_feasibility_1986}, with a 30\% markup to mitigate operational challenges documented by the Daedalus team \cite{langford_daedalus_1989}.
+
+            \item \textbf{Propulsion}: A propeller model based on dynamic disc actuator theory with viscous correction factors is implemented \cite{unified_propellers}. Viscous correction factors are calibrated using the blade-element code QPROP with sectional airfoil data from XFoil \cite{drela_xfoil_1989, qprop}.
+
+            \item \textbf{Trajectory / Dynamics}: A direct collocation method, which enforces the equations of motion at each time point. Path constraints, such as battery state of charge limits, altitude minimums, and airspeed minimums (i.e., stationkeeping) are also added. In addition, periodicity constraints are added, which ensure energy closure over the 24-hour cycle.
+
+            \item To support stationkeeping constraints, a probabilistic model of both steady winds and gusts was developed using data from the ECMWF ERA5 reanalysis dataset \cite{era5}. The model is a function of latitude, longitude, and day of year, which allows global mapping of the feasible mission space.
+
+        \end{itemize}
 
     \end{itemize}
 
-    \end{example}
+\end{example}
 
-    \begin{figure}[h]
-        \centering
-        \begin{adjustbox}{width=\textwidth,center,trim={3.5in 0 0.25in 0}}
-            \setstretch{1.0}
-            \input{../figures/dawn_xdsm.tikz}
-        \end{adjustbox}
-        \caption{Extended Design Structure Matrix (XDSM) representation of the MIT Dawn solar-electric HALE aircraft design optimization problem.}
-        \label{fig:dawn_xdsm}
-    \end{figure}
+Further details on the MIT Dawn MDO problem formulation and constituent models are available in Sharpe et al. \cite{sharpe_optimization_2021}. As with the Firefly problem, the Dawn problem is implemented in AeroSandbox using a SAND architecture; Figure \ref{fig:dawn_xdsm} shows the data flow within the MDO process in extended design structure matrix (XDSM) format \cite{xdsm}.
+
+\begin{figure}[h]
+    \centering
+    \begin{adjustbox}{width=\textwidth,center,trim={3.5in 0 0.25in 0}}
+        \setstretch{1.0}
+        \input{../figures/dawn_xdsm.tikz}
+    \end{adjustbox}
+    \caption{Extended Design Structure Matrix (XDSM) representation of the MIT Dawn solar-electric HALE aircraft design optimization problem.}
+    \label{fig:dawn_xdsm}
+\end{figure}
+
+\subsection{Results}
+
+The result of the optimization process described in Section \ref{sec:dawn-mdo} is the point design summarized in Table \ref{tab:dawn_overview} Figures \ref{fig:dawn_mass_budget}. As with the Firefly design, however, many of the valuable lessons learned from the development of this tool are not from the point design, but rather the trades one can quickly assess using this framework.
+
+\subsubsection*{Rapid Performance Sweeps}
+
+As an example of this, a key early question during the design was ``How does the required wingspan vary with latitude and seasonality?'' To answer this, we designed 2,400 unique aircraft (a $60\times40$ grid in seasonality-latitude space), each the result of solving a unique instance of the MDO problem described in Section \ref{sec:dawn-mdo}. With parallelization on a high-performance computing cluster (HPC), computing these results took several minutes, effectively allowing this question to be answered real-time in a meeting with major stakeholders.
+
+The results of this study are shown in Figure \ref{fig:dawn_wingspan}, which plots the wingspan of the smallest-feasible aircraft as a function of season and latitude. Here, some interesting features are apparent. First, summertime missions (i.e., July in the northern hemisphere, January in the southern hemisphere) require the smallest aircraft, as expected. Interestingly however, mission becomes most feasible near extreme latitudes—this indicates that feasibility is less driven by solar intensity and more driven by the duration of the night\footnote{In the Arctic and Antarctic, the midnight sun effect allows quite small aircraft as almost no batteries are needed.}. Colloquially, solar panels are light and batteries are heavy.
+
+Secondly, a steep change in the mission feasibility is observed near $40\degree$ N and $40\degree$ S latitude. This is due to changes in the tropopause height, which is a key factor that modifies the science requirements if the mission is generalized to other regions around the world. Due to global atmospheric convection cells, the tropopause altitude rises quickly near these latitudes.
+
+Third, we can identify the impact of specific localized weather phenomena. For example, the southern polar vortex tends to raise stratospheric wind speeds during the month of November at latitudes near $60\degree$ S, which makes stationkeeping extremely challenging\footnote{Interestingly, an analogous phenomenon is not observed with the Arctic polar vortex in the northern hemisphere.}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{../figures/dawnfigures/30kg_payloadw_mission.png}
+    \caption{Feasibility of a solar aircraft throughout the seasonality-latitude mission space, as measured by the minimum required wingspan to achieve energy closure with the required payload. The baseline science mission, which involves summertime flight over the continental United States, is shown with a dashed black rectangle on the plot. Within this rectangle, the sizing case (i.e., most difficult mission) is shown with a black dot. Reproduced from Sharpe et al. \cite{sharpe_optimization_2021}.}
+    \label{fig:dawn_wingspan}
+\end{figure}
+
+Early mapping of this broader global mission space allowed the Dawn development team crucial insight into other potential missions of interest, such as Antarctic ice shelf monitoring, wildfire monitoring, methane monitoring, flood monitoring, and others. In a broader sense, this is a useful tool for business development, essentially allowing engineers to ask ``Who else should we be pitching to?'' at the earliest stages of the design process.
+
+\subsubsection*{Rapid Problem Reformulation}
+
+One of the most useful features of a code transformations framework is that the separation between formulation and numerics allows for rapid problem reformulation. For example, suppose that instead of answering the baseline design problem (which assesses wingspan, given some fixed payload), we wish to instead assess what payload would be possible, given some fixed wingspan. This change can be implemented by changing just two lines of code, and after a few minutes of computation, results from this ``flipped problem'' are available for the user. This is shown in Figure \ref{fig:dawn_payload}, where a fixed span of 34 meters is assumed\footnote{Arbitrarily based on the wingspan of the MIT Daedalus aircraft, as a useful point of comparison for the design team.}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{../figures/dawnfigures/max_payload.png}
+    \caption{Feasibility of a solar aircraft throughout the seasonality-latitude mission space, as measured by the maximum payload that can be carried with a fixed wingspan of 34 meters. Equivalent to a ``flipped problem'' of Figure \ref{fig:dawn_wingspan}. The baseline science mission, which involves summertime flight over the continental United States, is shown with a dashed black rectangle on the plot. Within this rectangle, the sizing case (i.e., most difficult mission) is shown with a black dot. Reproduced from Sharpe et al. \cite{sharpe_optimization_2021}.}
+    \label{fig:dawn_payload}
+\end{figure}
+
+This rapid problem reformulation capability is crucial for the early-stage design process, where the design space is not yet well-understood. By allowing the user to quickly explore the design space in a variety of ways, the design tool can be used to rapidly iterate on the design problem, allowing the user to quickly gain insight into the design space and make informed decisions.
+
+\subsubsection*{Sensitivity Analysis}
+
+Another useful framework-level feature that was developed through the Dawn project was the ability to extract first-order sensitivity information of various constraints and parameters. This information is taken from the dual variables of the optimization problem, which indicates how the performance would change if a single constraint or parameter was modified, while holding all others tight. (This is sometimes called a ``total derivative'' sensitivity.) Because IPOPT is a primal-dual optimizer, these sensitivities can be extracted essentially for free, as they are computed during the optimization process.
+
+Table \ref{tab:dawn_sensitivities} gives a selected subset of these sensitivities for the Dawn design problem. In early design stages, these sensitivities are useful for understanding the design space -- as in the Firefly example of Section \ref{sec:firefly_sweeps}, it is often not the designer's true intent to optimize wholly for one figure of merit at the expense of all others. In later design stages, these sensitivities can (and should) be used to allocate engineering resources. Example such questions could be: a) whether it more valuable to research battery specific energy improvements or drag reductions, or b) whether an alternative motor, which is more efficient but heavier, results in a net performance gain.
+
+\begin{table}[H]
+    \centering
+    \caption{First-order sensitivities for the point design corresponding to the the baseline mission. Reproduced from Sharpe et al. \cite{sharpe_optimization_2021}}.
+    \label{tab:dawn_sensitivities}
+    \begin{tblr}{
+        colspec={@{} l X X @{}},
+        row{1} = {font=\bfseries},
+    }
+        \toprule
+        Figure of Merit                 & Sensitivity of Wingspan & Sensitivity of TOGW \\
+        \midrule
+        Any added mass                  & 0.22 m/kg               & 4.17 kg/kg          \\
+        Any added power draw            & 0.010 m/W               & 0.185 kg/W          \\
+        Any added drag                  & 0.479 m/N               & 7.50 kg/N           \\
+        Battery spec. energy            & -0.090 m/(Wh/kg)        & -0.960 kg/(Wh/kg)   \\
+        Battery packing fraction        & -0.461 m/(\%)           & -4.847 kg/(\%)      \\
+        Solar cell efficiency           & -0.464 m/(\%)           & -0.865 kg/(\%)      \\
+        Solar cell area density         & 12.4 m/(kg/m$^2$)       & 149 kg/(kg/m$^2$)   \\
+        Solar cell usable wing fraction & -10.6 m/(\%)            & 80.9 kg/(\%)        \\
+        Propeller efficiency            & -0.613 m/(\%)           & -4.72 kg/(\%)       \\
+        Motor efficiency                & -0.586 m/(\%)           & -4.75 kg/(\%)       \\
+        Minimum cruise altitude         & 5.10 m/km               & 46.2 kg/km          \\
+        \bottomrule
+    \end{tblr}
+\end{table}
+
+\subsection{Computational Reproducibility}
+
+A publicly-accessible repository of the code used to generate the MIT Dawn conceptual design is available via the \emph{Dawn Design Tool} at \url{https://github.com/peterdsharpe/DawnDesignTool}. We note that this public code has been forked and privately refined in collaboration with the Electra.aero engineering team, so results using this public repository should not be considered representative of any up-to-date design decisions or performance estimates.
 
 
-    \section{Hydrogen} % TODO name
-    \label{sec:hydrogen}
+\section{Hydrogen} % TODO name
+\label{sec:hydrogen}
 
 
-    \section{Solar Seaplane} % TODO name
-    \label{sec:solar-seaplane}
+\section{Solar Seaplane} % TODO name
+\label{sec:solar-seaplane}
 
 
 %\section{Other Case Studies} % TODO name

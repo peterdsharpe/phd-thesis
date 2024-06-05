@@ -1,0 +1,124 @@
+% Define all the styles used to produce XDSMs for MDO
+
+% Tableau 20 color palette, taken from
+% https://jrnold.github.io/ggthemes/reference/tableau_color_pal.html
+% we use the lighter variants here with 80% opacity
+% Blue
+\definecolor{red}{HTML}{A0CBE8}
+% Orange
+\definecolor{orange}{HTML}{FFBE7D}
+% Cyan
+\definecolor{cyan}{HTML}{86BCB6}
+% Green
+\definecolor{green}{HTML}{8CD17D}
+% Yellow
+\definecolor{yellow}{HTML}{F1CE63}
+% Salmon
+\definecolor{salmon}{HTML}{FF9D9A}
+
+\tikzstyle{every node}=[font=\sffamily,align=center]
+
+\newcommand{\fillOpacity}{80}
+
+% Component shapes
+\newcommand{\compShape}{rectangle}
+\newcommand{\groupShape}{chamfered rectangle}
+\newcommand{\procShape}{rounded rectangle}
+
+% Colors
+\newcommand{\explicitColor}{green}
+\newcommand{\implicitColor}{salmon}
+\newcommand{\optimizationColor}{red} % also used by DOE
+
+% Component types
+\tikzstyle{Optimization} = [\procShape,draw,fill=\optimizationColor!\fillOpacity,inner sep=6pt,minimum height=1cm,text badly centered]
+\tikzstyle{MDA} = [\procShape,draw,fill=orange!\fillOpacity,inner sep=6pt,minimum height=1cm,text badly centered]
+\tikzstyle{DOE} = [\procShape,draw,fill=\optimizationColor!\fillOpacity,inner sep=6pt,minimum height=1cm,text badly centered]
+\tikzstyle{SubOptimization} = [\groupShape,draw,fill=\optimizationColor!\fillOpacity,inner sep=6pt,minimum height=1cm,text badly centered]
+\tikzstyle{Group} = [\groupShape,draw,fill=\explicitColor!\fillOpacity,inner sep=6pt,minimum height=1cm,text badly centered]
+\tikzstyle{ImplicitGroup} = [\groupShape,draw,fill=\implicitColor!\fillOpacity,inner sep=6pt,minimum height=1cm,text badly centered]
+\tikzstyle{Function} = [\compShape,draw,fill=\explicitColor!\fillOpacity,inner sep=6pt,minimum height=1cm,text badly centered]
+\tikzstyle{ImplicitFunction} = [\compShape,draw,fill=\implicitColor!\fillOpacity,inner sep=6pt,minimum height=1cm,text badly centered]
+\tikzstyle{Metamodel} = [\compShape,draw,fill=yellow!\fillOpacity,inner sep=6pt,minimum height=1cm,text badly centered]
+
+%% A simple command to give the repeated structure look for components and data
+\tikzstyle{stack} = [double copy shadow={shadow xshift=.75ex, shadow yshift=-.75ex}]
+%% A simple command to fade components and data, e.g. demonstrating a sequence of steps in an animation
+\tikzstyle{faded} = [draw=black!50,fill=white,text opacity=0.5]
+
+%% Simple fading commands for the lines
+\tikzstyle{fadeddata} = [color=black!20]
+\tikzstyle{fadedprocess} = [color=black!50]
+
+% Data types
+\newcommand{\dataRightAngle}{105}
+\newcommand{\dataLeftAngle}{75}
+
+\tikzstyle{DataInter} = [trapezium,trapezium left angle=\dataLeftAngle,trapezium right angle=\dataRightAngle,draw,fill=black!10]
+\tikzstyle{DataIO} = [trapezium,trapezium left angle=\dataLeftAngle,trapezium right angle=\dataRightAngle,draw,fill=white]
+
+% Edges
+\tikzstyle{DataLine} = [color=black!40,line width=5pt,line cap=rect]
+\tikzstyle{ProcessHV} = [-,line width=1pt,to path={-| (\tikztotarget)}]
+\tikzstyle{ProcessHVA} = [->,line width=1pt,to path={-| (\tikztotarget)}]
+\tikzstyle{ProcessTip} = [-,line width=1pt]
+\tikzstyle{ProcessTipA} = [->, line width=1pt]
+
+% Matrix options
+\tikzstyle{MatrixSetup} = [row sep=3mm, column sep=2mm]
+
+% Declare a background layer for showing node connections
+\pgfdeclarelayer{data}
+\pgfdeclarelayer{process}
+\pgfsetlayers{data,process,main}
+
+% A new command to split the component text over multiple lines
+
+\newcommand{\MultilineComponent}[2]
+{
+	\begin{minipage}{#1}
+	\begin{center}
+		#2
+	\end{center}
+	\end{minipage}
+}
+
+\newcommand{\TwolineComponent}[3]
+{
+	\begin{minipage}{#1}
+	\begin{center}
+		#2 \linebreak #3
+	\end{center}
+	\end{minipage}
+}
+
+\newcommand{\ThreelineComponent}[4]
+{
+	\begin{minipage}{#1}
+	\begin{center}
+		#2 \linebreak #3 \linebreak #4
+	\end{center}
+	\end{minipage}
+}
+
+% A new command to split the component text over multiple columns
+\newcommand{\MultiColumnComponent}[5]
+{
+	\begin{minipage}{#1}
+	\begin{center}
+	#2 \linebreak #3
+	\end{center}
+	\begin{minipage}{0.49\textwidth}
+	\begin{center}
+	#4
+	\end{center}
+	\end{minipage}
+	\begin{minipage}{0.49\textwidth}
+	\begin{center}
+	#5
+	\end{center}
+	\end{minipage}
+	\end{minipage}
+}
+
+\def\arraystretch{1.3}
