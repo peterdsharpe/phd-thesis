@@ -64,7 +64,7 @@ A first simple aircraft design problem, called \emph{SimpleAC}, is included here
             \item $\text{Re} = \frac{\rho V c}{\mu}$
         \end{itemize}
         \item The cruise lift $L_\text{cruise}=\frac{1}{2}\rho V^2 C_L S$
-        \item The takeoff lift $L_\text{takeoff}=\frac{1}{2}\rho V_\text{min}^2 C_{L, \text{max}} S$
+        \item The takeoff lift $L_\text{takeoff}=\frac{1}{2}\rho V_\min^2 C_{L, \max} S$
         \item The wing weight $W_{\text{wing}}= W_\text{w, structural} + W_\text{w, surface}$
         \begin{itemize}[noitemsep]
             \item $W_\mathrm{w,\ structural} = W_\text{w, c1} \cdot \frac{N \AR^{1.5} \sqrt{W_0 W S}}{\tau}$
@@ -87,8 +87,8 @@ A first simple aircraft design problem, called \emph{SimpleAC}, is included here
         \item {$\rho$} $1.23\ \si{\kg/\meter\cubed}$, the sea-level density of air.
         \item {$\tau$} $0.12$, the airfoil thickness-to-chord ratio.
         \item {$N$} $3.3$, the ultimate load factor.
-        \item {$V_\text{min}$} $25\ \si{\meter/\second}$, the takeoff airspeed.
-        \item {$C_{L, \text{max}}$} $1.6$, the takeoff lift coefficient.
+        \item {$V_\min$} $25\ \si{\meter/\second}$, the takeoff airspeed.
+        \item {$C_{L, \max}$} $1.6$, the takeoff lift coefficient.
         \item {$S_\text{wet}/S$} $2.075$, the wetted area ratio.
         \item {$W_0$} $6250 \si{\newton}$, the aircraft weight excluding the wing and fuel.
         \item {$W_\text{w, c1}$} $2 \times 10^{-5}\ \si{\per\meter}$, a wing weight coefficient.
@@ -290,7 +290,7 @@ The resulting trajectory, which was simultaneously optimized with the vehicle, i
     \label{fig:firefly_trajectory}
 \end{figure}
 
-This trajectory, while unexpected, indeed satsifies requirements, and its discovery was only possible through the use of a combined vehicle-and-trajectory optimization approach. This is a key benefit of the code transformations paradigm: the ability to rapidly explore the design space and discover unexpected interactions between subsystems.
+This trajectory, while unexpected, indeed satisfies requirements, and its discovery was only possible through the use of a combined vehicle-and-trajectory optimization approach. This is a key benefit of the code transformations paradigm: the ability to rapidly explore the design space and discover unexpected interactions between subsystems.
 
 \subsection{Design Space Sweeps}
 \label{sec:firefly_sweeps}
@@ -319,7 +319,7 @@ Using this syntax, the user can convert a point design optimization problem to a
 
 For this particular case study, the results of such a sweep are shown in Figure \ref{fig:firefly_pareto}. Clearly, though designs can be optimized purely for total range or only for dash range, there are many opportunities where a small sacrifice in one can yield large gains in the other—this may be of interest to the practical designer. Likewise, it shows how the vehicle resulting from the optimizer (in the lower-right) differs dramatically from the original napkin-math ``mental model'' that was used for initial performance estimates. Because this initial design did not use an arcing trajectory, the wing area (and hence, glide-phase $L/D$) was quite limited.
 
-Charts like these can be crucial in high-level conceptual decisionmaking, where an entire family of aircraft can be depicted in a single chart. The results of this design sweep take a few minutes to compute in serial, but parallelization across cores or computers can allow this to be presented to the user in seconds.
+Charts like these can be crucial in high-level conceptual decision-making, where an entire family of aircraft can be depicted in a single chart. The results of this design sweep take a few minutes to compute in serial, but parallelization across cores or computers can allow this to be presented to the user in seconds.
 
 \begin{figure}[h]
     \centering
@@ -374,10 +374,10 @@ The Dawn aircraft development program began as a set of solution-agnostic requir
     \item \textbf{Payload}: 30 kg science package, with 500 W electrical power draw during daylight hours and 150 W at night
     \item \textbf{Altitude}: sustained flight at 60,000 ft. MSL (18.3 km) or above
     \item \textbf{Endurance}: 6 weeks continuous flight during July–August
-    \item \textbf{Stationkeeping}: with the ability to maneuver and maintain position over any location in the continental United States, in 95th-percentile winds
+    \item \textbf{Station-keeping}: with the ability to maneuver and maintain position over any location in the continental United States, in 95th-percentile winds
 \end{itemize}
 
-We initially approached this aircraft design problem by exploring a wide range of conceptual solutions. In addition to a solar aircraft, the team considered a superpressure balloon (E.g., Google Loon), a powered airship, a rotating fleet of conventional aircraft (e.g., Aurora Flight Sciences Orion), long-endurance hydrogen aircraft (E.g., AeroVironment Global Observer), ground-tethered balloons, and numerous others\footnote{Even some nuclear-powered aircraft concepts were briefly considered.}. Each of these had a rapid feasiblity analysis conducted in AeroSandbox based on first-principles physics, similar in scope to the SimpleAC problem given in Section \ref{sec:simpleac}. This capability to quickly pose sizing studies allowed these proposed concepts to be matured to the point where a meaningful and fair comparison\footnote{i.e., a true apples-to-apples comparison, where an \emph{optimized} variant of concept A is compared to an \emph{optimized} variant of concept B} could be made; ultimately, a solar-powered HALE aircraft was selected, with further reasoning available in Sharpe et al. \cite{sharpe_optimization_2021}.
+We initially approached this aircraft design problem by exploring a wide range of conceptual solutions. In addition to a solar aircraft, the team considered a superpressure balloon (E.g., Google Loon), a powered airship, a rotating fleet of conventional aircraft (e.g., Aurora Flight Sciences Orion), long-endurance hydrogen aircraft (E.g., AeroVironment Global Observer), ground-tethered balloons, and numerous others\footnote{Even some nuclear-powered aircraft concepts were briefly considered.}. Each of these had a rapid feasibility analysis conducted in AeroSandbox based on first-principles physics, similar in scope to the SimpleAC problem given in Section \ref{sec:simpleac}. This capability to quickly pose sizing studies allowed these proposed concepts to be matured to the point where a meaningful and fair comparison\footnote{i.e., a true apples-to-apples comparison, where an \emph{optimized} variant of concept A is compared to an \emph{optimized} variant of concept B} could be made; ultimately, a solar-powered HALE aircraft was selected, with further reasoning available in Sharpe et al. \cite{sharpe_optimization_2021}.
 
 \subsection{Vehicle Overview}
 
@@ -482,9 +482,9 @@ The physics formulation of the optimization problem can be summarized as follows
 
             \item \textbf{Propulsion}: A propeller model based on dynamic disc actuator theory with viscous correction factors is implemented \cite{unified_propellers}. Viscous correction factors are calibrated using the blade-element code QPROP with sectional airfoil data from XFoil \cite{drela_xfoil_1989, qprop}.
 
-            \item \textbf{Trajectory / Dynamics}: A direct collocation method, which enforces the equations of motion at each time point. Path constraints, such as battery state of charge limits, altitude minimums, and airspeed minimums (i.e., stationkeeping) are also added. In addition, periodicity constraints are added, which ensure energy closure over the 24-hour cycle.
+            \item \textbf{Trajectory / Dynamics}: A direct collocation method, which enforces the equations of motion at each time point. Path constraints, such as battery state of charge limits, altitude minimums, and airspeed minimums (i.e., station-keeping) are also added. In addition, periodicity constraints are added, which ensure energy closure over the 24-hour cycle.
 
-            \item To support stationkeeping constraints, a probabilistic model of both steady winds and gusts was developed using data from the ECMWF ERA5 reanalysis dataset \cite{era5}. The model is a function of latitude, longitude, and day of year, which allows global mapping of the feasible mission space.
+            \item To support station-keeping constraints, a probabilistic model of both steady winds and gusts was developed using data from the ECMWF ERA5 reanalysis dataset \cite{era5}. The model is a function of latitude, longitude, and day of year, which allows global mapping of the feasible mission space.
 
         \end{itemize}
 
@@ -504,7 +504,7 @@ Further details on the MIT Dawn MDO problem formulation and constituent models a
     \label{fig:dawn_xdsm}
 \end{figure}
 
-\subsection{Results}
+\subsection{Results and Framework Lessons}
 
 The result of the optimization process described in Section \ref{sec:dawn-mdo} is the point design summarized in Table \ref{tab:dawn_overview} Figures \ref{fig:dawn_mass_budget}. As with the Firefly design, however, many of the valuable lessons learned from the development of this tool are not from the point design, but rather the trades one can quickly assess using this framework.
 
@@ -516,7 +516,7 @@ The results of this study are shown in Figure \ref{fig:dawn_wingspan}, which plo
 
 Secondly, a steep change in the mission feasibility is observed near $40\degree$ N and $40\degree$ S latitude. This is due to changes in the tropopause height, which is a key factor that modifies the science requirements if the mission is generalized to other regions around the world. Due to global atmospheric convection cells, the tropopause altitude rises quickly near these latitudes.
 
-Third, we can identify the impact of specific localized weather phenomena. For example, the southern polar vortex tends to raise stratospheric wind speeds during the month of November at latitudes near $60\degree$ S, which makes stationkeeping extremely challenging\footnote{Interestingly, an analogous phenomenon is not observed with the Arctic polar vortex in the northern hemisphere.}.
+Third, we can identify the impact of specific localized weather phenomena. For example, the southern polar vortex tends to raise stratospheric wind speeds during the month of November at latitudes near $60\degree$ S, which makes station-keeping extremely challenging\footnote{Interestingly, an analogous phenomenon is not observed with the Arctic polar vortex in the northern hemisphere.}.
 
 \begin{figure}[h]
     \centering
