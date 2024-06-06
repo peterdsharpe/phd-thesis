@@ -500,13 +500,22 @@ Further details on the MIT Dawn MDO problem formulation and constituent models a
         \setstretch{1.0}
         \input{../figures/dawn_xdsm.tikz}
     \end{adjustbox}
-    \caption{Extended Design Structure Matrix (XDSM) representation of the MIT Dawn solar-electric HALE aircraft design optimization problem.}
+    \caption{Extended Design Structure Matrix (XDSM) representation of the MIT Dawn solar-electric HALE aircraft design optimization problem. Reproduced from Sharpe et al. \cite{sharpe_optimization_2021}.}
     \label{fig:dawn_xdsm}
 \end{figure}
 
 \subsection{Results and Framework Lessons}
 
-The result of the optimization process described in Section \ref{sec:dawn-mdo} is the point design summarized in Table \ref{tab:dawn_overview} Figures \ref{fig:dawn_mass_budget}. As with the Firefly design, however, many of the valuable lessons learned from the development of this tool are not from the point design, but rather the trades one can quickly assess using this framework.
+The result of the optimization process described in Section \ref{sec:dawn-mdo} is the point design summarized in Table \ref{tab:dawn_overview} Figures \ref{fig:dawn_mass_budget}. The point design estimate produced using AeroSandbox was then further refined in collaboration with Electra.aero, leading to the successful construction and first flight of a full-scale demonstrator aircraft, as shown in Figure \ref{fig:dawn_flight}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{../figures/dawn_flight.jpg}
+    \caption{Photograph of the Dawn One solar-electric HALE aircraft lifting off during its first flight test, in September 2022. Reproduced from Electra.aero \cite{electra_dawn_flight}.}
+    \label{fig:dawn_flight}
+\end{figure}
+
+As with the Firefly design, however, many of the valuable lessons learned from the development of this tool were not only from the point design, but also from the trade studies one can quickly assess using this framework.
 
 \subsubsection*{Rapid Performance Sweeps}
 
@@ -521,7 +530,7 @@ Third, we can identify the impact of specific localized weather phenomena. For e
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{../figures/dawnfigures/30kg_payloadw_mission.png}
-    \caption{Feasibility of a solar aircraft throughout the seasonality-latitude mission space, as measured by the minimum required wingspan to achieve energy closure with the required payload. The baseline science mission, which involves summertime flight over the continental United States, is shown with a dashed black rectangle on the plot. Within this rectangle, the sizing case (i.e., most difficult mission) is shown with a black dot. Reproduced from Sharpe et al. \cite{sharpe_optimization_2021}.}
+    \caption{Feasibility of a solar aircraft throughout the seasonality-latitude mission space, as measured by the minimum required wingspan of an aircraft that achieves energy closure with the required payload. The baseline science mission, which involves summertime flight over the continental United States, is shown with a dashed black rectangle on the plot. Within this rectangle, the sizing case (i.e., most difficult mission) is shown with a black dot. Reproduced from Sharpe et al. \cite{sharpe_optimization_2021}.}
     \label{fig:dawn_wingspan}
 \end{figure}
 
@@ -534,7 +543,7 @@ One of the most useful features of a code transformations framework is that the 
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{../figures/dawnfigures/max_payload.png}
-    \caption{Feasibility of a solar aircraft throughout the seasonality-latitude mission space, as measured by the maximum payload that can be carried with a fixed wingspan of 34 meters. Equivalent to a ``flipped problem'' of Figure \ref{fig:dawn_wingspan}. The baseline science mission, which involves summertime flight over the continental United States, is shown with a dashed black rectangle on the plot. Within this rectangle, the sizing case (i.e., most difficult mission) is shown with a black dot. Reproduced from Sharpe et al. \cite{sharpe_optimization_2021}.}
+    \caption{Feasibility of a solar aircraft throughout the seasonality-latitude mission space, as measured by the maximum payload that can be carried by a clean-sheet aircraft dewign with a fixed wingspan of 34 meters. Equivalent to a ``flipped problem'' of Figure \ref{fig:dawn_wingspan}. Reproduced from Sharpe et al. \cite{sharpe_optimization_2021}.}
     \label{fig:dawn_payload}
 \end{figure}
 
@@ -577,12 +586,36 @@ Table \ref{tab:dawn_sensitivities} gives a selected subset of these sensitivitie
 A publicly-accessible repository of the code used to generate the MIT Dawn conceptual design is available via the \emph{Dawn Design Tool} at \url{https://github.com/peterdsharpe/DawnDesignTool}. We note that this public code has been forked and privately refined in collaboration with the Electra.aero engineering team, so results using this public repository should not be considered representative of any up-to-date design decisions or performance estimates.
 
 
-\section{Hydrogen} % TODO name
+\section{Liquid-Hydrogen-Fueled Long-Haul Transport Aircraft}
 \label{sec:hydrogen}
 
+A third example aircraft design case study conducted using AeroSandbox was a conceptual design study of a liquid-hydrogen-fueled long-haul transport aircraft.
 
-\section{Solar Seaplane} % TODO name
+\subsection{Problem Overview}
+
+At the time of writing, aviation is generally estimated to be responsible for roughly 3\% of anthropogenic climate impacts, depending on method of accounting. Of this fraction, long-haul aviation (flights with ranges longer than 4,800 km)\footnote{These mostly include intercontinental flights on wide-body aircraft.} contributed roughly 35\% of the total aviation fuel burn \cite{yutko}. This is of particular concern, because while short-haul aviation has more readily-available decarbonization pathways (e.g., electrification), long-haul aviation has very few options to decarbonize due to energy density requirements.
+
+In practice, the two main options for decarbonizing long-haul aviation are synthetic aviation fuels (SAF) and hydrogen-based solutions. While SAF is attractive in the short-term as a potential drop-in solution, the scalability of a SAF-based aviation fuel ecosystem remains an area of concern\footnote{Colloquially, this is often referred to as the ``food vs. fuel'' debate, as the most economically-viable SAF formulations tend to use food feedstock. This drives up food prices and competes for limited arable land. Estimates of the land area required to sustain a global SAF-based aviation economy are similar in scale to the current arable land of the United States.} \cite{waypoint2050, gaubatz_estimating_2023}. Hydrogen, on the other hand, is a more speculative solution, but if scaling SAF proves to be technically, politically, or economically infeasible, it may be the only remaining option for long-haul decarbonization.
+
+Hydrogen is best thought of as a ``carrier'' fuel, similar to a battery, although with much higher energy density. (For comparison, the specific energy of hydrogen is roughly 120 MJ/kg, while kerosene-based fuels give roughly 43 MJ/kg and lithium batteries give roughly 1 MJ/kg.) Because of this, the emissions associated with hydrogen are, of course, highly dependent on the method of hydrogen production. Currently, the most common method of hydrogen production is steam methane reforming (SMR), which is a process that produces hydrogen from natural gas. This process is not carbon-neutral, but it provides an economical on-ramp for a hydrogen economy while electrolysis technologies and grid decarbonization progress\footnote{In the medium term, hydrogen can result in reduced aviation emissions compared to a present-day baseline even without full grid decarbonization. This is especially true if carbon capture utilization and storage (CCUS) is incorporated into the SMR process.} \cite{cascade}. In the long term, ``green hydrogen'' produced by electrolysis powered by low-emissions\footnote{Considering lifecycle emissions} sources (e.g., wind, solar, hydropower, geothermal, nuclear) could dramatically reduce the carbon impact of long-haul aviation.
+
+In short: the value propulsion of hydrogen as an aviation fuel is that it converts a problem that may otherwise be impossible to solve (decarbonizing long-haul aviation) into a problem that, while still challenging, is at least technically solvable (decarbonizing the electricity grid).
+
+In addition to the grid decarbonization and hydrogen production challenges, hydrogen presents a number of unique considerations at the aircraft-level. Interestingly, the common concern of crash safety is not actually a major one (relative to kerosene-based fuels), as a) in the event of a post-crash fire, hydrogen is a buoyant gas at STP, which directs heat upwards and prevents on-ground pooling; and b) hydrogen burns with minimal soot\footnote{In post-crash fires on kerosene-fueled aircraft, smoke inhalation often causes the majority of injuries.}. On the other hand, safe hydrogen fueling (and in particular, fuel line purging) adds significant operational challenges that need to be solved \cite{gaubatz_estimating_2023}.
+
+Aircraft performance is also a significant concern when hydrogen is introduced. Hydrogen may be stored in either a high-pressure gaseous (\gh) or a cryogenic liquid (\lh) form. In either case, hydrogen benefits from a low-surface-area-to-volume ratio, which makes traditional storage within wings impractical. Instead, hydrogen is typically stored in cylindrical or conformal fuselage tanks. Relative to traditional wing storage, this a) loses the benefit of spanloading, leading to increased structural weight in the wing and fuselage, b) can create a significant center-of-gravity shift during fuel burn, depending on configuration, and c) usually yields a (small) aerodynamic penalty due to the increased volume of the fuselage. In addition, tank weight is much higher\footnote{In the case of \gh, this is due to pressurization stress, and in the case of \lh, this is due to insulation and boil-off considerations}, fuel lines are heavier, and fuel pumping becomes much more complex. Brewer gives one of the most thorough overviews of these opportunities and challenges \cite{brewer_hydrogen_1991}.
+
+On the other hand, the much higher specific energy of hydrogen compared to kerosene results in far smaller required fuel mass fractions\footnote{For example, even after accounting for increased tank weight, \lh offers a \emph{realizable} specific energy that is roughly double that of kerosene-based fuels.} Because of this, it is useful to determine whether the net aircraft performance impact of hydrogen is positive or negative.
+
+
+
+\section{Other Aircraft Design Case Studies}
+
+\subsection{Solar Seaplane}
 \label{sec:solar-seaplane}
+
+\subsection{Feather: Ultra-Lightweight Hand-Launched Motor-Glider}
+\label{sec:feather}
 
 
 %\section{Other Case Studies} % TODO name
