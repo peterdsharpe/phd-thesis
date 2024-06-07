@@ -12,6 +12,7 @@ __pycache__/
 *.bkp
 *.dtmp
 *.mp4
+*.mov
 */_rels
 */docProps
 */fonts
