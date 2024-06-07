@@ -86,7 +86,7 @@ The example given in the subsequent sections is for a small electric-driven prop
 
 To illustrate our proposed flight test data analysis procedure, this manuscript will use example data from a flight test conducted during MIT 16.821: Flight Vehicle Development, a senior-level aircraft design/build/fly capstone course at MIT AeroAstro. The flown aircraft, named \emph{Solar Surfer}, is a remote-controlled solar-electric seaplane design with a 14-foot wingspan. The as-flown all-up mass is 9.4 kg.
 
-General specifications of the aircraft can be found in the early design drawing that is reproduced in Appendix \ref{sec:solar_surfer_drawing}. While this drawing does not reflect as-built weights or various planform adjustments that were made during preliminary design and construction, the overall configuration and performance numbers are representative of the aircraft that was flown.
+General specifications of the aircraft can be found in the early design drawing that is reproduced in Section \ref{sec:solar-seaplane}. While this drawing does not reflect as-built weights or various planform adjustments that were made during detailed design and construction, the overall configuration and performance numbers are roughly representative of the aircraft that was flown.
 
 \subsection{Flight Test Campaign}
 
@@ -548,18 +548,6 @@ In this chapter, we have demonstrated a rigorous method for reconstructing the p
 This work has focused on the ability of these inference-based reconstruction procedures to significantly reduce the required flight hours to characterize an airplane's performance. However, an alternative way to ``spend'' this increased ability to extract information is on massively reducing instrumentation costs. For example, this approach makes it conceivable to ``estimate out'' the ambient wind field\footnote{An intuitive explanation for this is that if an airplane loiters in a circle at constant power setting, the upwind and downwind groundspeeds yield information about the wind field. In practice, some additional assumptions about wind steadiness and uniformity would likely be required to collapse the $(x, y, z, t)$ space; otherwise, it is likely too large to realistically span.} from groundspeed data and power measurement alone. If this is possible, it would enable flight test engineers to perform sufficient early-stage characterization of a new crewed airplane using nothing other than the sensors available on a modern smartphone. Here, GPS, IMU, and barometer sensors provide position and groundspeed information, and the phone's microphone can be used to infer engine RPM and hence power and advance ratio from an audio spectrum. If successful, this would be an enormous reduction in instrumentation cost and time compared to the state of the art.
 
 A fair point of hesitancy here might be the fact that applying these corrections to recover useful insights from noisy, limited, unsteady data takes a significant amount of algorithmic development and mathematical complexity. However, algorithms are cheap, and more importantly, scalable - so, once a computational chapterflow is established, it can easily be applied to a large number of flight test campaigns. By contrast, flight-test hours and improved instrumentation represent a recurring high cost. Therefore, it is worth investing in the development of algorithms that can extract the maximum amount of useful insight from the data that we do collect, even if this analysis is somewhat less simple.
-
-
-
-%
-%\subsection{Solar Surfer Design Drawing}
-%\label{sec:solar_surfer_drawing}
-%
-%\begin{figure}[H]
-%    \centering
-%    \ifdraft{}{\includegraphics[page=1, width=\textwidth]{../figures/aircraft_sysid/seaway_mini_packet.pdf}}
-%    \label{fig:solar_surfer_design}
-%\end{figure}
 
 \section*{Chapter Acknowledgments}
 The authors would like to thank the MIT AeroAstro 16.821 course staff for their support of the work in this chapter, and the MIT AeroAstro department for their support of the course. The aircraft used to collect the example data in this chapter was constructed by the MIT AeroAstro 16.821 undergraduate student team.

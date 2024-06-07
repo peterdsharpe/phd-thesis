@@ -106,7 +106,7 @@ The code given in Appendix \ref{sec:simpleac-code} converges to a solution in 14
     \caption{Solution of SimpleAC (Eq. \ref{eq:simpleac}), found with AeroSandbox.}
     \label{tab:simpleac}
     \begin{tblr}{
-        colspec={@{} l l @{}},
+        colspec={@{} X X @{}},
         row{1}={font=\bfseries},
     }
         \toprule
@@ -405,7 +405,7 @@ Table \ref{tab:dawn_overview} summarizes various key parameters of the aircraft 
     \caption{Key specifications for the point design corresponding to the baseline mission. Reproduced from Sharpe et al. \cite{sharpe_optimization_2021}.}
     \label{tab:dawn_overview}
     \begin{tblr}{
-        colspec={@{} l l @{}},
+        colspec={@{} X X @{}},
         row{1} = {font=\bfseries},
     }
         \toprule
@@ -591,31 +591,229 @@ A publicly-accessible repository of the code used to generate the MIT Dawn conce
 
 A third example aircraft design case study conducted using AeroSandbox was a conceptual design study of a liquid-hydrogen-fueled long-haul transport aircraft.
 
-\subsection{Problem Overview}
+\subsection{Problem Overview and Background}
 
-At the time of writing, aviation is generally estimated to be responsible for roughly 3\% of anthropogenic climate impacts, depending on method of accounting. Of this fraction, long-haul aviation (flights with ranges longer than 4,800 km)\footnote{These mostly include intercontinental flights on wide-body aircraft.} contributed roughly 35\% of the total aviation fuel burn \cite{yutko}. This is of particular concern, because while short-haul aviation has more readily-available decarbonization pathways (e.g., electrification), long-haul aviation has very few options to decarbonize due to energy density requirements.
+At the time of writing, aviation is generally estimated to be responsible for roughly 3\% of anthropogenic climate impacts, with slight variations in this figure depending on method of accounting\footnote{Aviation is roughly 2.5\% of global carbon emissions, but the high-altitude nature of emissions cause disproportionately high impact. Also, non-carbon climate impacts (e.g., contrails, NOx, etc.) may have strong impacts on radiative forcing that are not captured in carbon-focused emissions measures.}. Of this fraction, long-haul aviation (flights with ranges longer than 4,800 km)\footnote{These mostly include intercontinental flights on wide-body aircraft.} contributed roughly 35\% of the total aviation fuel burn \cite{yutko}. This is of particular concern, because while short-haul aviation has more readily-available decarbonization pathways (e.g., electrification), long-haul aviation has very few options to decarbonize due to energy density requirements.
 
 In practice, the two main options for decarbonizing long-haul aviation are synthetic aviation fuels (SAF) and hydrogen-based solutions. While SAF is attractive in the short-term as a potential drop-in solution, the scalability of a SAF-based aviation fuel ecosystem remains an area of concern\footnote{Colloquially, this is often referred to as the ``food vs. fuel'' debate, as the most economically-viable SAF formulations tend to use food feedstock. This drives up food prices and competes for limited arable land. Estimates of the land area required to sustain a global SAF-based aviation economy are similar in scale to the current arable land of the United States.} \cite{waypoint2050, gaubatz_estimating_2023}. Hydrogen, on the other hand, is a more speculative solution, but if scaling SAF proves to be technically, politically, or economically infeasible, it may be the only remaining option for long-haul decarbonization.
 
-Hydrogen is best thought of as a ``carrier'' fuel, similar to a battery, although with much higher energy density. (For comparison, the specific energy of hydrogen is roughly 120 MJ/kg, while kerosene-based fuels give roughly 43 MJ/kg and lithium batteries give roughly 1 MJ/kg.) Because of this, the emissions associated with hydrogen are, of course, highly dependent on the method of hydrogen production. Currently, the most common method of hydrogen production is steam methane reforming (SMR), which is a process that produces hydrogen from natural gas. This process is not carbon-neutral, but it provides an economical on-ramp for a hydrogen economy while electrolysis technologies and grid decarbonization progress\footnote{In the medium term, hydrogen can result in reduced aviation emissions compared to a present-day baseline even without full grid decarbonization. This is especially true if carbon capture utilization and storage (CCUS) is incorporated into the SMR process.} \cite{cascade}. In the long term, ``green hydrogen'' produced by electrolysis powered by low-emissions\footnote{Considering lifecycle emissions} sources (e.g., wind, solar, hydropower, geothermal, nuclear) could dramatically reduce the carbon impact of long-haul aviation.
+Hydrogen is best thought of as a ``carrier'' fuel, similar to a battery, although with much higher energy density. (For comparison, the specific energy of hydrogen is roughly 120 MJ/kg, while kerosene-based fuels give roughly 43 MJ/kg and lithium batteries give roughly 1 MJ/kg.) Because of this, the emissions associated with hydrogen are, of course, highly dependent on the method of hydrogen production. Currently, the most common method of hydrogen production is steam methane reforming (SMR), which is a process that produces hydrogen from natural gas. This process is not carbon-neutral, but it provides an economical on-ramp for a hydrogen economy while electrolysis technologies and grid decarbonization advance\footnote{In the medium term, hydrogen can result in reduced aviation emissions compared to a present-day baseline even without full grid decarbonization. This is especially true if carbon capture utilization and storage (CCUS) is incorporated into the SMR process.} \cite{cascade}. In the long term, ``green hydrogen'' produced by electrolysis powered by low-emissions\footnote{Considering lifecycle emissions} sources (e.g., wind, solar, hydropower, geothermal, nuclear) could dramatically reduce the carbon impact of long-haul aviation.
 
-In short: the value propulsion of hydrogen as an aviation fuel is that it converts a problem that may otherwise be impossible to solve (decarbonizing long-haul aviation) into a problem that, while still challenging, is at least technically solvable (decarbonizing the electricity grid).
+Hydrogen may be stored in either a high-pressure gaseous (\gh) or a cryogenic liquid (\lh) form, each of which come with their own unique challenges. For long-haul aviation, \lh is universally preferred due to its much higher effective specific energy (i.e., specific energy with the tank mass included). For example, with \lh, the tank gravimetric efficiency $\eta_{\rm tank}$ (essentially, the mass fraction of a filled tank that is hydrogen) is usually 50--75\% \cite{brewer_hydrogen_1991}; for \gh, this is typically 8--12\%. The higher volumetric density of \lh relative to \gh also allows for more compact tank designs, which reduces the drag impact at the aircraft level.
 
-In addition to the grid decarbonization and hydrogen production challenges, hydrogen presents a number of unique considerations at the aircraft-level. Interestingly, the common concern of crash safety is not actually a major one (relative to kerosene-based fuels), as a) in the event of a post-crash fire, hydrogen is a buoyant gas at STP, which directs heat upwards and prevents on-ground pooling; and b) hydrogen burns with minimal soot\footnote{In post-crash fires on kerosene-fueled aircraft, smoke inhalation often causes the majority of injuries.}. On the other hand, safe hydrogen fueling (and in particular, fuel line purging) adds significant operational challenges that need to be solved \cite{gaubatz_estimating_2023}.
+In addition to the grid decarbonization and hydrogen production challenges, hydrogen presents a number of unique operational difficulties at the aircraft-level. Interestingly, the common concern of crash safety is not actually a major one (relative to kerosene-based fuels), as a) in the event of a post-crash fire, hydrogen is a buoyant gas at STP, which directs heat upwards and prevents on-ground fuel pooling; and b) hydrogen burns with minimal soot\footnote{In post-crash fires on kerosene-fueled aircraft, smoke inhalation often causes the majority of injuries.}. In-flight fire is also a risk that can be mitigated to acceptable levels, through a combination of positive-pressure tanks, gas sniffers, and boiloff vents \cite{brewer_hydrogen_1991}. However, safe hydrogen refueling is challenging and several important open research questions remain \cite{gaubatz_estimating_2023}. For example, fuel lines must be purged for safety every time the aircraft is refueled, and a cryogenic fuel presents significant limitations on how this can be done\footnote{For example, common purge gases like nitrogen and argon will freeze at \lh temperatures; other gases, like helium, must be used.}.
 
-Aircraft performance is also a significant concern when hydrogen is introduced. Hydrogen may be stored in either a high-pressure gaseous (\gh) or a cryogenic liquid (\lh) form. In either case, hydrogen benefits from a low-surface-area-to-volume ratio, which makes traditional storage within wings impractical. Instead, hydrogen is typically stored in cylindrical or conformal fuselage tanks. Relative to traditional wing storage, this a) loses the benefit of spanloading, leading to increased structural weight in the wing and fuselage, b) can create a significant center-of-gravity shift during fuel burn, depending on configuration, and c) usually yields a (small) aerodynamic penalty due to the increased volume of the fuselage. In addition, tank weight is much higher\footnote{In the case of \gh, this is due to pressurization stress, and in the case of \lh, this is due to insulation and boil-off considerations}, fuel lines are heavier, and fuel pumping becomes much more complex. Brewer gives one of the most thorough overviews of these opportunities and challenges \cite{brewer_hydrogen_1991}.
+Aircraft performance is also a significant concern when hydrogen is introduced. For example, both \lh and \gh tanks benefit from a low-surface-area-to-volume ratio, which makes traditional storage within wings impractical. Instead, hydrogen is typically stored in cylindrical or conformal fuselage tanks. Relative to traditional wing storage, this a) loses the benefit of spanloading, leading to increased structural weight in the wing and fuselage, b) can create a significant center-of-gravity shift during fuel burn, depending on configuration, and c) usually yields a (small) aerodynamic penalty due to the increased volume of the fuselage. In addition, tank weight is much higher\footnote{In the case of \gh, this is due to pressurization stress, and in the case of \lh, this is due to insulation and boil-off considerations.}, fuel lines are heavier, and fuel pumping becomes much more complex\footnote{For example, rotating components in a pump usually cannot be lubricated, because these oils freeze well above the boiling point of \lh. Hydrogen embrittlement also limits pump life.}. Brewer gives one of the most thorough overviews of these opportunities and challenges \cite{brewer_hydrogen_1991}.
 
-On the other hand, the much higher specific energy of hydrogen compared to kerosene results in far smaller required fuel mass fractions\footnote{For example, even after accounting for increased tank weight, \lh offers a \emph{realizable} specific energy that is roughly double that of kerosene-based fuels.} Because of this, it is useful to determine whether the net aircraft performance impact of hydrogen is positive or negative.
+On the other hand, the much higher specific energy of hydrogen compared to kerosene results in far smaller required fuel mass fractions\footnote{For example, even after accounting for increased tank weight, \lh offers a \emph{realizable} specific energy that is roughly double that of kerosene-based fuels.}. Because of this, it is not obvious whether the net aircraft performance impact of hydrogen is positive or negative relative to existing kerosene-based aircraft, and studies find results that vary strongly based on assumptions \cite{cascade, gaubatz_estimating_2023, tiwari_review_2024}.
 
+In short, the motivation for exploring hydrogen as an aviation fuel is not that it is particularly attractive or easy to work with; instead, it is because a genuine possibility exists that it may be the \emph{only} scalable solution for long-haul aviation decarbonization. Hydrogen converts a problem that may otherwise be impossible to solve (decarbonizing long-haul aviation) into a problem that, while still challenging, is at least technically solvable (decarbonizing the electricity grid).
+
+\subsection{Aircraft Design Problem Formulation}
+
+In this study, we formulated an aircraft design problem for a hydrogen-fueled long-haul transport aircraft, with the goal of learning more about aircraft performance deltas from kerosene designs. The key design requirements were modeled after specifications of a Boeing 777-300ER, which is a representative modern kerosene-fueled long-haul aircraft. These requirements are given in Table \ref{tab:h2_requirements}. In addition, this study assumes that a clean-sheet airplane and engines are used, and that such engines are designed around a 2023 technology level (roughly comparable to a GE9X engine).
+
+\begin{table}[H]
+    \centering
+    \caption{Key design requirements for the \lh-fueled long-haul transport aircraft design.}
+    \label{tab:h2_requirements}
+    \begin{tblr}{
+        colspec={@{} X X X @{}},
+        row{1} = {font=\bfseries},
+    }
+        \toprule
+        Specification                 & Value             & Motivation                                 \\
+        \midrule
+        \# of Passengers              & 400               & Long-haul demand                           \\
+        Ultimate Range (fully loaded) & > 7,500 nmi       & Long-haul demand                           \\
+        Cruise Mach                   & > 0.75            & 2x / day turnaround, market acceptance     \\
+        Wing Span                     & < 64.8 m (213 ft) & FAA AC 150/5300-13 ICAO Group V: 52 – 65 m \\
+        Engine-out Climb Gradient     & > 2.4\%           & Part 25.121                                \\
+        Fuel Source                   & Hydrogen          &                                            \\
+    \end{tblr}
+\end{table}
+
+A three key configuration-level decisions were made a priori based on existing literature:
+\begin{enumerate}
+    \item Choice of \lh fuel, rather than \gh, due to its significantly higher realizable specific energy.
+    \item Choice to place fuel in two conformal forward and aft tanks in the fuselage, which results in a smaller center-of-gravity shift during fuel burn compared to a single aft tank\footnote{Having one aft tank requires a larger horizontal stabilizer in order to trim during the center of gravity shift, costing drag. Also, multiple tanks are needed anyway for FAR 25 certification under current guidance.}. Other tank configurations were considered and not selected for boil-off reasons.
+    \item Choice to use direct hydrogen combustion, rather than fuel cells, due to much higher specific power.
+\end{enumerate}
+
+More details on the motivations for these decisions, and possible alternative ones, are given in the author's contributions to prior work by Gaubatz et al. \cite{gaubatz_estimating_2023}.
+
+From this set of requirements a vehicle design optimization problem was formulated, using the problem setup shown in Figure \ref{fig:h2_formulation}. Unlike the Firefly and Dawn problems, this problem was formulated as a single-point design problem, rather than a trajectory optimization problem. This is because the vehicle performance is dominated by cruise performance, and during this phase it is assumed to operate at a constant design lift coefficient and Mach number. (This implies that a step climb is performed throughout cruise as fuel is burned and mass decreases, which is common in practice and described further by Drela in material related to the TASOPT code \cite{drela_tasopt_2010}.) Using Breguet-range-like relations, the aircraft's total fuel burn can be computed from this representative optimized cruise operating point.
+
+In the formulation of Figure \ref{fig:h2_formulation}, the objective function the \emph{transport energy efficiency}, which is defined as the chemical potential energy of the fuel burned divided by the economically-useful work (measured in passenger-miles) performed by the aircraft. This metric, which is common in green transportation studies, is often used to compare economic viability across both renewable and nonrenewable solutions, which are otherwise difficult to compare directly \cite{waypoint2050}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth,page=1]{../figures/Hydrogen_figures-crop.pdf}
+    \caption{High-level design optimization problem formulation for a liquid-hydrogen-fueled long-haul transport aircraft.}
+    \label{fig:h2_formulation}
+\end{figure}
+
+\subsection{Results}
+
+This problem is formulated and solved using AeroSandbox, yielding a point design for a \lh-fueled transport aircraft. Using the AeroSandbox aircraft geometry stack, a three-view design can be generated and presented to the user, which has been further illustrated to yield Figure \ref{fig:h2_three_view}. Overall, the resulting configuration is similar to a Boeing 777-300ER, with a few notable changes: a clean-sheet airframe and engines, much higher realizable fuel specific energy, and a wider cabin that accommodates a 4-5-4 seating arrangement. In Figure \ref{fig:h2_three_view}, this substantial increase in fuselage width somewhat visually obscures the large volume occupied by the conformal hydrogen tanks.
+
+Another immediate change that is apparent in Figure \ref{fig:h2_three_view} is the placement of the flight deck, which has no forward visibility. This solves pressurization and access challenges, but requires a camera-based forward visibility system. Existing certification pathways of enhanced flight vision systems (EFVS) and synthetic vision systems (SVS) may be used to certify this IFR-only flight deck configuration, but this is an open research question.
+
+\begin{figure}[h]
+    \centering
+    \includesvg[width=\textwidth]{../figures/Hydrogen/ppt/media/image25.svg}
+    \caption{Three-view drawing of the \lh-fueled long-haul transport aircraft design.}
+    \label{fig:h2_three_view}
+\end{figure}
+
+The results of the AeroSandbox optimization study can also be quantitatively shown in Table \ref{tab:h2_results}. In this table, the key performance metrics of the \lh-fueled aircraft are compared to those of an equivalent kerosene-fueled aircraft, which was optimized using an identical methodology and assumptions. This is useful to isolate the impact of fuel choice on various performance parameters. In addition, the as-built Boeing 777-300ER is shown in the table for comparison, which allows the overall accuracy of the optimization model to be assessed. The higher gross weight of the B777 aircraft is partially explained by its higher ultimate range than the optimized aircraft in this study.
+
+\begin{table}[H]
+    \centering
+    \caption{Key results of the \lh-fueled long-haul transport aircraft design. Comparisons are made to a kerosene-fueled aircraft optimized using an identical methodology and assumptions, as well as to an as-built Boeing 777-300ER.}
+    \label{tab:h2_results}
+    \begin{tblr}{
+        colspec={@{} l X X X @{}},
+        row{1} = {font=\bfseries},
+        row{13} = {font=\bfseries},
+        column{3-4} = {fg=black!70},
+    }
+        \toprule
+        & Optimized \lh Airplane & Optimized Kerosene Airplane & As-Built B777-300ER \cite{b777} \\
+        \midrule
+        \# of passengers & 400                    & 400                         & 396                             \\
+        Ultimate range   & 7,500 nmi              & 7,500 nmi                   & 8,200 nmi (estimated)           \\
+        Cruise Mach      & 0.82                   & 0.83                        & 0.84                            \\
+        Cruise Altitude  & 36,800 ft              & 36,900 ft                   & 43,100 ft                       \\
+        Gross Weight     & 267,800 kg             & 300,800 kg                  & 351,500 kg                      \\
+        Empty Weight     & 184,700 kg             & 150,200 kg                  & 167,800 kg                      \\
+        Fuel Capacity    & 44,100 kg              & 111,600 kg                  & 145,500 kg                      \\
+        Wing Span        & 64.8 m                 & 64.8 m                      & 64.8 m                          \\
+        Length           & 81.5 m                 & 73.0 m                      & 73.9 m                          \\
+        Lift/Drag        & 15.5                   & 16.6                        & -                               \\
+        Fuel Burn        & 7.94 g/pax-km          & 20.1 g/pax-km               & 19.4 to 26.1 g/pax-km           \\
+        Transport Energy & 0.95 MJ/pax-km         & 0.86 MJ/pax-km              & 0.84 to 1.13 MJ/pax-km          \\
+        \bottomrule
+    \end{tblr}
+\end{table}
+
+Notably, Table \ref{tab:h2_results} indicates that the transport energy efficiency of the \lh-fueled aircraft is slightly worse than that of the kerosene-fueled aircraft. Most of this can be attributed to the higher empty weight of the \lh aircraft, which cannot take advantage of the spanloading ability of kerosene-fueled aircraft. This leads to higher structural weight in the wing and fuselage.
+
+For a more detailed breakdown of the mass changes as a result of fuel choice, we can inspect the mass budgets of the \lh and kerosene aircraft designs directly. Recent versions of AeroSandbox support mass properties data structures that allow visualizations of these budgets to be generated automatically. Figures \ref{fig:h2_mass_budget} and \ref{fig:kerosene_mass_budget} show the mass budgets of the \lh and kerosene aircraft designs, respectively. These figures show that the \lh aircraft has a much lower fuel mass fraction than the kerosene aircraft; however, it is offset by increased weight in the wing, fuselage, and fuel tanks.
+
+\begin{figure}[h]
+    \centering
+%    \includegraphics[width=0.5in,page=2, trim={2in 0 2in 0}]{../figures/Hydrogen_figures-crop.pdf}
+    \includegraphics[width=\textwidth, trim={3in 0 3in 0}]{../figures/Hydrogen/ppt/media/image27.png}
+    \caption{Mass budget for the \textbf{\lh}-fueled aircraft design. Takeoff gross weight (TOGW) and operating empty weight (OEW) are given in the center of the diagram.}
+    \label{fig:h2_mass_budget}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth, trim={3in 0 3in 0}]{../figures/Hydrogen/ppt/media/image26.png}
+    \caption{Mass budget for an equivalent \textbf{kerosene}-fueled aircraft design. Takeoff gross weight (TOGW) and operating empty weight (OEW) are given in the center of the diagram.}
+    \label{fig:kerosene_mass_budget}
+\end{figure}
+
+\subsection{Performance Sweeps}
+
+As with the Firefly example, exploring the impact of a given technology assumption on the design is as simple as changing two lines of code within a procedural-style code transformations framework. Here, the impact of the tank gravimetric efficiency $\eta_{\rm tank}$ on the transport energy efficiency of the \lh-fueled aircraft design was explored. The results of this study are shown in Figure \ref{fig:transport_energy}, which shows that the relative performance of the \lh-fueled aircraft design is highly sensitive to the tank gravimetric efficiency. Given that current tanks have $\eta_{\rm tank}$ values between 50--75\% \cite{brewer_hydrogen_1991}, this implies that \lh transport aircraft are roughly competitive with kerosene-fueled aircraft in terms of transport energy efficiency. This chart also demonstrates why \gh-based aircraft (with $\$\eta_{\rm tank} \approx 10\%$) are wholly infeasible for long-haul aircraft. Finally, this chart gives a clear explanation as to why the relative transport energy of hydrogen aircraft varies so widely in the aircraft design literature -- it is highly sensitive to the assumed tank technology.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{../figures/Hydrogen/ppt/media/image28.png}
+    \caption{Comparison of transport energy efficiency of \lh- and kerosene-fueled aircraft, designed around the same mission. Relative performance depends strongly on the \lh tank gravimetric efficiency, which forms a critical performance metric.}
+    \label{fig:transport_energy}
+\end{figure}
+
+\subsection{Fleet Design and Market Considerations}
+
+Another example of how a rapid design tool can be used is to explore business-level impacts of a technology choice. To explore just the tip of the iceberg here, here we show how one might think about covering a market of many long-haul flights with different ranges.
+
+First, consider the payload-range diagram of the \lh-fueled aircraft design, shown in Figure \ref{fig:h2_payload_range}. This diagram shows the maximum payload that can be carried by the aircraft as a function of range, a key metric of usefulness for an airline. For example, in this simplified model, the aircraft can carry 400 passengers at its design range of 7,500 nmi. For flights slightly longer than this range, the aircraft must reduce the fuel burn by carrying fewer passengers. For flights shorter than this range, the aircraft is seat-limited to its 400 passenger capacity; however, what is not shown here is that less fuel can be carried, which reduces the aircraft's fuel burn and improves its transport energy efficiency.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=5in]{../figures/Hydrogen/ppt/media/image30.png}
+    \caption{Payload-range diagram for the \lh-fueled aircraft design.}
+    \label{fig:h2_payload_range}
+\end{figure}
+
+However, this improvement in transport energy efficiency for shorter-than-maximum-range flights is not the same for \lh- and kerosene-fueled aircraft. This is because the fuel mass fraction of the \lh aircraft is much lower than that of the kerosene aircraft, so a hydrogen aircraft achieves less benefit from flying shorter-range flights. This is illustrated in Figure \ref{fig:market_segmentation}, where each line shows the transport energy of a particular optimized aircraft design as a function of range. (For each aircraft, the design range is indicated by a dot on the line.) As an operator, the effective transport efficiency \emph{of the combined fleet} is the lower-bound envelope of these curves. Notably, for a kerosene aircraft, there is a relatively small benefit to flying the ``right size airplane for a given mission'', so the market can be covered with two aircraft without much loss in efficiency. For a hydrogen aircraft, this is not the case, and the market must be segmented more finely to achieve the same efficiency.
+
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/Hydrogen/ppt/media/image32.png}
+        \caption{\textbf{Kerosene}-fueled aircraft fleet}
+        \label{fig:design_space_h2}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/Hydrogen/ppt/media/image33.png}
+        \caption{\textbf{\lh}-fueled aircraft fleet}
+        \label{fig:design_space_kerosene}
+    \end{subfigure}
+    \caption{These figures show how multiple individual aircraft (each shown by a line) can be combined to cover a market of long-haul flight segments. In general, aircraft will be more fuel-efficient when flown closer to their design range (indicated by a dot on each line). However, hydrogen-fueled aircraft get less benefit from flying shorter-range flights, because their fuel mass fraction is lower. This drives a need for more aviation market segmentation if a hydrogen transportation system is implemented.}
+    \label{fig:market_segmentation}
+\end{figure}
+
+This is just one example of how a rapid design tool can be used to discover the subtle downstream business-level impacts of a technology choice, which may not be otherwise anticipated. In other cases, this tool can be used to explore the upstream impact of a technology; for example, a study by Gaubatz et al. \cite{gaubatz_estimating_2023} uses this AeroSandbox-based aircraft design tool as one subset of a much broader design study to estimate the grid-level electricity demands of a hydrogen-based long-haul air transportation system.
+
+\subsection{Computational Reproducibility}
+
+A publicly-accessible repository of the hydrogen aircraft design tool is available at \url{https://github.com/peterdsharpe/transport-aircraft}.
 
 
 \section{Other Aircraft Design Case Studies}
 
+In this final section, we leave brief descriptions and links to other aircraft design case studies that have been conducted using AeroSandbox. While these case studies are not thoroughly described in this document for brevity, they serve to provide more possible starting points for the reader interested in implementing their own aircraft design studies based on the work here.
+
 \subsection{Solar Seaplane}
 \label{sec:solar-seaplane}
 
-\subsection{Feather: Ultra-Lightweight Hand-Launched Motor-Glider}
+Another aircraft design project that influenced the development of AeroSandbox was the design of a small-scale solar-electric seaplane, which was performed to support teaching work for MIT 16.821: Flight Vehicle Development. This aircraft design aimed to miniaturize a design for a full-scale recreational ultralight aircraft created by students in MIT 16.82: Flight Vehicle Engineering the prior semester. The goal was to roughly recreate the major elements of this previous vehicle, but at a scale that would allow the students to build and test-fly the aircraft within the scope of one semester. As the intended focus of the class was primarily on building techniques rather than design, we elected to give the students a ``point of departure'' design to jump-start the project.
+
+The design of this aircraft was formulated as an optimization problem in AeroSandbox, which yielded the design illustrated in Figure \ref{fig:solar_surfer_design}. This design was then used as a starting point for the students to build their aircraft, which was successfully flown in a series of test flights at the end of the semester.
+
+AeroSandbox code used to develop this aircraft design is publicly available at \url{https://github.com/peterdsharpe/solar-seaplane-preliminary-sizing}.
+
+\newpage
+\begin{figure}[H]
+    \centering
+    \ifdraft{}{\includegraphics[page=1, width=\textwidth]{../figures/aircraft_sysid/seaway_mini_packet.pdf}}
+    \caption{Design drawing of the Solar Surfer solar-electric seaplane.}
+    \label{fig:solar_surfer_design}
+\end{figure}
+
+\subsection{Feather: Ultra-Lightweight Remote Control Motor-Glider}
 \label{sec:feather}
 
+A final aircraft design project that can serve as a useful code example is that of \emph{Feather}, a project to build a minimum-sink-rate 1-meter-wingspan remote-controlled glider. The goal is to be able to exploit even the very weak low-altitude thermals that occur during early morning hours to stay aloft.
 
-%\section{Other Case Studies} % TODO name
+Traditionally, remote-control gliders aimed at thermal performance and within this wingspan range have been discus-launch gliders (DLGs). These aircraft are launched by holding the glider by a wingtip, spinning one's entire body in a circle (about the aircraft's yaw axis) and throwing. This achieves very high launch altitudes (up to 70 meters, in extreme cases), which has several benefits:
+\begin{itemize}[noitemsep]
+    \item Higher launch altitude yields longer flight times (assuming a constant sink rate), and hence more altitude to find thermals.
+    \item At higher altitudes, thermals are a) wider, b) stronger\footnote{Particularly for low-altitude thermals, within the atmospheric boundary layer.}, and c) tend to persist longer, which allows for consistent circling once thermals are found.
+\end{itemize}
+
+All three combined factors make it easier to consistently stay aloft with thermals once some initial altitude is already achieved. DLGs successfully solve this launch altitude problem, but the violent forces during their launch (often exceeding 30 Gs of acceleration) cause some unfavorable side effects:
+
+\begin{itemize}[noitemsep]
+    \item The high launch forces require a heavier wing and tailboom (due to yaw moment during de-rotation immediately after the throw), generally resulting in a higher still-air sink rate.
+    \item The design space for tail geometries is constrained by the need to minimize fuselage boom torsion. For example, vertical stabilizers must be roughly top-bottom symmetric about the fuselage boom axis, which means that $C_{l\beta}$ stability that would ordinarily be provided by a top-mounted vertical stabilizer must be provided by a larger wing dihedral angle.
+\end{itemize}
+
+However, in recent years, electronics have become so miniaturized that it is now possible to solve this launch altitude problem with a tiny electric propulsion unit, rather than by discus launch. The concept of operations is to ascend to an initial altitude using a brushless motor and propeller, and then shut off the powertrain to glide. (The propeller folds backwards against the fuselage for reduced drag.) The hypothesis is that the mass ``cost'' of this electric propulsion unit is less than the mass cost of the heavier wing and tailboom required for a discus launch. This is the design space that the Feather project aims to explore.
+
+A design optimization problem is formulated with the goal of minimizing the still-air sink rate. General configuration decisions were inspired by the Drela Apogee HLG \cite{drela_apogee_hlg}. The result is the aircraft shown in Figure \ref{fig:feather_design}, which is currently in the process of being built and flown. The glider overall weighs just 62 grams\footnote{equivalent weight to roughly 14 sheets of paper}, which is roughly half the weight of a typical DLG of this wingspan. Much of this weight savings is made possible by the avionics subsystem, which weighs just 15.3 grams but includes a LiPo battery, a brushless motor, an ESC, a 5-inch folding propeller, two linear servos, an IMU and microprocessor for gyro stabilization, and a remote-control radio receiver. Still-air sink rate is estimated to be roughly 0.29 m/s (57 ft/min), which is competitive with the best DLGs of this wingspan.
+
+AeroSandbox code used to develop this aircraft design is publicly available at \url{https://github.com/peterdsharpe/Feather-RC-Glider}.
+
+\newpage
+\begin{figure}[H]
+    \centering
+    \includegraphics[page=1, width=\textwidth]{../figures/feather.pdf}
+    \caption{Design drawing of the Feather ultra-lightweight hand-launched motor-glider.}
+    \label{fig:feather_design}
+\end{figure}
