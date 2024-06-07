@@ -11,6 +11,11 @@ __pycache__/
 ~*.*
 *.bkp
 *.dtmp
+*.mp4
+*/_rels
+*/docProps
+*/fonts
+
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
