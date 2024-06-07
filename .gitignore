@@ -13,9 +13,9 @@ __pycache__/
 *.dtmp
 *.mp4
 *.mov
-*/_rels
-*/docProps
-*/fonts
+*/_rels/
+*/docProps/
+*/fonts/
 
 
 ## Core latex/pdflatex auxiliary files:
