@@ -22,9 +22,9 @@ Over the development history of AeroSandbox, this spiral process was iterated up
 \section{Simple Aircraft Design Problem}
 \label{sec:simpleac}
 
-\begin{quote}
-    \emph{This section includes content adapted from the author's prior publication} \cite{sharpe_aerosandbox_2021}.
-\end{quote}
+\begin{attrib}
+    This section includes content adapted from the author's prior publication \cite{sharpe_aerosandbox_2021}.
+\end{attrib}
 
 A first simple aircraft design problem, called \emph{SimpleAC}, is included here to show what design code might look like in code transformations framework at the early stages of conceptual aircraft sizing. At this ``napkin-math'' stage, the main analyses (e.g., aerodynamics, structures, propulsion) can be cleanly expressed in simple analytical expressions, and the optimizer fulfills the role of closing the sizing loop. Because of this, this problem is simple enough to include both the complete problem statement and the complete solution code directly here, which is useful for readers interested in observing the mapping between these. This design problem itself was proposed by Hoburg \cite{hoburg} and is reproduced (with slight modifications) by both Ozturk \cite{Ozturk2018} and Kirschen \cite{kirschen}. It is restated here in full form:
 
@@ -437,9 +437,9 @@ Table \ref{tab:dawn_overview} summarizes various key parameters of the aircraft 
 \subsection{MDO Problem Formulation}
 \label{sec:dawn-mdo}
 
-\begin{quote}
-    \emph{This subsection includes content from the author's contributions to prior work by Sharpe, Dewald, and Hansman} \cite{sharpe_optimization_2021}.
-\end{quote}
+\begin{attrib}
+    This subsection includes content from the author's contributions to prior work by Sharpe, Dewald, and Hansman \cite{sharpe_optimization_2021}.
+\end{attrib}
 
 Just as with the Firefly design problem, the MIT Dawn design problem was formulated as a combined vehicle-and-trajectory optimization problem. The trajectory represents a 24-hour cycle, beginning and ending at solar noon. This periodic interval is of interest here because of the inherent challenge of \emph{diurnal energy closure}: a solar aircraft must be capable of ending any given 24-hour period within the mission envelope with more potential energy (in the forms of battery charge state and altitude) than it started with\footnote{Some additional energy margin must be included here, for robustness. In this study, we add energy generation margin by effectively decreasing the solar insolation in all conditions by a flat 5\% knockdown.}.
 
