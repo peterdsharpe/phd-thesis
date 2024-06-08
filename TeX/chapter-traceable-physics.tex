@@ -37,13 +37,22 @@ These traceable implementations offer value within the context of the thesis its
 
 
 \section{Vortex-Lattice Method Aerodynamics Analysis}
+\label{sec:vlm}
 
 \subsection{Method Overview}
 \label{sec:vlm_theory}
 
 The vortex-lattice method (VLM) is a low-fidelity aerodynamics analysis used to model the inviscid 3D flow field around a system of lifting surfaces (e.g., wings). It is one of the most common conceptual-level aerodynamics analyses used in aircraft design, as it is computationally inexpensive and interpretable. Common tools that implement the VLM include AVL \cite{avl} and XFLR5 \cite{xflr5}.
 
-A VLM analysis is based on classical potential-flow theory. Because this flow field model is a linear partial differential equation, it can be quickly solved using a boundary-element method representation by superimposing Green's-function kernels. These kernels model disturbances in the flow field that are induced by the lifting surfaces. In a VLM analysis, these kernels are modeled as a collection of \emph{horseshoe vortices} that are distributed along the wing in a regular lattice pattern. Each horseshoe vortex is a connected polyline of uniform-strength vortex filaments, with three segments: a bound vortex on the wing, and two trailing legs extending downstream to infinity\footnote{These trailing legs extend to the far-field Trefftz plane. In theory, these trailing legs should follow the local flow direction (and hence be ``force-free'' by the Kutta-Joukowski theorem), but often they are simply extended directly backwards which simplifies induced velocity computation and removes the need for an iterative wake relaxation.}. (In practice, a fourth leg consisting of a far-downstream ``starting vortex'' can be imagined to close the horseshoe vortex, which forms a ring vortex and thus satisfies the Helmholtz vortex theorems.) The Kutta condition is naturally satisfied, as the only place where the wing can shed vorticity is at the trailing edge (due to placement of the trailing legs).
+A VLM analysis is based on classical potential-flow theory. Because this flow field model is a linear partial differential equation, it can be quickly solved using a boundary-element method representation by superimposing Green's-function kernels. These kernels model disturbances in the flow field that are induced by the lifting surfaces. In a VLM analysis, these kernels are modeled as a collection of \emph{horseshoe vortices} that are distributed along the wing in a regular lattice pattern (distributed in both spanwise and chordwise directions). A single horseshoe vortex is illustrated in Figure \ref{fig:horseshoe_vortex}. Each horseshoe vortex is a connected polyline of uniform-strength vortex filaments, with three segments: a bound vortex on the wing, and two trailing legs extending downstream to infinity\footnote{These trailing legs extend to the far-field Trefftz plane. In theory, these trailing legs should follow the local flow direction (and hence be ``force-free'' by the Kutta-Joukowski theorem), but often they are simply extended directly backwards which simplifies induced velocity computation and removes the need for an iterative wake relaxation.}. (In practice, a fourth leg consisting of a far-downstream ``starting vortex'' can be imagined to close the horseshoe vortex, which forms a ring vortex and thus satisfies the Helmholtz vortex theorems.) The Kutta condition is naturally satisfied, as the only place where the wing can shed vorticity is at the trailing edge (due to placement of the trailing legs).
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=5in]{../figures/horseshoe_vortex.png}
+    \caption{Illustration of a horseshoe vortex (black) and the induced fluid velocity field around it, which is the fundamental building block of a VLM analysis. In reality the induced velocity field has global influence, but it is truncated here for conceptual clarity.}
+    \label{fig:horseshoe_vortex}
+\end{figure}
+
 
 Each horseshoe vortex has an initially-unknown strength, and the vorticity associated with each vortex creates an induced velocity that affects the global flowfield. To solve for these $N$ unknown vortex strengths, $N$ constraints are needed. A convenient choice is to impose a \emph{flow-tangency} (also called \emph{no-penetration}) boundary condition associated with each horseshoe vortex, where the flow velocity normal to each horseshoe vortex is zero. It is not immediately obvious at which location this flow-tangency condition (called the \emph{collocation point}) should be imposed, relative to each horseshoe vortex. As it turns out, the best choice is to discretize the wing into quadrilateral panels, then place the bound leg at the quarter-chord point of each panel, and place the collocation point at the three-quarter-chord point. This choice results in higher-order convergence with respect to discretization resolution than any other choice, with derivation for this given by Katz and Plotkin \cite{katz_lowspeed_2004}. (One way to intuitively understand this reasoning is that the VLM is essentially a 3D analogue of 2D thin airfoil theory.)
 
@@ -110,7 +119,7 @@ Figure \ref{fig:vlm} shows the results of a VLM analysis performed using AeroSan
     \label{fig:vlm}
 \end{figure}
 
-Validation results for this VLM analysis are shown later in Section \ref{sec:aero_validation}, where the VLM can be cross-compared not only against external tools but also against the other plug-and-play aerodynamic analyses developed in this chapter. Notably, while the VLM method is quite accurate for computing induced drag, it has no mechanism to compute profile drag without augmentation by another aerodynamic method, like the buildup described in Section \ref{sec:aerobuildup}; hence, the VLM method should not be used by itself for performance analysis. It is, however, more than adequate for flight dynamics analysis, as there are few other low-fidelity aerodynamics methods that handle local velocity effects (e.g., dynamic derivatives, aerodynamic damping) as readily.
+Quantitative validation results for this VLM analysis are shown later in Section \ref{sec:aero_validation}, where the VLM can be cross-compared not only against external tools but also against the other plug-and-play aerodynamic analyses developed in this chapter. Notably, while the VLM method is quite accurate for computing induced drag, it has no mechanism to compute profile drag without augmentation by another aerodynamic method, like the buildup described in Section \ref{sec:aerobuildup}; hence, the VLM method should not be used by itself for performance analysis. It is, however, more than adequate for flight dynamics analysis, as there are few other low-fidelity aerodynamics methods that handle local velocity effects (e.g., dynamic derivatives, aerodynamic damping) as accurately.
 
 \subsection{Aerodynamic Shape Optimization}
 
@@ -195,8 +204,70 @@ The optimization problem is solved to tolerance within 18 IPOPT iterations, corr
 \end{figure}
 
 \section{Nonlinear Lifting Line Aerodynamics Analysis}
+\label{sec:ll}
 
 \subsection{Method Overview}
+
+While the VLM described in Section \ref{sec:vlm} is a useful tool in conceptual analysis, its inviscid nature means that it cannot capture many important aerodynamic effects. This includes profile drag effects, but also more subtle effects like nonlinear sectional lift curve slopes and local stall. Another downside of the VLM is that capturing camber effects requires a substantial number of chordwise panels, which quickly increases the size of the linear system\footnote{The solve time of this linear system scales as $\order(N^3)$ with the number of panels, so keeping the number of panels low is quite valuable.} without meaningfully improving the induced drag prediction (as this is dominated by spanwise effects).
+
+One way to address both of these limitations is to use a lifting-line method instead of a VLM. A modern lifting-line method is best conceptually understood as a vortex lattice method with several key similarities and differences:
+\begin{enumerate}
+    \item First, just as with the VLM, the lifting-line method uses a potential flow model with horseshoe vortices to model the flow changes induced by the vehicle.
+    \item Another difference is that in a lifting-line method the governing equation no longer comes from a flow-tangency condition. Instead, the constraint relationship comes from equating the lift force generated by the vortex (via the Kutta-Joukowski theorem) to the lift force computed using a 2D sectional model (i.e., airfoil-level data) and the local angle of attack.
+    \item A notable difference is that in a lifting line method only one chordwise panel is required, because camber effects are not captured by direct flow tangency over the curved surface.
+\end{enumerate}
+
+This constraint relationship, which is detailed further in by Phillips and Snyder \cite{phillips_modern_2000}, allows the lifting-line method to leverage the accuracy of 2D sectional data, which can include camber effects. In almost all existing lifting-line methods, the sectional data is approximated using an affine $C_L$-$\alpha$ relationship (possibly with a nonzero $C_L$ at $\alpha=0$ to capture camber effects), because this reduces the governing system of equations to a single linear solve (just as with the VLM). This is computationally faster to solve than the true nonlinear problem. However, this also loses substantial accuracy in lift prediction, especially in cases where nonlinearities in the lift curve are important, such as near transitional Reynolds numbers and in high-lift cases. In many cases, this may make the traditional linear lifting-line method unsuitable.
+
+Because of this, the present work implements \emph{both} a linear and nonlinear lifting line method, with the latter retaining the full (nonlinear) lift curve slope behavior. This is done by reformulating the method to be implicit, with governing equations converted into nonlinear residual form.
+
+In both the linear and nonlinear methods, 2D sectional data is provided using \emph{NeuralFoil}, a custom physics-informed machine learning method described in Chapter \ref{chap:physics-informed-ml}. Using NeuralFoil to obtain sectional data has negligible error compared to XFoil solutions, and it has the important property of retaining $C^1$-continuity that allows for gradient-based rootfinding methods to be used in the nonlinear case. With the linear method, the NeuralFoil evaluation is numerically differentiated about the geometric angle of attack of each wing cross section\footnote{In other words, the angle of attack with respect to the freestream velocity vector (which can be computed explicitly), not the local perturbed fluid velocity vector (which is an implicit function of the initially-unknown vortex strengths)} to construct an affine $C_L(\alpha)$ dependency. Critically, because of this local linearization step about the geometric angle of attack, even the linear lifting-line method in the implementation here can capture limited stall effects—this is a unique feature of the present work compared to other lifting-line implementations.
+
+%The nonlinear lifting-line method has one notable drawback, which is that unlike a linear lifting-line, it is not guaranteed to produce a solution. This mostly occurs  inversion of the $C_L(\alpha)$ curve, which occur
+
+The overall lifting line methodology presented in this section represents modern thinking about the theoretical formulation of lifting-line methods, as given by Phillips and Snyder \cite{phillips_modern_2000} and Reid \cite{reid_general_2020}; this is a generalization of the historical lifting-line formulation originally given by Prandtl in the early 20th century. The general formulation presented here has been shown to work well for non-straight lifting lines, which occurs in wings with sweep or dihedral \cite{reid_general_2020, jacobs_extension_2012, phillips_liftingline_, phillips_modern_2000}.
+
+\subsection{Implementation}
+
+%The lifting-line method was implemented in AeroSandbox as a traceable analysis. Both the linear and nonlinear lifting lines are
+
+The linear version is implemented similarly to the VLM implementation, where both an explicit and an implicit solve are possible. On the other hand, the fully nonlinear lifting-line method is currently only implemented as an implicit analysis.
+
+Numerical discretization is performed by thin-surface meshing with a chordwise paneling resolution of one. The quarter-chord lines of these panels can then be connected to obtain a lifting line for the wing.
+
+\subsection{Example Results}
+
+Figure \ref{fig:ll} shows analogous lifting-line analysis results for the same glider example as the VLM analysis. The reduction in discretization resolution due to the elimination of chordwise refinement is immediately apparent from the lower number of discrete panels. This leads to much shorter asymptotic runtimes, especially for vehicles with complex systems of multiple interacting lifting surfaces.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{../figures/ll.png}
+    \caption{AeroSandbox lifting-line analysis results for a simple glider geometry at a prescribed aerodynamic operating point. Surface color shows the vortex strength (or equivalently, $\Delta C_p$ across the wing). Streamlines show the flow field.}
+    \label{fig:ll}
+\end{figure}
+
+As with the VLM, quantitative validation results for this lifting-line analysis are shown later in Section \ref{sec:aero_validation}. In general, the lifting-line method is expected to be more accurate than the VLM for aerodynamic performance prediction purposes (i.e., lift, drag, and moment prediction), due of the incorporation of 2D sectional data. The lifting line also generally leads to more interpretable results, as the local angle of attack, lift coefficient, downwash, and other properties of interest can be directly returned by the analysis. (In a VLM, these quantities must be obtained by integration along the chord, which introduces error and creates extra postprocessing work depending on the data structure of the mesh.)
+
+On the other hand, the VLM has advantages in low-aspect-ratio cases (as spanwise flow becomes more significant, invalidating the force-free wake assumption on the straight trailing vortices), in other highly-3D flow fields, and for angular rate stability derivatives (as the VLM can better capture chord-wise variations in local velocity).
+
+\section{AeroBuildup: A Workbook-style Aerodynamics Buildup}
+
+\begin{attrib}
+    This section includes content from the author's contributions to the AeroSandbox documentation \cite{asb_github}.
+\end{attrib}
+
+\subsection{Method Overview}
+
+While the VLM and lifting-line methods in Sections \ref{sec:vlm} and \ref{sec:ll}
+
+In order to support conceptual-stage aircraft design optimization, AeroSandbox includes a rapid, vectorized aerodynamics engine called AeroBuildup. AeroBuildup's methodology essentially uses a workbook-style buildup to compute aerodynamic forces, moments, and (optionally) stability derivatives. It attempts to model viscous and compressible effects on wings and fuselages across any orientation (360 degrees of 𝛼,𝛽) and arbitrary angular rates (𝑝,𝑞,𝑟).
+
+Obviously, it will be most accurate for semi-realistic flight conditions where theory is sound and experimental data is widely available. (In other words, analyzing an airplane at 𝛼=90∘,𝑀∞=1.00, and huge angular rates will get you an answer that's roughly order-of-magnitude correct, but that's about it.)
+
+Its formulation is largely inspired by the \href{https://en.wikipedia.org/wiki/United_States_Air_Force_Stability_and_Control_Digital_DATCOM}{USAF Digital DATCOM}, which was a "best-practices" rapid aeroprediction tool that combined hundreds of theoretical and empirical models across a wide variety of flight regimes. Many aerodynamic submodels are indeed directly shared with Digital DATCOM.
+
+Compared to Digital DATCOM, AeroBuildup has several advantages and limitations.
+
 
 
 
