@@ -1,5 +1,5 @@
 \chapter{Sparsity Tracing via NaN-Propagation}
-\label{sec:nan_propagation}
+\label{chap:nan_propagation}
 
 A key challenge in applying code transformations is handling external black-box (i.e., non-traceable) function calls within the analysis graph. While code transformations can apply techniques like automatic differentiation and automated sparsity detection to accelerate traceable code, these efficiency gains are lost when opaque black-box functions are present. Here, gradient calculation methods must invariably fall back to slower techniques, such as finite-differencing or complex-step derivative computation \cite{martins_complexstep_2003}. The end result is that patching a black-box model into a code-transformations-based MDO tool using simple finite-differencing usually leads to poor performance.
 
