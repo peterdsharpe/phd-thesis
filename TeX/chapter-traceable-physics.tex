@@ -251,25 +251,203 @@ As with the VLM, quantitative validation results for this lifting-line analysis 
 On the other hand, the VLM has advantages in low-aspect-ratio cases (as spanwise flow becomes more significant, invalidating the force-free wake assumption on the straight trailing vortices), in other highly-3D flow fields, and for angular rate stability derivatives (as the VLM can better capture chord-wise variations in local velocity).
 
 \section{AeroBuildup: A Workbook-style Aerodynamics Buildup}
+\label{sec:ab}
 
 \begin{attrib}
     This section includes content from the author's contributions to the AeroSandbox documentation \cite{asb_github}.
 \end{attrib}
 
-\subsection{Method Overview}
+\subsection{Method Overview and Implementation}
 
-While the VLM and lifting-line methods in Sections \ref{sec:vlm} and \ref{sec:ll}
+While the VLM and lifting-line methods in Sections \ref{sec:vlm} and \ref{sec:ll} provide conceptual-level aerodynamics analyses with strong first-principles grounding, they are limited in their ability to capture many important aerodynamic effects. For example, compressibility effects, fuselage aerodynamics, and high-angle-of-attack aerodynamics all go beyond the capabilities of these methods. Furthermore, these methods can have scalability challenges in combined-vehicle-and-trajectory optimization problems, depending on problem formulation. For example, the Firefly design problem of Section \ref{sec:firefly} requires aerodynamic solutions to be computed at \emph{each} of 200 unique points along the flight trajectory, at each iteration. Computing these solutions using a VLM or lifting-line method\footnote{The astute reader will notice that, in the case of a linear method where geometry and aerodynamic operating point can be separated (like the VLM), one possible strategy to improve this scaling is by saving the LU-factorization and back-substituting unique right-hand-side vectors. However, no analogous strategy exists if either the method is fully nonlinear or if the coefficient matrix depends on the operating point, as is the case with the lifting line implementation here.} increases the total optimization runtime to the point where real-time interactive design is no longer attractive (i.e., an hour or longer), limiting the tool's utility in gathering conceptual design intuition.
 
-In order to support conceptual-stage aircraft design optimization, AeroSandbox includes a rapid, vectorized aerodynamics engine called AeroBuildup. AeroBuildup's methodology essentially uses a workbook-style buildup to compute aerodynamic forces, moments, and (optionally) stability derivatives. It attempts to model viscous and compressible effects on wings and fuselages across any orientation (360 degrees of 𝛼,𝛽) and arbitrary angular rates (𝑝,𝑞,𝑟).
+To address these problems and provide a practical alternative, AeroSandbox includes a rapid, vectorized aerodynamics engine called AeroBuildup. AeroBuildup's methodology essentially uses a workbook-style buildup to compute aerodynamic forces, moments, and (optionally) stability derivatives. It attempts to model viscous and compressible effects on wings and fuselages across any orientation (360 degrees of $\alpha, \beta$) and arbitrary vehicle angular rates ($p$, $q$, $r$). Just as with the VLM and lifting-line methods, the input is both the vehicle geometry\footnote{The vehicle geometry includes a reference point, which is used for moments and stability derivatives.} and an aerodynamic operating point\footnote{An operating point consists of the local atmospheric conditions, airspeed, orientation (angle of attack $\alpha$ and sideslip angle $\beta$), and angular rates ($p$, $q$, and $r$ about the three principal aircraft body axes).}.
 
-Obviously, it will be most accurate for semi-realistic flight conditions where theory is sound and experimental data is widely available. (In other words, analyzing an airplane at 𝛼=90∘,𝑀∞=1.00, and huge angular rates will get you an answer that's roughly order-of-magnitude correct, but that's about it.)
+AeroBuildup combines a variety of both theoretical and empirical models, inspired heavily by the methodology used by USAF Digital DATCOM \cite{datcom}. (Indeed, many of the submodels are directly shared with Digital DATCOM.) Compared to DATCOM, however, AeroBuildup has several advantages that make it more favorable as an analysis to use within a larger aircraft design optimization problem:
 
-Its formulation is largely inspired by the \href{https://en.wikipedia.org/wiki/United_States_Air_Force_Stability_and_Control_Digital_DATCOM}{USAF Digital DATCOM}, which was a "best-practices" rapid aeroprediction tool that combined hundreds of theoretical and empirical models across a wide variety of flight regimes. Many aerodynamic submodels are indeed directly shared with Digital DATCOM.
+\begin{enumerate}
+    \item AeroBuildup aims to \emph{smoothly} model across a wide variety of flight regimes; the model returns $C^1$-continuous aerodynamic results that span from subsonic to supersonic speeds, from attached to separated flow, and from the lowest to highest Reynolds numbers. This contrasts with DATCOM, which requires the user to select submodels appropriate to the flight regime (e.g., small-scale transonic flight), and produces discontinuous results in some cases (e.g., as soon as Mach number crosses a threshold, DATCOM instantly switches to a different wave drag model, which causes a discontinuity in the drag prediction).
 
-Compared to Digital DATCOM, AeroBuildup has several advantages and limitations.
+    \item AeroBuildup makes minimal assumptions about the vehicle configuration. For example, with AeroBuildup any number of wings and fuselages may be specified, and these may be placed in any location; DATCOM forbids certain configurations, such as those with multiple fuselages. As another example, all lifting surfaces in AeroBuildup are simply ``Wing'' objects--the user isn't required to provide any extra semantic meaning (i.e., whether a surface is a horizontal vs. vertical stabilizer) that would change physics modeling. This contrasts with DATCOM, which requires explicit labeling. The end result is that AeroBuildup enables optimization with respect to parameters that are simply not possible with DATCOM\footnote{For example, imagine an airplane with a V-tail, where we wish to optimize the V-tail dihedral angle. DATCOM requires this to be entered as either a horizontal or vertical stabilizer, but it is not clear at what V-tail dihedral angle that switch should be made. This distinction changes DATCOM's results, but of course in reality the actual flow physics should not depend on the semantic label that we give it.}.
+
+    \item AeroBuildup is end-to-end vectorized, which means that multiple aerodynamic operating points can be analyzed simultaneously with hardware-level (SIMD) parallelism. This is especially advantageous in a semi-empirical model like AeroBuildup, as many of the submodels consist of scalar-heavy analytical equations where vectorization buys significant speedups. Because of this vectorization, AeroBuildup is fast enough to be used in combined-vehicle-and-trajectory optimization problems, as demonstrated in Sections \ref{sec:firefly} and \ref{sec:dawn}.
+
+    \item AeroBuildup is designed to be hackable, which allows end-users to easily tweak the analysis for problem-specific considerations without requiring a bespoke aerodynamics analysis. This is facilitated by a) implementation in an accessible high-level language, Python, and b) a codebase that is modular and hierarchical.
+
+    \item AeroBuildup is implemented in an accessible high-level language, Python, which makes it easier for end-users to modify or extend the analysis with problem-specific considerations. The AeroBuildup codebase is also modular and hierarchical; this isolation of components limits the scope that a new user must understand to make a modification.
+
+\end{enumerate}
+
+The basic philosophy of AeroBuildup's approach revolves around a) hierarchical decomposition of the vehicle geometry, b) modeling of individual pieces, and then c) corrections for interactional effects between those pieces. For example, AeroBuildup computes aerodynamics on a per-wing and per-fuselage level, and further breaks down each of these into sectional aerodynamics.
+
+For each wing section, the freestream velocity is computed in the local frame, with streamwise, normal, and crossflow velocities. A rotation-induced local flow velocity is also added to this, which later enables downstream computation of dynamic stability derivatives. This approximate local flow information is used to compute a set of \emph{tentative} sectional aerodynamics (including viscous and compressible effects) using NeuralFoil, a physics-informed machine learning model described in Chapter \ref{chap:physics-informed-ml}. These tentative sectional aerodynamics are then corrected for the wing's self-induced downwash, for 3D compressible effects, and for other 3D effects (e.g., the unsweeping of a lifting line near the root of a swept wing). Induced drag is computed by assuming the wake flows back to the Trefftz plane by projecting the wing's lifting line in the direction of the freestream velocity. After these corrections, the sectional aerodynamics are integrated along the span to obtain the total aerodynamic forces and moments.
+
+Currently, a notable omission of the AeroBuildup model is the influence of downwash from \emph{other} wings; this has the benefit of improving computational speed, but it can lead to inaccuracies in the presence of strong interactions between lifting surfaces. (For example, when analyzing a conventional-configuration airplane using AeroBuildup, the effectiveness of the horizontal stabilizer will usually be slightly overestimated due to the missing downwash influence of the main wing\footnote{One way to conceptually think about this is that the effective lift-curve-slope of the horizontal stabilizer, $C_{L\alpha, h}$, should be slightly reduced due to main-wing downwash; this effect is not captured.}.)
+
+Fuselage modeling generally follows methods described by Jorgensen \cite{jorgensen_method_1973, jorgensen_prediction_1979} and MIL-HDBK-762 \cite{_design_1990}. More precisely, inviscid results are theoretically grounded in slender body theory \cite{fva}, while viscous effects are modeled using an infinite-length crossflow analogy with finite-length corrections. The AeroSandbox geometry stack admits both circular and non-circular fuselages \footnote{Precisely, fuselage cross sections may be superellipse curves with any positive value of the shape parameter.}, and the dependence of crossflow separation location on local fuselage curvature (i.e., corners) is modeled. Wake separation, base drag, and any associated extra lift generation is handled using empirical methods fitted to wind tunnel results on a series of typical body shapes. Likewise, local velocity overspeed and any associated wave drag in transonic cases is computed using empirical relations.
+
+AeroBuildup is a fully explicit calculation method, which means that a result is guaranteed in bounded computational time, without any non-convergence issues. However, the accuracy of this result is strongly dependent on the flight regime of the case in question. For example, AeroBuildup is expected to be most accurate for typical flight conditions where theory is sound and experimental data for validation sub-models is widely available. Generally, this well-behaved region includes flows without regions of massive separation or strong shocks. (AeroBuildup also remains relatively accurate in cases with low and transitional Reynolds numbers, due to viscous methods described in Chapter \ref{sec:physics-informed-ml}.) Quantitative validation results for AeroBuildup against other methods are shown later in Section \ref{sec:aero_validation}.
+
+On the other hand, cases at extreme flight conditions (e.g., $\alpha=90\degree$, $\M_\infty=1.00$) will be much less accurate. However, even in these cases, effort has been taken such that the results from AeroBuildup are at least order-of-magnitude correct. This improves optimization robustness, as even very strange intermediate optimization points will allow the optimizer to gain gradient information and make progress back to the region of reasonable designs.
+
+Beyond optimization applications, however, this property of bounded computational time gives AeroBuildup in various situations that require real-time results. For example, AeroBuildup can be used as a rapid aerodynamics model within flight simulation or real-time control.
+
+\subsection{Example Results}
+
+To illustrate AeroBuildup's ability to rapidly compute aerodynamic results, consider the case of the \emph{MIT Firefly} air vehicle, which is described further in Section \ref{sec:firefly}. The geometry of this air vehicle is shown in Figure \ref{fig:firefly_geometry} using the AeroSandbox geometry stack. Firefly was selected to illustrate some of AeroBuildup's capabilities because its mission CONOPS (Figure \ref{fig:firefly_conops}) subjects the vehicle to an uncommonly large range of interesting aerodynamic operating conditions. These include:
+
+\begin{enumerate}
+    \item High-angle-of-attack flight, which occurs immediately after deployment from the host vehicle. The vehicle may be tumbling at this point, and must passively stabilize to controlled flight.
+
+    \item High-transonic flight, which occurs during the initial boost phase of the vehicle's trajectory. The initial Mach number at launch is $0.8$, and depending on the combination of trajectory constraints that the user specifies, Mach numbers slightly over Mach 1 may be encountered during flight.
+
+    \item Low-Reynolds-number flight, which occurs at all phases but especially at high altitude. For example, at the apogee of the trajectory shown in Figure \ref{fig:firefly_trajectory}, the flow Reynolds number referenced to Firefly's mean aerodynamic chord is just $53 \times 10^3$.
+
+\end{enumerate}
+
+Because of these considerations, Firefly is an excellent test case to show the viability of AeroBuildup to span these various flight regimes in a single model without requiring user intervention. In these cases, the following reference quantities are used, which are derived from the projected area, mean aerodynamic chord, and span of the vehicle's main wing:
+
+% 3 equations side by side, for reference quantities
+\begin{equation}
+    S_{\rm ref} = 0.02335\ \text{m}^2 \qquad c_{\rm ref} = 0.05391\ \text{m} \qquad b_{\rm ref} = 0.4800\ \text{m}
+\end{equation}
+
+\subsubsection{Traditional Aerodynamics Polars}
+
+To begin, we can compute the traditional static aerodynamic polars, which is an ``alpha sweep'': lift, drag, and moment coefficients as a function of the angle of attack $\alpha$. In Figure \ref{fig:ab_polars}, we show the AeroBuildup-computed polars for the MIT Firefly air vehicle, at a representative flight condition of sea level flight at Mach 0.15. This is comparable to the aerodynamic conditions on the Firefly vehicle at the end of its nominal trajectory\footnote{Firefly's optimized trajectory during the glide phases predictably has a nearly-constant indicated airspeed, of around 86 KIAS (44 m/s at sea level). Slight variations occur due to Reynolds effects.}, as shown in Figure \ref{fig:firefly_trajectory}. For this analysis, control surface deflections of zero are used.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=6in]{../figures/aerobuildup_figs/polars.pdf}
+    \caption{Standard static aerodynamic polars for the MIT Firefly air vehicle, computed using AeroBuildup. Analysis is an angle of attack ($\alpha$) sweep at Mach 0.15 and sea level conditions. Control surfaces are not deflected.}
+    \label{fig:ab_polars}
+\end{figure}
+
+To generate the smooth plots in Figure \ref{fig:ab_polars}, 1,000 unique aerodynamic operating points were analyzed with AeroBuildup (each at a different $\alpha$). This process is benchmarked at 3.13 seconds in total on a laptop-grade CPU, or around 3 milliseconds per operating point. This is achievable due to data-level vectorization, allowing for instruction-level parallelism (SIMD) to be automatically performed. (To illustrate this, a single non-vectorized analysis takes roughly 1 second.) In either case, however, this speed combined with the ability to model viscous and compressible effects makes AeroBuildup useful for rapid aerodynamic assessment of new concepts or for aerodynamic database generation.
+
+Figure \ref{fig:ab_polars} demonstrates that AeroBuildup captures several nuanced aerodynamic effects. For example, the lift curve captures both positive and negative stall conditions, and a lift-curve-slope nonlinearity during the attached flow regime near $\alpha=4\degree$ occurs due to sudden early upper-surface turbulent transition along the main wing. Likewise, in the moment polar, we observe a general curving-down nonlinearity, which is ultimately a consequence of the vertical displacement between the center of gravity and the neutral point. The effect of tail stall is also visible near $\alpha=13\degree$ in the moment polar, which causes a slight destabilizing effect. We also note that the moment polar shows that the vehicle requires a modest pitch-up input in order to trim at the target lift coefficient during glide ($C_L\approx 1$), which matches flight test reports by Gaubatz \cite{gaubatz_design_2024}.
+
+\subsubsection{Stability Derivative Calculation}
+
+AeroBuildup also supports the ability to compute stability derivatives (both static and dynamic), due to its local flow velocity computation. By default, this is computed by evaluating finite differences of the aerodynamic operating point with respect to angle of attack, sideslip, and angular rates ($\alpha, \beta, p, q, r$). This approach is the fastest strategy, because these additional analyses can be added to the vectorized evaluation enabling negligible overhead.
+
+As an alternative to finite-differences, an interesting capability that results from the code transformations paradigm is the ability to \emph{directly} compute stability derivatives using automatic differentiation on AeroBuildup itself. Where this gets particularly unique is if this stability derivative then gets used in an optimization problem, as higher-order automatic differentiation may be required. For example, imagine we formulate an aircraft design optimization problem where the objective function is to minimize $C_{m\alpha}$. Here, we might compute $C_{m\alpha}$ by applying automatic differentiation to AeroBuildup (1 derivative). Then, we compute an exact Hessian of $C_{m\alpha}$ with respect to the design variables (2 more derivatives), to faciliate gradient-based optimization. In total, we may be performing triple-nested automatic differentiation of the original AeroBuildup analysis.
+
+Because the operator space of the AeroSandbox numerics stack is closed under differentiation, implementing this higher-order AD is surprisingly straightforward. This fascinating capability offers unique capabilities when optimizing with respect to the evaluated gradients of an analysis, which has applications far beyond aerodynamics. Nevertheless, because AeroBuildup's implementation grants such an unusually large advantage to vectorized evaluation, simple finite-differencing is the default strategy used for stability derivative computation.
+
+In addition to stability derivatives, other quantities of interest, like the location of the aircraft's neutral point, are computed as well. For Firefly at the Mach 0.15, sea level flight condition, AeroBuildup computes a neutral point located at $49\%$ of the main wing's root chord, or $x_{\rm np} = 241\ \rm mm$ aft of a datum placed at the vehicle's nose. For comparison, Gaubatz \cite{gaubatz_design_2024} assessed this same geometry using a vortex-lattice code (AVL \cite{avl}), which produced an estimate for the neutral point that is slightly farther aft\footnote{Note that in Gaubatz \cite{gaubatz_design_2024}, the reference datum is placed at the vehicle's tail rather than nose, so measurements must be subtracted from the vehicle length of 460 mm to convert coordinates to aircraft geometry axes with a nose datum. Note that the vehicle length of 460 mm is shorter than the bounding box of 480 mm, due to the inclusion of an external rocket igniter (briefly shown in Figure \ref{fig:firefly_conops}).}, at $x_{\rm np} = 243\ \rm mm$. Gaubatz's subsequent wind tunnel test campaign produced results\footnote{See stability derivatives reported in Table 3.2 in Gaubatz \cite{gaubatz_design_2024}.} that would indicate a neutral point at $x_{\rm np} = 236\ \rm mm$.
+
+In any case, this indicates that the AeroBuildup result is quite consistent with both experiment and other conceptual-level aerodynamics tools. This is a particularly useful comparison, as proper computation of this neutral point reflects the fact that AeroBuildup's potential-flow-based fuselage aerodynamic computations include the destabilizing contributions of the large fuselage, which is not captured by wing aerodynamics alone.
+
+\subsubsection{High-Angle-of-Attack Flight}
+
+Because AeroBuildup uses sectional data that models post-stall behavior (obtained with a tool called NeuralFoil, described in Chapter \ref{chap:physics-informed-ml}), it is capable of estimating aerodynamic coefficients at extreme angles of attack and sideslip angles. This is a particularly useful capability when designing the Firefly vehicle, which must passively stabilize from a tumbling condition after deployment from the host vehicle.
+
+For example, Figure \ref{fig:ab_high_aoa} gives a ``3D'' version of the traditional aerodynamic polars from Figure \ref{fig:ab_polars}, where these are extended to include sideslip angle $\beta$ as well as angle of attack $\alpha$, both out to $[-90\degree, +90\degree]$. In this study, the MIT Firefly air vehicle is analyzed at sea-level Mach 0.15 conditions.
+
+Of particular interest is the ``moment flow'' diagram in the lower left of Figure \ref{fig:ab_high_aoa}, which shows how the yawing and pitching moment coefficients ($C_n$ and $C_m$) vary throughout the $\alpha, \beta$ phase space; arrows and streamlines indicate the direction that passive aerodynamic moments will tend to point the nose, from any initial vehicle orientation. This mapping is similar to a ``phase portrait'' in dynamical systems theory, though inertial effects are neglected in this strictly-static analysis. Nevertheless, this provides an excellent initial map of the vehicle's passive stability characteristics from upset flight conditions, even those well-past stall. For example, the moment flow diagram indicates that Firefly is passively stable roughly in the regime where $\beta \in [-30\degree, +30\degree]$ and for all $\alpha$, but not outside of this. This may indicate that active control inputs are required to recover from such upset conditions.
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=\textwidth]{../figures/aerobuildup_figs/high_alpha.pdf}
+    \caption{A ``3D'' version of standard aerodynamic polars, where lift, drag, moment (i.e., $C_n$ and $C_m$), and aerodynamic efficiency are given as a function of \emph{both} angle of attack $\alpha$ and sideslip angle $\beta$. Analysis is for the MIT Firefly air vehicle at sea-level Mach 0.15 conditions, with $\alpha$ and $\beta$ varied. Aerodynamics computed with the AeroBuildup physics model, and given for an extreme range of $\alpha, \beta \in [-90\degree, +90\degree]$ to demonstrate post-stall modeling capability. Control surfaces are undeflected in all cases.}
+    \label{fig:ab_high_aoa}
+\end{figure}
+
+This kind of information about post-stall handling qualities of a candidate airframe would ordinarily not be available until well beyond the conceptual design phase. However, AeroBuildup's rapid aerodynamic analysis capability allows for this kind of analysis to be performed in a matter of seconds, enabling the designer to make informed decisions about the vehicle's passive stability characteristics early in the design process.
+
+\subsubsection{Transonic and Low-Reynolds Flight}
+
+Firefly uniquely operates at both low Reynolds numbers and transonic speeds, which are two flight regimes that are traditionally difficult to model with aerodynamics tools. Moreover, the \emph{combination} of these two regimes presents further challenges, as a) limited validation data is available for such conditions, and b) these two conditions create aerodynamic design drivers that are directly opposed to each other, such as the target pressure distribution in pressure recovery zones. Further details on this inherent conflict of transonic and low-Reynolds design drivers are given by Drela \cite{drela_transonic_1992}. In short, this conflict makes it challenging for a designer to know which high-level aerodynamic effects will dominate the vehicle's performance.
+
+AeroBuildup is capable of capturing these effects simultaneously, as shown in Figure \ref{fig:ab_transonic}. Here, the MIT Firefly air vehicle is analyzed across a range of Mach numbers $M_\infty$ and angles of attack $\alpha$. In all cases, atmospheric conditions are taken at Firefly's launch altitude of 30,000 ft. Because of this, Reynolds number also changes as a function of Mach number. In these results, several notable aerodynamic phenomena are captured:
+
+\begin{enumerate}[noitemsep]
+    \item Near the zero-speed condition ($M_\infty \leq 0.05$), the Reynolds number also drops quite low, which precipitates a rise in the drag coefficient $C_D$ and a sudden reduction in the lift-curve slope $C_{L \alpha}$ as the suction-side boundary layer cannot transition.
+    \item At low subsonic conditions, the expected Prandtl-Glauert-like compressibility effects on the overall pressure distribution are visible, which cause the lift curve slope $C_{L \alpha}$ to rise with increasing Mach.
+    \item At transonic speeds ($M_\infty \approx 0.8$), the onset of transonic effects is clearly visible. The Mach number at which these effects begin, $\Mcr$, is a strong function of local pressure drop, and hence, angle of attack. This cross-dependency is successfully captured by AeroBuildup. After such speeds, lift drops markedly due to a buffet model, and drag rises due to the onset of wave drag. This shock effect occurs both at positive and negative angles of attack, but the wing's ability to sustain a larger pressure drop on the suction-side surface causes these transonic effects to be more pronounced at positive angles of attack.
+\end{enumerate}
+
+\noindent This provides a unique view into this combination of nuanced aerodynamic effects that is rare to obtain at the conceptual phase. Because the impact of both transonic and low-Reynolds effects can be considered together, the designer can make a meaningful prediction about which set of competing aerodynamic design drivers is likely to dominate the vehicle's performance.
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=\textwidth]{../figures/aerobuildup_figs/transonic.pdf}
+    \caption{Transonic and low-Reynolds-number aerodynamic effects can be simultaneously captured by AeroBuildup. Here, the MIT Firefly air vehicle is analyzed across a range of Mach numbers $M_\infty$ and angles of attack $\alpha$. In all cases, atmospheric conditions are taken at Firefly's launch altitude of 30,000 ft. Because of this, Reynolds number also indirectly changes as a function of Mach number.}
+    \label{fig:ab_transonic}
+\end{figure}
 
 
+% TODO use case: aerodynamic database generation to support flight simulation or time-domain testing of control laws
 
+\section{Cross-Validation of AeroSandbox Aerodynamics Analyses}
+
+To assess the accuracy of the three AeroSandbox aerodynamics analyses presented in Sections \ref{sec:vlm}, \ref{sec:ll}, and \ref{sec:ab}, a series of cross-validation studies were performed.
+
+\subsection{Flying Wing Validation Study}
+
+The first such validation study is based on a flying wing geometry described in NACA Report RM-A50K27 \cite{tinling_effects_1951}, which provides wind tunnel data as a point of comparison. This validation case study was originally organized by John Yost \cite{yost2022}, and was subsequently refined in collaboration with the author.
+
+The geometry used in this study is described fully by Tinling and Kolk \cite{tinling_effects_1951}, and is also visualized in Figure \ref{fig:fw_geometry}. The wing has a $35\degree$ quarter-chord sweep, a span of $b=3.098\ \rm m$, an aspect ratio of $\AR = 10$, and a taper ratio of $\lambda=0.5$. A constant NACA $\mathrm{64_{1}A012}$ airfoil is used along the entire span, with no twist. The wing is analyzed at a Reynolds number of $\text{Re}=2 \times 10^6$ to match the wind tunnel conditions, corresponding to $91.3\ \rm m/s$ ($M_\infty=0.26$) at sea level.
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=5in]{../figures/aero_validation/flying_wing_geometry.png}
+    \caption{Three-view of the flying wing aircraft geometry used in the AeroSandbox aerodynamics validation study. Based on geometry used in wind tunnel experiements in NACA Report RM-A50K27 \cite{tinling_effects_1951}.}
+    \label{fig:fw_geometry}
+\end{figure}
+
+Using this geometry and freestream conditions, we perform an angle of attack sweep using the three AeroSandbox aerodynamics analyses, to compare to wind tunnel experiment. In addition, several external conceptual-level aerodynamics tools are used for comparison, including:
+\begin{itemize}[noitemsep]
+    \item AVL \cite{avl} (using XFoil \cite{drela_xfoil_1989} for 2D sectional data), a vortex lattice method that is widely used in conceptual aircraft design.
+    \item OpenVSP's VSPAero solver \cite{mcdonald_open_2022}, which is a 3D panel method combined with form-factor-based empirical profile drag buildups.
+    \item LORAAX \cite{loraax}, a fully-coupled 3D panel and 2D (strip-wise) integral boundary layer method. An iterative solution is used to obtain a force-free wake.
+\end{itemize}
+
+AVL \cite{avl} (using XFoil \cite{drela_xfoil_1989} for 2D sectional data), OpenVSP's VSPAero conceptual aerodynamics tool \cite{mcdonald_open_2022}, and Loraax, a 3D panel and integral boundary layer code. The results of this comparison are shown in Figure \ref{fig:fw_results}.
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=\textwidth]{../figures/aero_validation/flying_wing_polars-crop.pdf}
+    \caption{Comparison of aerodynamic polars for the flying wing geometry at $\text{Re}=2 \times 10^6$. The AeroSandbox VLM, lifting-line, and AeroBuildup analyses are compared to wind tunnel data and other conceptual-level aerodynamics tools. The wind tunnel data is reproduced from NACA Report RM-A50K27 \cite{tinling_effects_1951}.}
+    \label{fig:fw_results}
+\end{figure}
+
+In the lift polar of Figure \ref{fig:fw_results}, we observe that the AeroSandbox lifting line models (both quasi-linear and fully nonlinear) capture the nonlinear $C_L(\alpha)$ dependency of the wind tunnel data quite well. Likewise, the AeroBuildup method captures the shape of the lift curve reasonably well. Interestingly, the computational lifting-line methods tend to err low on this highly-swept-wing case while the AeroBuildup method tends to err high, and for exactly opposite reasons. In reality, the lifting line of a highly-swept wing will tend to follow the geometric sweep of the wing, but it will tend to unsweep near the centerline due to the influence of the other wing half. A computational lifting-line method places the aerodynamic lifting line exactly at the locus of geometric quarter-chord-points, which then underestimates the lift at the centerline. (While there \emph{should} be a dip in the lift distribution at the centerline, a computational lifting-line method will predict a more-extreme dip than reality.) On the other hand, AeroBuildup assumes a uniform downwash\footnote{This is usually a reasonable rough assumption for low-induced-drag wings with near-elliptical lift distributions, but in a highly-swept wing case this is violated.}, which results in no dip in the lift distribution near the centerline. Of course, reality is somewhere in between these two limit cases. The ASB vortex lattice method estimates the lift quite well when flow is fully attached, but as is the case with any (linear) vortex lattice method, it struggles to capture the nonlinearities in the lift curve slope near stall.
+
+In the drag polar of Figure \ref{fig:fw_results}, the AeroSandbox lifting line models and AeroBuildup both achieve excellent agreement with the wind tunnel data. This is notable, because this polar is chiefly responsible for overall performance prediction of the aircraft. The AeroSandbox vortex lattice method does not include any profile drag handling, and is thus not expected to match other results -- as discussed in Section \ref{sec:vlm}, the primary intended use of the VLM is for flight dynamics analysis rather than performance prediction.
+
+In the moment polar of Figure \ref{fig:fw_results}, we see that the AeroSandbox vortex lattice method achieves very close agreement with wind tunnel data until separation occurs. This is expected, as vortex lattice methods have a long and successful history of use for conceptual stability and control analysis. The AeroSandbox lifting line methods achieve good agreement on the static stability derivative $C_{m \alpha}$, but a small constant error in the $C_m$ value itself remains. This is also likely due to underestimation of the lift at the centerline, as discussed in the lift polar. The AeroBuildup method achieves closer agreement to wind tunnel data, but it predicts a more gradual onset of stall than the sudden separation seen in experiment.
+
+One of the notable findings of this validation study is that the quasi-linear lifting line and the fully-nonlinear lifting line yield very similar results across lift, drag, and moment polars. Because of this, the quasi-linear lifting line is recommended for use in conceptual design, as it is much faster to compute. The fully-nonlinear lifting line may be useful in specific cases with extensive and important near-stall behavior.
+
+Nevertheless, in all cases here, the discrepancies discussed are well below the threshold of accuracy needed for conceptual aircraft design purposes. (Mostly, the deviations discussed in detail here are presented for theoretical interest.) In particular, the accurate results for the $C_D$-$C_L$ polar highlight the utility of these methods for initial aircraft performance prediction.
+
+\subsection{Glider Validation Study}
+
+The second validation study aims to demonstrate the relative strengths and weaknesses of the AeroSandbox aerodynamics analyses on a more complex geometry that includes multiple wings and a fuselage. This study is based on a sailplane-like geometry given in Figure \ref{fig:glider_geometry}
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=5in]{../figures/aero_validation/glider_geometry.png}
+    \caption{Three-view of the glider aircraft geometry used in the AeroSandbox aerodynamics validation study.}
+    \label{fig:glider_geometry}
+\end{figure}
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=\textwidth]{../figures/aero_validation/glider_polars-crop.pdf}
+    \caption{Comparison of aerodynamic polars for the glider geometry at $\text{Re}=1 \times 10^6$. The AeroSandbox VLM, lifting-line, and AeroBuildup analyses are cross-compared to assess agreement.}
+    \label{fig:glider_results}
+\end{figure}
+
+
+\subsection{Computational Reproducibility}
+
+All code and geometries used in these aerodynamic validation studies are publicly available within the tutorials section of the broader AeroSandbox repository, available at \url{https://github.com/peterdsharpe/AeroSandbox/tree/master/tutorial}.
+
+
+\section{Rigid-Body Equations of Motion}
 
 %
 
