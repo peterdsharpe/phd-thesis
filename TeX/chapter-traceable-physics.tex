@@ -388,7 +388,7 @@ To assess the accuracy of the three AeroSandbox aerodynamics analyses presented 
 
 The first such validation study is based on a flying wing geometry described in NACA Report RM-A50K27 \cite{tinling_effects_1951}, which provides wind tunnel data as a point of comparison. This validation case study was originally organized by John Yost \cite{yost2022}, and was subsequently refined in collaboration with the author.
 
-The geometry used in this study is described fully by Tinling and Kolk \cite{tinling_effects_1951}, and is also visualized in Figure \ref{fig:fw_geometry}. The wing has a $35\degree$ quarter-chord sweep, a span of $b=3.098\ \rm m$, an aspect ratio of $\AR = 10$, and a taper ratio of $\lambda=0.5$. A constant NACA $\mathrm{64_{1}A012}$ airfoil is used along the entire span, with no twist. The wing is analyzed at a Reynolds number of $\text{Re}=2 \times 10^6$ to match the wind tunnel conditions, corresponding to $91.3\ \rm m/s$ ($M_\infty=0.26$) at sea level.
+The geometry used in this study is described fully by Tinling and Kolk \cite{tinling_effects_1951}, and is also visualized in Figure \ref{fig:fw_geometry}. The wing has a $35\degree$ quarter-chord sweep, a span of $b=3.098\ \rm m$, an aspect ratio of $\AR = 10$, and a taper ratio of $\lambda=0.5$. A constant NACA $\mathrm{64_{1}A012}$ airfoil is used along the entire span, with no twist. The wing is analyzed at a Reynolds number of $\text{Re}_c=2 \times 10^6$ to match the wind tunnel conditions, corresponding to $91.3\ \rm m/s$ ($M_\infty=0.26$) at sea level.
 
 \begin{figure}[!htb]
     \centering
@@ -409,7 +409,7 @@ AVL \cite{avl} (using XFoil \cite{drela_xfoil_1989} for 2D sectional data), Open
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\textwidth]{../figures/aero_validation/flying_wing_polars-crop.pdf}
-    \caption{Comparison of aerodynamic polars for the flying wing geometry at $\text{Re}=2 \times 10^6$. The AeroSandbox VLM, lifting-line, and AeroBuildup analyses are compared to wind tunnel data and other conceptual-level aerodynamics tools. The wind tunnel data is reproduced from NACA Report RM-A50K27 \cite{tinling_effects_1951}.}
+    \caption{Comparison of aerodynamic polars for the flying wing geometry at $\text{Re}_c=2 \times 10^6$. The AeroSandbox VLM, lifting-line, and AeroBuildup analyses are compared to wind tunnel data and other conceptual-level aerodynamics tools. The wind tunnel data is reproduced from NACA Report RM-A50K27 \cite{tinling_effects_1951}.}
     \label{fig:fw_results}
 \end{figure}
 
@@ -423,9 +423,11 @@ One of the notable findings of this validation study is that the quasi-linear li
 
 Nevertheless, in all cases here, the discrepancies discussed are well below the threshold of accuracy needed for conceptual aircraft design purposes. (Mostly, the deviations discussed in detail here are presented for theoretical interest.) In particular, the accurate results for the $C_D$-$C_L$ polar highlight the utility of these methods for initial aircraft performance prediction.
 
-\subsection{Glider Validation Study}
+\subsection{Sailplane Cross-Validation Study}
 
-The second validation study aims to demonstrate the relative strengths and weaknesses of the AeroSandbox aerodynamics analyses on a more complex geometry that includes multiple wings and a fuselage. This study is based on a sailplane-like geometry given in Figure \ref{fig:glider_geometry}
+The second validation study aims to demonstrate the relative strengths and weaknesses of the AeroSandbox aerodynamics analyses on a more complex geometry that includes multiple wings (including a non-planar wing) and a fuselage. This study analyzes aerodynamic performance of a small remote-control-scale sailplane, which is drawn in Figure \ref{fig:glider_geometry}. The main wing has a span $b = 2\ \rm m$, a projected area of $S=0.292\ \rm m^2$, and polyhedral with outer sections angled up $11.3\degree$. The horizontal stabilizer is mounted with a geometric decalage of $5\degree$ with respect to the main wing, which keeps the vehicle in trim at zero control surface deflections. The fuselage geometry is a canted body of revolution, and is somewhat thicker than a typical sailplane to test whether fuselage $C_{m\alpha}$ and $C_{n\beta}$ effects are well-captured.
+
+Performance is assessed at sea-level conditions with a freestream velocity of $15\ \rm m/s$, which corresponds to a relatively low Reynolds number of $\text{Re}_c = 155 \times 10^3$ referenced to the mean aerodynamic chord of the main wing.
 
 \begin{figure}[!htb]
     \centering
@@ -434,17 +436,24 @@ The second validation study aims to demonstrate the relative strengths and weakn
     \label{fig:glider_geometry}
 \end{figure}
 
+Figure \ref{fig:glider_results} shows the aerodynamic polars for the glider geometry, computed using the AeroSandbox VLM, lifting-line, and AeroBuildup analyses. In general, trends are relatively similar to the flying wing case. On, lift, Ggod agreement is achieved between all three models. As before, the lifting line and AeroBuildup models able to capture nonlinear lift curve effects that the VLM misses.
+
+On the drag polar, the VLM model once again only reports induced drag (as no profile drag model is included), and thus is not expected to match the other models. The lifting line and AeroBuildup models both agree quite closely on their drag predictions across a range of lift coefficients.
+
+On moment prediction, the lifting line and vortex lattice methods agree reasonably well within the range of angles of attacks that have mostly attached flow ($\alpha \in [-5\degree, +12\degree]$). The AeroBuildup method generally predicts a more-negative $C_{m\alpha}$ derivative; this is likely erroneous, and occurs due to the method's inability to capture the downwash effects of the main wing on the horizontal stabilizer. This is a known limitation of the AeroBuildup method, and is a tradeoff of speed vs. accuracy that could be made in future iterations of the method.
+
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\textwidth]{../figures/aero_validation/glider_polars-crop.pdf}
-    \caption{Comparison of aerodynamic polars for the glider geometry at $\text{Re}=1 \times 10^6$. The AeroSandbox VLM, lifting-line, and AeroBuildup analyses are cross-compared to assess agreement.}
+    \caption{Comparison of aerodynamic polars for the glider geometry of Figure \ref{fig:glider_geometry}. Geometries are assessed at flight conditions corresponding to $\text{Re}_c = 155 \times 10^3$. The AeroSandbox VLM, lifting-line, and AeroBuildup analyses are cross-compared to assess agreement.}
     \label{fig:glider_results}
 \end{figure}
 
+In general, the validation studies in this section demonstrate that the AeroSandbox aerodynamics analyses generally agree with wind tunnel data, external analysis tools, and each other. These studies also indicate that different methods have different strengths and weaknesses: the vortex lattice method is useful for moment and stability derivative estimation, but AeroBuildup and lifting line methods have an advantage in force prediction and performance analysis.
 
 \subsection{Computational Reproducibility}
 
-All code and geometries used in these aerodynamic validation studies are publicly available within the tutorials section of the broader AeroSandbox repository, available at \url{https://github.com/peterdsharpe/AeroSandbox/tree/master/tutorial}.
+All code and aircraft geometries used in these aerodynamic validation studies are publicly available within the tutorials section of the broader AeroSandbox repository, available at \url{https://github.com/peterdsharpe/AeroSandbox/tree/master/tutorial}.
 
 
 \section{Rigid-Body Equations of Motion}
