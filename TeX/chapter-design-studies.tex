@@ -713,13 +713,13 @@ For a more detailed breakdown of the mass changes as a result of fuel choice, we
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth, trim={3in 0 3in 0}]{../figures/Hydrogen/ppt/media/image26.png}
-    \caption{Mass budget for an equivalent \textbf{kerosene}-fueled aircraft design. Takeoff gross weight (TOGW) and operating empty weight (OEW) are given in the center of the diagram.}
+    \caption{Mass budget for an equivalent \textbf{kerosene}-fueled aircraft design, which allows comparison against the \lh design in Figure \ref{fig:h2_mass_budget}. Takeoff gross weight (TOGW) and operating empty weight (OEW) are given in the center of the diagram.}
     \label{fig:kerosene_mass_budget}
 \end{figure}
 
 \subsection{Performance Sweeps}
 
-As with the Firefly example, exploring the impact of a given technology assumption on the design is as simple as changing two lines of code within a procedural-style code transformations framework. Here, the impact of the tank gravimetric efficiency $\eta_{\rm tank}$ on the transport energy efficiency of the \lh-fueled aircraft design was explored. The results of this study are shown in Figure \ref{fig:transport_energy}, which shows that the relative performance of the \lh-fueled aircraft design is highly sensitive to the tank gravimetric efficiency. Given that current tanks have $\eta_{\rm tank}$ values between 50--75\% \cite{brewer_hydrogen_1991}, this implies that \lh transport aircraft are roughly competitive with kerosene-fueled aircraft in terms of transport energy efficiency. This chart also demonstrates why \gh-based aircraft (with $\$\eta_{\rm tank} \approx 10\%$) are wholly infeasible for long-haul aircraft. Finally, this chart gives a clear explanation as to why the relative transport energy of hydrogen aircraft varies so widely in the aircraft design literature -- it is highly sensitive to the assumed tank technology.
+As with the Firefly example, exploring the impact of a given technology assumption on the design is as simple as changing two lines of code within a procedural-style code transformations framework. Here, the impact of the tank gravimetric efficiency $\eta_{\rm tank}$ on the transport energy efficiency of the \lh-fueled aircraft design was explored. The results of this study are shown in Figure \ref{fig:transport_energy}, which shows that the relative performance of the \lh-fueled aircraft design is highly sensitive to the tank gravimetric efficiency. Given that current tanks have $\eta_{\rm tank}$ values between 50--75\% \cite{brewer_hydrogen_1991}, this implies that \lh transport aircraft are roughly competitive with kerosene-fueled aircraft in terms of transport energy efficiency. This chart also demonstrates why \gh-based aircraft (with $\$\eta_{\rm tank} \approx 10\%$) are wholly infeasible for long-haul aircraft. Finally, this chart gives a clear explanation as to why estimates for the relative transport energy of hydrogen aircraft vary so widely in the aircraft design literature -- this metric is highly sensitive to the assumed tank technology.
 
 \begin{figure}[h]
     \centering
@@ -759,16 +759,15 @@ However, this improvement in transport energy efficiency for shorter-than-maximu
     \label{fig:market_segmentation}
 \end{figure}
 
-This is just one example of how a rapid design tool can be used to discover the subtle downstream business-level impacts of a technology choice, which may not be otherwise anticipated. In other cases, this tool can be used to explore the upstream impact of a technology; for example, a study by Gaubatz et al. \cite{gaubatz_estimating_2023} uses this AeroSandbox-based aircraft design tool as one subset of a much broader design study to estimate the grid-level electricity demands of a hydrogen-based long-haul air transportation system.
+This fleet-design study is just one example of how a rapid design tool can be used to discover the subtle downstream business-level impacts of a technology choice, which may not be otherwise anticipated. This tool can also be used to explore the upstream impacts of a technology; for example, a study by Gaubatz et al. \cite{gaubatz_estimating_2023} uses this AeroSandbox-based aircraft design tool as one subset of a much broader design study to estimate the grid-level electricity demands of a hydrogen-based long-haul air transportation system.
 
 \subsection{Computational Reproducibility}
 
 A publicly-accessible repository of the hydrogen aircraft design tool is available at \url{https://github.com/peterdsharpe/transport-aircraft}.
 
-
 \section{Other Aircraft Design Case Studies}
 
-In this final section, we leave brief descriptions and links to other aircraft design case studies that have been conducted using AeroSandbox. While these case studies are not thoroughly described in this document for brevity, they serve to provide more possible starting points for the reader interested in implementing their own aircraft design studies based on the work here.
+In this final section, we leave brief descriptions and links to other aircraft design case studies that have been conducted using AeroSandbox. For brevity, these case studies are not as thoroughly described in this document as previous examples; however, they serve to provide more possible starting points for the reader interested in implementing their own aircraft design studies based on the work here.
 
 \subsection{Solar Seaplane}
 \label{sec:solar-seaplane}

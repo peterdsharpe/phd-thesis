@@ -22,12 +22,12 @@ To achieve these goals, this thesis contributes the traceable implementations of
         hline{3-6}
     }
         \toprule
-        Analysis To Contribute                            & Non-Traceable Analogue                                                        & Tests tracing through\ldots                                                                                                 \\ \midrule
-        Vortex-Lattice Method Aerodynamics Analysis       & AVL \cite{avl}                                                                & An aerospace geometry engine and discretization; large, vectorized matrix methods, like linear solves                       \\
+        Analysis To Contribute                            & Non-Traceable Analogue                                                                                               & Tests tracing through\ldots                                                                                                 \\ \midrule
+        Vortex-Lattice Method Aerodynamics Analysis       & AVL \cite{avl}                                                                                                       & An aerospace geometry engine and discretization; large, vectorized matrix methods, like linear solves                       \\
         Nonlinear Lifting Line Aerodynamics Analysis      & Phillips and Snyder \cite{phillips_modern_2000}, Reid \cite{reid_general_2020}, Weissinger \cite{weissinger1947lift} & Nonlinear systems of equations (i.e., implicit), which often lead to value-dependent code execution (via convergence loops) \\
-        Workbook-style Aerodynamics Buildup               & USAF Digital DATCOM \cite{datcom}                                             & Table lookups, large amounts of conditional logic (yielding a wide, branching graph), and scalar-heavy math                 \\
-        Rigid-Body Equations of Motion                    & ASWING (dynamics) \cite{aswing}                                               & Ordinary differential equations, which are often implemented in a loop-heavy way (yielding a deep graph)                    \\
-        Linearized Aircraft Stability Modal Decomposition & AVL \cite{avl}                                                                & More advanced matrix methods, such as an eigenvalue decomposition                                                           \\
+        Workbook-style Aerodynamics Buildup               & USAF Digital DATCOM \cite{datcom}                                                                                    & Table lookups, large amounts of conditional logic (yielding a wide, branching graph), and scalar-heavy math                 \\
+        Rigid-Body Equations of Motion                    & ASWING (dynamics) \cite{aswing}                                                                                      & Ordinary differential equations, which are often implemented in a loop-heavy way (yielding a deep graph)                    \\
+        Linearized Aircraft Stability Modal Decomposition & AVL \cite{avl}                                                                                                       & More advanced matrix methods, such as an eigenvalue decomposition                                                           \\
         \bottomrule
     \end{tblr}
 
@@ -203,6 +203,7 @@ The optimization problem is solved to tolerance within 18 IPOPT iterations, corr
     \label{fig:vlm_opt_compare}
 \end{figure}
 
+
 \section{Nonlinear Lifting Line Aerodynamics Analysis}
 \label{sec:ll}
 
@@ -250,6 +251,7 @@ As with the VLM, quantitative validation results for this lifting-line analysis 
 
 On the other hand, the VLM has advantages in low-aspect-ratio cases (as spanwise flow becomes more significant, invalidating the force-free wake assumption on the straight trailing vortices), in other highly-3D flow fields, and for angular rate stability derivatives (as the VLM can better capture chord-wise variations in local velocity).
 
+
 \section{AeroBuildup: A Workbook-style Aerodynamics Buildup}
 \label{sec:aerobuildup}
 
@@ -282,7 +284,7 @@ For each wing section, the freestream velocity is computed in the local frame, w
 
 Currently, a notable omission of the AeroBuildup model is the influence of downwash from \emph{other} wings for the purposes of lift computation. This has the benefit of improving computational speed by eliminating a lifting-line-like linear solve, but it can lead to inaccuracies in the presence of strong interactions between lifting surfaces. (For example, when analyzing a conventional-configuration airplane using AeroBuildup, the effectiveness of the horizontal stabilizer will usually be slightly overestimated due to the missing downwash influence of the main wing\footnote{One way to conceptually think about this is that the effective lift-curve-slope of the horizontal stabilizer, $C_{L\alpha, h}$, should be slightly reduced due to main-wing downwash; but this effect is not captured.}.) This modeling decision ultimately comes down to a complexity vs. accuracy tradeoff, and future versions may offer to include these interactional effects as an option.
 
-Fuselage modeling generally follows methods described by Jorgensen \cite{jorgensen_method_1973, jorgensen_prediction_1979} and MIL-HDBK-762 \cite{_design_1990}. More precisely, inviscid results are theoretically grounded in slender body theory \cite{fva}, while viscous effects are modeled using an infinite-length crossflow analogy with finite-length corrections. The AeroSandbox geometry stack admits both circular and non-circular fuselages \footnote{Precisely, fuselage cross sections may be superellipse curves with any positive value of the shape parameter.}, and the dependence of crossflow separation location on local fuselage curvature (i.e., corners) is modeled. Wake separation, base drag, and any associated extra lift generation is handled using empirical methods fitted to wind tunnel results on a series of typical body shapes. Likewise, local velocity overspeed and any associated wave drag in transonic cases is computed using empirical relations. These compressible considerations depend on a variety of fuselage shape factors, but most notably on the effective fineness ratio of the pressure-drop region (i.e., roughly the forward half) of the fuselage.
+Fuselage modeling generally follows methods described by Jorgensen \cite{jorgensen_method_1973, jorgensen_prediction_1979} and MIL-HDBK-762 \cite{_design_1990}. More precisely, inviscid results are theoretically grounded in slender body theory \cite{drela_flight_2013}, while viscous effects are modeled using an infinite-length crossflow analogy with finite-length corrections. The AeroSandbox geometry stack admits both circular and non-circular fuselages \footnote{Precisely, fuselage cross sections may be superellipse curves with any positive value of the shape parameter.}, and the dependence of crossflow separation location on local fuselage curvature (i.e., corners) is modeled. Wake separation, base drag, and any associated extra lift generation is handled using empirical methods fitted to wind tunnel results on a series of typical body shapes. Likewise, local velocity overspeed and any associated wave drag in transonic cases is computed using empirical relations. These compressible considerations depend on a variety of fuselage shape factors, but most notably on the effective fineness ratio of the pressure-drop region (i.e., roughly the forward half) of the fuselage.
 
 AeroBuildup is a fully explicit calculation method, which means that a result is guaranteed in bounded computational time, without any non-convergence issues. However, the accuracy of this result is strongly dependent on the flight regime of the case in question. For example, AeroBuildup is expected to be most accurate for typical flight conditions where theory is sound and experimental data for validation sub-models is widely available. Generally, this well-behaved region includes flows without regions of massive separation or strong shocks. (AeroBuildup also remains relatively accurate in cases with low and transitional Reynolds numbers, due to viscous methods described in Chapter \ref{chap:physics-informed-ml}.) Quantitative validation results for AeroBuildup against other methods are shown later in Section \ref{sec:aero_validation}.
 
@@ -378,6 +380,7 @@ AeroBuildup is capable of capturing these effects simultaneously, as shown in Fi
 
 % TODO use case: aerodynamic database generation to support flight simulation or time-domain testing of control laws
 
+
 \section{Cross-Validation of AeroSandbox Aerodynamics Analyses}
 \label{sec:aero_validation}
 
@@ -457,7 +460,80 @@ All code and aircraft geometries used in these aerodynamic validation studies ar
 
 \section{Rigid-Body Equations of Motion}
 
-Code-transformations-based MDO framework are particularly well-suited for solving combined vehicle-and-trajectory optimization problems, as shown in several studies in Chapter \ref{chap:design-studies}. Fundamentally, this is because the trajectory side of the problem (assuming transcription using direct collocation) forms a large-and-sparse constraint Jacobian, while the vehicle design part of the problem generally forms a small-and-dense constraint Jacobian. A framework that facilitates automatic sparsity detection can naturally deal with this varying sparsity structure without user intervention, which saves significant engineering time.
+Code-transformations-based MDO framework are particularly well-suited for solving combined vehicle-and-trajectory optimization problems, as demonstrated with several of the aircraft design case studies of Chapter \ref{chap:design-studies}. Fundamentally, this is because the trajectory side of the problem (assuming transcription using direct collocation) forms a large-and-sparse constraint Jacobian, while the vehicle design part of the problem generally forms a small-and-dense constraint Jacobian. A framework that facilitates automatic sparsity detection can naturally deal with this varying sparsity structure without user intervention, which saves significant engineering time.
+
+Implementation fundamentally involves two steps: a) defining the equations of motion, and b) transcribing the problem into an optimization framework (i.e., discretization). Both steps can be quite tedious, and are often error-prone (and difficult to debug) due to their complexity. For example, consider the example equations of motion in Equations \ref{eq:rigid-body-eom-1}-\ref{eq:rigid-body-eom-4}; a single sign error will result in silently-incorrect results. Implementing this trajectory optimization problem manually may be necessary or desirable on problems with unique dynamics (e.g., contact dynamics during landing gear touchdown), but for many aerospace problems, much of the code is boilerplate.
+
+Because of this, this thesis implements a general-purpose flight dynamics stack that gives the user the option to bypass this manual process. One challenge of such a general-purpose effort is that different aircraft design problems will require different levels of fidelity in the equations of motion. To handle this, the AeroSandbox dynamics stack uses a series of classes with nested inheritance to allow the user to select the level of fidelity that is appropriate for their problem. Another benefit is that all classes share the same API, which allows for easy one-line swapping between different levels of fidelity. More concretely, all of the implemented
+
+\begin{example}
+    \setstretch{1.25}
+    \textbf{Example: General Newtonian Rigid-Body Equations of Motion}
+
+    \noindent For a rigid 3D object with:
+    \begin{itemize}[noitemsep]
+        \item Mass $m$ and body-axis inertia tensor $\mat{I}$, in a gravity field with acceleration $g$ in the $+\hat{z}_e$ (Earth-frame) direction
+        \item Position $[x_e, y_e, z_e]$ in the Earth frame
+        \item Velocity $[u, v, w]$ in the body frame
+        \item Orientation given by roll-pitch-yaw Euler angles $[\phi, \theta, \psi]$
+        \item Angular velocity $[p, q, r]$ in the body frame
+        \item Forces $[X, Y, Z]$ and moments $[L, M, N]$ in the body frame
+    \end{itemize}
+
+    \noindent Motion is governed by the following 12 coupled first-order differential equations, adapted from Drela \cite{drela_flight_2013}:
+
+    \begin{equation}
+        \begin{aligned}
+            \dot{x}_e &= (\cos \theta \cos \psi) u + (\sin \phi \sin \theta \cos \psi - \cos \phi \sin \psi) v + (\cos \phi \sin \theta \cos \psi + \sin \phi \sin \psi) w \\
+            \dot{y}_e &= (\cos \theta \sin \psi) u + (\sin \phi \sin \theta \sin \psi + \cos \phi \cos \psi) v + (\cos \phi \sin \theta \sin \psi - \sin \phi \cos \psi) w \\
+            \dot{z}_e &= (- \sin \theta) u + (\sin \phi \cos \theta) v + (\cos \phi \cos \theta) w \\
+        \end{aligned}
+        \label{eq:rigid-body-eom-1}
+    \end{equation}
+    \begin{equation}
+        \begin{aligned}
+            \dot{\phi} &= p + q \sin \phi \tan \theta + r \cos \phi \tan \theta \\
+            \dot{\theta} &= q \cos \phi - r \sin \phi \\
+            \dot{\psi} &= \frac{q \sin \phi}{\cos \theta} + \frac{r \cos \phi}{\cos \theta} \\
+        \end{aligned}
+        \label{eq:rigid-body-eom-2}
+    \end{equation}
+    \begin{equation}
+        \begin{aligned}
+            X &= m (\dot{u} + qw - rv + g \sin \theta) \\
+            Y &= m (\dot{v} + ru - pw - g \sin \phi \cos \theta) \\
+            Z &= m (\dot{w} + pv - qu - g \cos \phi \cos \theta) \\
+        \end{aligned}
+        \label{eq:rigid-body-eom-3}
+    \end{equation}
+    \begin{equation}
+        \begin{aligned}
+            L &= I_{xx} \dot{p} + I_{xy} \dot{q} + I_{xz} \dot{r} + (I_{zz}-I_{yy}) qr + I_{yz} (q^2-r^2) + I_{xz} pq - I_{xy} pr \\
+            M &= I_{xy} \dot{p} + I_{yy} \dot{q} + I_{yz} \dot{r} + (I_{xx}-I_{zz}) rp + I_{xz} (r^2-p^2) + I_{xy} qr - I_{yz} qp \\
+            N &= I_{xz} \dot{p} + I_{yz} \dot{q} + I_{zz} \dot{r} + (I_{zz}-I_{xx}) pq + I_{xy} (p^2-q^2) + I_{yz} rp - I_{xz} rq \\
+        \end{aligned}
+        \label{eq:rigid-body-eom-4}
+    \end{equation}
+%    \begin{equation}
+%        \begin{aligned}
+%            \dot{x}_e &= (\cos \theta \cos \psi) u + (\sin \phi \sin \theta \cos \psi - \cos \phi \sin \psi) v + (\cos \phi \sin \theta \cos \psi + \sin \phi \sin \psi) w \\
+%            \dot{y}_e &= (\cos \theta \sin \psi) u + (\sin \phi \sin \theta \sin \psi + \cos \phi \cos \psi) v + (\cos \phi \sin \theta \sin \psi - \sin \phi \cos \psi) w \\
+%            \dot{z}_e &= (- \sin \theta) u + (\sin \phi \cos \theta) v + (\cos \phi \cos \theta) w \\
+%            \dot{\phi} &= p + q \sin \phi \tan \theta + r \cos \phi \tan \theta \\
+%            \dot{\theta} &= q \cos \phi - r \sin \phi \\
+%            \dot{\psi} &= \frac{q \sin \phi}{\cos \theta} + \frac{r \cos \phi}{\cos \theta} \\
+%            X &= m (\dot{u} + qw - rv + g \sin \theta) \\
+%            Y &= m (\dot{v} + ru - pw - g \sin \phi \cos \theta) \\
+%            Z &= m (\dot{w} + pv - qu - g \cos \phi \cos \theta) \\
+%            L &= I_{xx} \dot{p} + I_{xy} \dot{q} + I_{xz} \dot{r} + (I_{zz}-I_{yy}) qr + I_{yz} (q^2-r^2) + I_{xz} pq - I_{xy} pr \\
+%            M &= I_{xy} \dot{p} + I_{yy} \dot{q} + I_{yz} \dot{r} + (I_{xx}-I_{zz}) rp + I_{xz} (r^2-p^2) + I_{xy} qr - I_{yz} qp \\
+%            N &= I_{xz} \dot{p} + I_{yz} \dot{q} + I_{zz} \dot{r} + (I_{zz}-I_{xx}) pq + I_{xy} (p^2-q^2) + I_{yz} rp - I_{xz} rq \\
+%        \end{aligned}
+%    \end{equation}
+\end{example}
+
+% Separation of *state* and *governing equations*
+% Newtonian vs. Hamiltonian
 
 % TODO
 %When solvin
