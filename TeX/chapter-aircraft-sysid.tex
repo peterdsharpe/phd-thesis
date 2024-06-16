@@ -414,7 +414,7 @@ These parameters can be defined as the solution of a residual minimization probl
 
 One other consideration to note with this energy-corrected formulation is that it relies on the time derivative of sensor data. Because our data reconstructors from Section \ref{subsec:optimal_sensor_data_reconstruction} are based on splines, these can be conveniently differentiated by conducting simple polynomial differentiation piecewise between knot points. However, the derivative of the best estimator is not necessarily the bias-variance-optimal estimator of the derivative, due to the amplification of high-frequency variation during the differentiation process. To combat this, we add a Gaussian low-pass-filter with time constant $\sigma=4\ \rm sec$ to the derivative estimator. Developing a rigorous method for determining the optimal filter time constant is left as future work, but is theoretically possible using a cross-validation approach.
 
-\subsection{Modeling the Unknown Functions}
+\subsection{Parameterizing the Unknown Performance Functions}
 \label{subsec:modeling_unknown_functions}
 
 There are two unknown models in Equation \ref{eq:total_power}: the propulsive efficiency and the drag. We replace these with parametric models with forms taken from domain-specific knowledge. In this example, we use simple mathematical relations to demonstrate that even basic restrictions on model form can significantly improve the quality of the resulting model. In practice, more sophisticated models based on parameterized low-fidelity analyses could be used, although this may come at the expense of reduced interpretability.
