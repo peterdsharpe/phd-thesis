@@ -1,58 +1,19 @@
 \chapter{Conclusions}
 
-%In closing, we summarize contributions made and outline a plethora of potential avenues for future research built upon principles established here.
-%
-%
-%\section{Summary of Contributions}
-%
-%%This thesis has demonstrated the advantages of a unified, end-to-end automatic-differentiable framework for engineering design optimization, with specific applications to aircraft design. After identifying the key components of such a framework, we implement such a framework in the form of an open-source Python library called \textit{AeroSandbox}. The performance of this tool is demonstrated on several aerospace design problems throughout Chapter \ref{chapter:core}, where it outperforms state-of-the-art optimization frameworks in speed while also offering increased modeling flexibility.
-%%
-%%In addition to the framework's high-performance optimization core, we also present several tools that support model creation for user problems. These models can then be easily connected to build sophisticated and specialized optimization tools for various engineering problems.
-%
-%%\subsection{Comparison to other Frameworks}
-%%\label{sect:compare}
-%%
-%%\subsubsection{GPKit}
-%%
-%%\subsubsection{OpenMDAO}
-%%
-%%\subsubsection{SUAVE}
-%
-%
-%\section{Future Work}
-%
-%While the framework developed in this thesis has strong optimization fundamentals and extensibility, the applications and benchmarks presented in this work are relatively simple. This increases readability and reproducibility, but it does not fully illustrate the complexity of design problems that can be solved with this automatic-differentiable approach. To summarize the ideas for future work, many auspicious research directions involve developing higher-fidelity differentiable models, integrating with more tools, and providing options to abstract away various common aerospace operations.
-%
-%\subsubsection{Black-Box Functions and Finite Differencing}
-%\label{sect:future-work-black-box}
-%
-%As an optimization framework that first-and-foremost emphasizes automatic differentiability of underlying models, AeroSandbox is currently unable to interface with black-box functions. This is primarily because black-box functions break the trace of a reverse-mode pass through the computational graph. However, depending on the location of such a black-box function in the graph, as well as its input and output dimensionality, black-box functions may still be admissible. The envisioned general strategy would be to partition the computational graph to isolate the function, and explicitly chain-rule through each section of the graph. This would require that the function have a known gradient, which could be either user-provided or estimated via finite-differencing. (Taken to the extreme, the entire model could be treated in this way, which would essentially render AeroSandbox an interface to IPOPT.)
-%
-%Because of the vast number of useful aerospace tools that are not written-in or easily-convertable-to Python, this would significantly increase the breadth of models that could be used. However, unless the external tool is itself efficiently differentiable, the curse of dimensionality described in Section \ref{sect:high-dim-opt} would still apply.
-%
-%%\subsubsection{Investigations of Sparsity Exploitation Efficiency}
-%% TODO VLM Slowdown
-%
-%\subsubsection{Differentiation Frameworks and Numerical Backends}
-%
-%In AeroSandbox, the CasADi package is used to provide an end-to-end differentiable backend. There are a few limitations of this backend. Examples of these are the inability to create arrays with more than two dimensions, unconventional sparse matrix formats, and no parallelization capabilities (due to inability to serialize graph structures as-is). Future work here could investigate the possibility of offering the choice between several numerical backends. While maintaining multiple numerical backends might initially appear onerous, the isolation of the \mintinline{python}{aerosandbox.numpy} module relative to the rest of the AeroSandbox library could allow these to be implemented with minimal effort.
-%
-%Other Python automatic differentiation backends, including JAX and PyTorch, solve a lot of the issues described with CasADi, and therefore they form good candidates for inclusion. However, they each have their own limitations as well. JAX does not have Windows binaries, and its library of differentiable primitive operators is more limited than CasADi. PyTorch has the troublesome habit of deleting the computational graph from memory after each backwards pass - a useful feature in batch machine learning where graphs are different per-batch, but a non-starter in engineering design optimization where graphs are generally static. Both libraries have the advantage of more widespread use than CasADi, but they also have the drawback that they do not include interfaces to second-order gradient-based solvers such as IPOPT.
-%
-%Over a much longer horizon, Julia-based automatic differentiation frameworks (especially Zygote) may become more enticing, contingent on increased maturity and stability of the core language, user adoption, and development of the scientific package ecosystem.
-%
-%%\subsubsection{Assumption Tracking}
-%%
-%%% TODO ability to track and list assumptions of submodels
-%
-%%\subsubsection{$N$-Dimensional Interpolation of Unstructured Data}
-%%% TODO radial basis functions yee
-%%
-%%\subsubsection{Higher-Order and Adaptive Integrators for Dynamics}
-%%% TODO Jason's work
-%%
-%%\subsubsection{Automatic Model Selection for Fitted Models}
-%%% TODO Katherine's work
+This thesis introduces five new contributions to aircraft design, multidisciplinary design optimization, and scientific machine learning. These include:
 
+\begin{enumerate}[noitemsep]
+    \item A code transformations paradigm for engineering design optimization (Chapters \ref{chap:code_transformations} and \ref{chap:design_studies}), and a reference implementation in the open-source Python library AeroSandbox \cite{asb_github}
+    \item Traceable implementations of aerospace physics models (Chapters \ref{chap:design-studies} and \ref{chap:physics})
+    \item Sparsity tracing via NaN-propagation (Chapter \ref{chap:nan_propagation})
+    \item Integration of physics-informed machine learning surrogates into a code transformations framework (Chapter \ref{chap:physics-informed-ml})
+    \item A novel approach to aircraft system identification from minimal flight data (Chapter \ref{chap:aircraft_sysid})
+\end{enumerate}
 
-% TODO ``perhaps the best way to summarize the findings of this thesis in one sentence is this:''
+These contributions are synthesized into a unified framework for engineering design optimization, which is demonstrated throughout on a variety of aerospace design problems. This framework is designed to be high-performance, mathematically-flexible, and user-friendly, in order to address various frictions that industry users currently experience with design optimization workflows (Chapter \ref{chap:literature}). If this thesis is to be distilled into a series of key takeaways, they would be as follows:
+\begin{enumerate}
+    \item Code transformations have enormous potential to improve not only the runtime speed of engineering design optimization problems, but also the ease of model development and implementation. This reduction in the barrier to entry for design optimization can help academic advances translate more readily into industry practice.
+    \item When developing a new multidisciplinary design optimization (MDO) framework, the decision to use a code transformations paradigm is best considered from the outset of the framework's development. Code ultimately must be written with traceability in mind, and this burden will inevitably either be put on the end-user (undesirable) or on the framework developer (preferred). If the latter is to be achieved, the framework itself must be built on top of a unified numerics stack that allows computational graphs to be traced\footnote{As a result, an MDO framework that only adds in automatic differentiation support to individual models after the fact will have more user frictions than a framework that supports this end-to-end. The discussion of limitations around code syntax and style in Section \ref{sec:syntax-interface} provides examples of why this occurs.}.
+\end{enumerate}
+
+\noindent The contributions of this thesis are intended to be a starting point for future research at the intersection of engineering design optimization and scientific machine learning. While the proposed code transformations paradigm maps well onto current popular scientific computing techniques, the astounding rate of progress in scientific machine learning means that further paradigm refinements will be better suited for future frameworks -- it is an exciting time to work in this space. However, regardless of what these future design optimization frameworks look like, this future research cannot lose sight of the end goal, which is to operationalize these techniques into industry practice. Ultimately, research into the practical \emph{applicability} of MDO techniques to built-and-flown aircraft is equally challenging, crucial, and rewarding as work to advance their theoretical underpinnings.
