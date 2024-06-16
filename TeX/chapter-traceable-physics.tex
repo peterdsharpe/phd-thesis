@@ -19,15 +19,15 @@ To achieve these goals, this thesis contributes the traceable implementations of
     \begin{tblr}{
         colspec={@{} X X X @{}},
         row{1}={font=\bfseries},
-        hline{3-6}
+        hline{3-5}
     }
         \toprule
-        Analysis To Contribute                            & Non-Traceable Analogue                                                                                               & Tests tracing through\ldots                                                                                                 \\ \midrule
-        Vortex-Lattice Method Aerodynamics Analysis       & AVL \cite{avl}                                                                                                       & An aerospace geometry engine and discretization; large, vectorized matrix methods, like linear solves                       \\
-        Nonlinear Lifting Line Aerodynamics Analysis      & Phillips and Snyder \cite{phillips_modern_2000}, Reid \cite{reid_general_2020}, Weissinger \cite{weissinger1947lift} & Nonlinear systems of equations (i.e., implicit), which often lead to value-dependent code execution (via convergence loops) \\
-        Workbook-style Aerodynamics Buildup               & USAF Digital DATCOM \cite{datcom}                                                                                    & Table lookups, large amounts of conditional logic (yielding a wide, branching graph), and scalar-heavy math                 \\
-        Rigid-Body Equations of Motion                    & ASWING (dynamics) \cite{aswing}                                                                                      & Ordinary differential equations, which are often implemented in a loop-heavy way (yielding a deep graph)                    \\
-        Linearized Aircraft Stability Modal Decomposition & AVL \cite{avl}                                                                                                       & More advanced matrix methods, such as an eigenvalue decomposition                                                           \\
+        Analysis To Contribute                             & Non-Traceable Analogue                                                                                               & Tests tracing through\ldots                                                                                                 \\ \midrule
+        Vortex-Lattice Method Aerodynamics Analysis        & AVL \cite{avl}                                                                                                       & An aerospace geometry engine and discretization; large, vectorized matrix methods, like linear solves                       \\
+        Nonlinear Lifting Line Aerodynamics Analysis       & Phillips and Snyder \cite{phillips_modern_2000}, Reid \cite{reid_general_2020}, Weissinger \cite{weissinger1947lift} & Nonlinear systems of equations (i.e., implicit), which often lead to value-dependent code execution (via convergence loops) \\
+        Workbook-style Aerodynamics Buildup                & USAF Digital DATCOM \cite{datcom}                                                                                    & Table lookups, large amounts of conditional logic (yielding a wide, branching graph), and scalar-heavy math                 \\
+        Rigid-Body Equations of Motion                     & ASWING (dynamics) \cite{aswing}                                                                                      & Ordinary differential equations, which are often implemented in a loop-heavy way (yielding a deep graph)                    \\
+%        Linearized Aircraft Stability Modal Decomposition & AVL \cite{avl}                                                                                                       & More advanced matrix methods, such as an eigenvalue decomposition                                                           \\
         \bottomrule
     \end{tblr}
 
@@ -261,7 +261,7 @@ On the other hand, the VLM has advantages in low-aspect-ratio cases (as spanwise
 
 \subsection{Method Overview and Implementation}
 
-While the VLM and lifting-line methods in Sections \ref{sec:vlm} and \ref{sec:ll} provide conceptual-level aerodynamics analyses with strong first-principles grounding, they are limited in their ability to capture many important aerodynamic effects. For example, compressibility effects, fuselage aerodynamics, and high-angle-of-attack aerodynamics all go beyond the capabilities of these methods. Furthermore, these methods can have scalability challenges in combined-vehicle-and-trajectory optimization problems, depending on problem formulation. For example, the Firefly design problem of Section \ref{sec:firefly} requires aerodynamic solutions to be computed at \emph{each} of 200 unique points along the flight trajectory, at each iteration. Computing these solutions using a VLM or lifting-line method\footnote{The astute reader will notice that, in the case of a linear method where geometry and aerodynamic operating point can be separated (like the VLM), one possible strategy to improve this scaling is by saving the LU-factorization and back-substituting unique right-hand-side vectors. However, no analogous strategy exists if either the method is fully nonlinear or if the coefficient matrix depends on the operating point, as is the case with the lifting line implementation here.} increases the total optimization runtime to the point where real-time interactive design is no longer attractive (i.e., an hour or longer), limiting the tool's utility in gathering conceptual design intuition.
+While the VLM and lifting-line methods in Sections \ref{sec:vlm} and \ref{sec:ll} provide conceptual-level aerodynamics analyses with strong first-principles grounding, they are limited in their ability to capture many important aerodynamic effects. For example, compressibility effects, fuselage aerodynamics, and high-angle-of-attack aerodynamics all go beyond the capabilities of these methods. Furthermore, these methods can have scalability challenges in combined-vehicle-and-trajectory optimization problems, depending on problem formulation. For example, the \emph{Firefly} design problem of Section \ref{sec:firefly} requires aerodynamic solutions to be computed at \emph{each} of 200 unique points along the flight trajectory, at each iteration. Computing these solutions using a VLM or lifting-line method\footnote{The astute reader will notice that, in the case of a linear method where geometry and aerodynamic operating point can be separated (like the VLM), one possible strategy to improve this scaling is by saving the LU-factorization and back-substituting unique right-hand-side vectors. However, no analogous strategy exists if either the method is fully nonlinear or if the coefficient matrix depends on the operating point, as is the case with the lifting line implementation here.} increases the total optimization runtime to the point where real-time interactive design is no longer attractive (i.e., an hour or longer), limiting the tool's utility in gathering conceptual design intuition.
 
 To address these problems and provide a practical alternative, AeroSandbox includes a rapid, vectorized aerodynamics engine called AeroBuildup. AeroBuildup's methodology essentially uses a workbook-style buildup to compute aerodynamic forces, moments, and (optionally) stability derivatives. It attempts to model viscous and compressible effects on wings and fuselages across any orientation (360 degrees of $\alpha, \beta$) and arbitrary vehicle angular rates ($p$, $q$, $r$). Just as with the VLM and lifting-line methods, the input is both the vehicle geometry\footnote{The vehicle geometry includes a reference point, which is used for moments and stability derivatives.} and an aerodynamic operating point\footnote{An operating point consists of the local atmospheric conditions, airspeed, orientation (angle of attack $\alpha$ and sideslip angle $\beta$), and angular rates ($p$, $q$, and $r$ about the three principal aircraft body axes).}.
 
@@ -459,12 +459,13 @@ All code and aircraft geometries used in these aerodynamic validation studies ar
 
 
 \section{Rigid-Body Equations of Motion}
+\label{sec:dynamics}
 
 Code-transformations-based MDO framework are particularly well-suited for solving combined vehicle-and-trajectory optimization problems, as demonstrated with several of the aircraft design case studies of Chapter \ref{chap:design-studies}. Fundamentally, this is because the trajectory side of the problem (assuming transcription using direct collocation) forms a large-and-sparse constraint Jacobian, while the vehicle design part of the problem generally forms a small-and-dense constraint Jacobian. A framework that facilitates automatic sparsity detection can naturally deal with this varying sparsity structure without user intervention, which saves significant engineering time.
 
-Implementation fundamentally involves two steps: a) defining the equations of motion, and b) transcribing the problem into an optimization framework (i.e., discretization). Both steps can be quite tedious, and are often error-prone (and difficult to debug) due to their complexity. For example, consider the example equations of motion in Equations \ref{eq:rigid-body-eom-1}-\ref{eq:rigid-body-eom-4}; a single sign error will result in silently-incorrect results. Implementing this trajectory optimization problem manually may be necessary or desirable on problems with unique dynamics (e.g., contact dynamics during landing gear touchdown), but for many aerospace problems, much of the code is boilerplate.
+Implementation fundamentally involves three steps: a) parameterizing the system into a state vector, b) defining the equations of motion, and b) transcribing the problem into an optimization framework (i.e., discretization). All three steps can be quite tedious, and are often error-prone (and difficult to debug) due to their complexity. For example, consider the example equations of motion in Equations \ref{eq:rigid-body-eom-1}-\ref{eq:rigid-body-eom-4}; a single sign error will result in silently-incorrect results. Implementing this trajectory optimization problem manually may be necessary or desirable on problems with unique dynamics (e.g., contact dynamics during landing gear touchdown), but for many aerospace problems, much of the code is boilerplate.
 
-Because of this, this thesis implements a general-purpose flight dynamics stack that gives the user the option to bypass this manual process. One challenge of such a general-purpose effort is that different aircraft design problems will require different levels of fidelity in the equations of motion. To handle this, the AeroSandbox dynamics stack uses a series of classes with nested inheritance to allow the user to select the level of fidelity that is appropriate for their problem. Another benefit is that all classes share the same API, which allows for easy one-line swapping between different levels of fidelity. More concretely, all of the implemented
+Because of this, this thesis implements a general-purpose flight dynamics stack that gives the user the option to bypass this manual process. One challenge of such a general-purpose effort is that different aircraft design problems will require different levels of fidelity in the equations of motion. To handle this, the AeroSandbox dynamics stack uses a series of classes with nested inheritance, starting from the highest-allowed fidelity model, which are the 3D rigid-body equations of motion given in Equations \ref{eq:rigid-body-eom-1} to \ref{eq:rigid-body-eom-4}. This approach allows the user to select the level of fidelity that is appropriate for their problem, while minimizing the size and maintenance cost of this codebase through code reuse. Another benefit is that all classes share the same API, which enables the user to easily swap between different levels of fidelity.
 
 \begin{example}
     \setstretch{1.25}
@@ -514,26 +515,97 @@ Because of this, this thesis implements a general-purpose flight dynamics stack 
         \end{aligned}
         \label{eq:rigid-body-eom-4}
     \end{equation}
-%    \begin{equation}
-%        \begin{aligned}
-%            \dot{x}_e &= (\cos \theta \cos \psi) u + (\sin \phi \sin \theta \cos \psi - \cos \phi \sin \psi) v + (\cos \phi \sin \theta \cos \psi + \sin \phi \sin \psi) w \\
-%            \dot{y}_e &= (\cos \theta \sin \psi) u + (\sin \phi \sin \theta \sin \psi + \cos \phi \cos \psi) v + (\cos \phi \sin \theta \sin \psi - \sin \phi \cos \psi) w \\
-%            \dot{z}_e &= (- \sin \theta) u + (\sin \phi \cos \theta) v + (\cos \phi \cos \theta) w \\
-%            \dot{\phi} &= p + q \sin \phi \tan \theta + r \cos \phi \tan \theta \\
-%            \dot{\theta} &= q \cos \phi - r \sin \phi \\
-%            \dot{\psi} &= \frac{q \sin \phi}{\cos \theta} + \frac{r \cos \phi}{\cos \theta} \\
-%            X &= m (\dot{u} + qw - rv + g \sin \theta) \\
-%            Y &= m (\dot{v} + ru - pw - g \sin \phi \cos \theta) \\
-%            Z &= m (\dot{w} + pv - qu - g \cos \phi \cos \theta) \\
-%            L &= I_{xx} \dot{p} + I_{xy} \dot{q} + I_{xz} \dot{r} + (I_{zz}-I_{yy}) qr + I_{yz} (q^2-r^2) + I_{xz} pq - I_{xy} pr \\
-%            M &= I_{xy} \dot{p} + I_{yy} \dot{q} + I_{yz} \dot{r} + (I_{xx}-I_{zz}) rp + I_{xz} (r^2-p^2) + I_{xy} qr - I_{yz} qp \\
-%            N &= I_{xz} \dot{p} + I_{yz} \dot{q} + I_{zz} \dot{r} + (I_{zz}-I_{xx}) pq + I_{xy} (p^2-q^2) + I_{yz} rp - I_{xz} rq \\
-%        \end{aligned}
-%    \end{equation}
 \end{example}
 
-% Separation of *state* and *governing equations*
-% Newtonian vs. Hamiltonian
+From the starting point of Equations \ref{eq:rigid-body-eom-1}-\ref{eq:rigid-body-eom-4}, the AeroSandbox dynamics stack offers users a series of simplifying assumptions that can be applied to reduce the complexity of the equations of motion. A wide variety of possible assumptions are offered, which can generally be grouped as follows:
+\begin{itemize}
+    \item \textbf{Dimensionality and symmetry}: Starting from the full 3D equations of motion, users can reduce to 2D or 1D equations of motion. Even a reduction to two dimensions (e.g., a range-altitude position parameterization, and assuming left-right vehicle symmetry) offers an enormous reduction in complexity, since this eliminates almost all of the gyroscopic, centrifugal, and Coriolis terms.
+    \item \textbf{State parameterization}:
+    \begin{itemize}
+        \item With no simplifications beyond equations \ref{eq:rigid-body-eom-1}-\ref{eq:rigid-body-eom-4}, the vehicle's state vector has 12 elements (position and velocity, each in both a translational and rotational sense; each with 3 components). Here, the instantaneous control inputs to the system are forces and moments. This is referred to as an \emph{inertial} parameterization, where full motion (e.g., tumbling) can be captured.
+        \item The first possible simplification is to make a \emph{point-mass} assumption, where the rotational dynamics (Equations \ref{eq:rigid-body-eom-2} and \ref{eq:rigid-body-eom-4}) are neglected. Instead, now the instantaneous control inputs are orientation: possibly the Euler angles $[\phi, \theta, \psi]$, but in a fixed-wing aircraft context this would more likely be parameterized using the aerodynamic orientation angles $[\alpha, \beta]$. This essentially assumes that vehicle can be ``pointed'' in any desired direction nearly-instantaneously, since this effect (analogous to a short-period mode in aircraft flight dynamics) is much faster than the dynamics of optimization interest\footnote{This is essentially a spectral separation assumption.}. For example, this is the parameterization used in the Firefly rocket-UAV study of Section \ref{sec:firefly}, where the performance dynamics of interest (e.g., the boost-glide trajectory of Figure \ref{fig:firefly_trajectory}) are much slower than the vehicle's orientation dynamics (e.g., the vehicle's short-period and Dutch roll modes).
+        \item A second further simplification is to also eliminate the translational velocity dynamics (Equation \ref{eq:rigid-body-eom-3}). Now, the instantaneous control inputs include not only orientation, but also the velocity itself. This essentially assumes that the vehicle can be flown at any desired velocity, and that the dynamics of this velocity change are much faster than the dynamics of optimization interest. Stated another way, this assumes that transient changes in kinetic energy are so small that they can be neglected. For example, this is the parameterization used in the Dawn solar aircraft study of Section \ref{sec:dawn}, where the major dynamics of interest (e.g., solar flux) are much slower than the transient dynamics of the vehicle's velocity (e.g., phugoid mode).
+    \end{itemize}
+    \item \textbf{Velocity parameterization}: In all 2D and 3D cases, the velocity vector can be parameterized in either Cartesian coordinates or spherical coordinates\footnote{In 2D cases, this corresponds to polar coordinates.}. (In spherical coordinates, velocity is parameterized by a magnitude $V$; a flight path angle $\gamma$; and a bearing angle, sometimes called \emph{track}.) The underlying physics are of course identical, but both parameterizations have unique advantages in a discretized setting:
+    \begin{itemize}
+        \item Cartesian velocity parameterization yields simpler equations of motion, and it eliminates a singularity at $V=0$; this makes it useful for optimizing aerobatic maneuvers.
+        \item Spherical velocity parameterization, on the other hand, offers greatly reduced discretization error due to the ability to use symplectic (energy-preserving) integrators. Here, the velocity magnitude maps directly on to the kinetic energy, so exact energy conservation can be enforced at the parameterization level. This is particularly imporant for problems involving high-$L/D$ airplanes, as the even a miniscule error in the direction of the lift force while flying a curved trajectory will cause it to perform nonzero work, leading to noticeable energy conservation error. The inherent energy conservation of spherical velocity parameterization makes it superior for performance optimization problems, since the (adversarial) optimizer is less able to exploit discretization error to find a solution that is not physically realizable. For this reason, both the Firefly and Dawn studies use spherical velocity parameterization.
+    \end{itemize}
+\end{itemize}
 
-% TODO
-%When solvin
+Choosing an appropriate parameterization can easily change the wall-clock solve time of a trajectory optimization problem by an order of magnitude. For example, if the Dawn solar aircraft design optimization problem were to be parameterized using the full 12-element state vector, the dynamics would span many orders of magnitude in time scale -- with a short-period mode on the order of 1 Hz, and solar dynamics on the order of 24 hours. This situation corresponds mathematically to a stiff ODE system, requiring extremely fine time resolution to remain numerically stable. By choosing a parameterization that eliminates the fast dynamics (and offering a shared API that makes such simplification straightforward), the optimization problem becomes much faster to solve and has better convergence properties. In total, the AeroSandbox dynamics stack offers 8 different ``off-the-shelf'' classes for the user to parameterized vehicle dynamics, each with different combinations of choices from the list of possible assumptions above; this allows the user to identify the appropriate level of fidelity for this problem.
+
+In addition to parameterization, transcription of the dynamics into an optimization formulation is another common user pain point that the AeroSandbox dynamics stack aims to address. Both direct collocation\footnote{Described in more detail by Kelly \cite{kelly_introduction_2017}} and single-shooting transcription methods are supported. Empirically, direct collocation methods tend to result in optimization problems that not only solve faster but also have more stable convergence, so in general these are preferred. However, single-shooting methods enable the use of adaptive-step integrators, which can be useful in problems where stiff dynamics cannot be avoided (e.g., chemical species kinetics in a rocket engine plume, as demonstrated by Mathesius \cite{mathesius_integrated_2023}).
+
+Under either a direct collocation or single-shooting approach, a variety of integrators are available to the user. These include Runge-Kutta methods, forward- and backward-Euler methods, a trapezoidal method, methods based on Simpson's rule, and a cubic reconstruction method. This wide gamut of integrators lets the user select an appropriate integrator, based on speed vs. accuracy and smoothness vs. discontinuity tradeoffs.
+
+\subsection{Trajectory Optimization Case Study: Low-Altitude Air Racing Optimization}
+
+While the \emph{Firefly} and \emph{Dawn} case studies of Chapter \ref{chap:design-studies} demonstrate the usage of the AeroSandbox dynamics stack more broadly for combined vehicle-and-trajectory optimization, this section gives a more focused case study that demonstrates the deep capabilities of the dynamics stack developed in Section \ref{sec:dynamics}.
+
+This aircraft trajectory optimization case study focuses on fast, low-altitude flight through mountainous terrain. Ultimately, this nap-of-the-earth flight is often used for evading radar detection while reaching an objective. This task, recently popularized in prior art starring Cruise et al. \cite{topgunmaverick2022}, is a common and challenging scenario in military aviation.
+
+The task in this case study is to fly a fighter jet between two points 75 km (40 nmi) apart, located near Riffe Lake, Washington, USA. The aircraft's aerodynamics and propulsion physics are loosely modeled after an F/A-18 in full afterburner, ultimately yielding in an average Mach number of 0.95 in the resulting trajectory. This scenario replicates on of the challenges in Microsoft's recent Flight Simulator 2020, which allows results to be compared\footnote{Flight physics will vary slightly between this case study and the Flight Simulator 2020 model, but broader strategic decisions like whether to fly over or around a mountain make for a meaningful comparison.} against known fastest times.
+
+\begin{figure}[h]
+    \centering
+    \includesvg[width=\textwidth]{../figures/air-racing/trajectory.svg}
+    \caption{Top-down visualization of the optimized trajectory for the air racing optimization case study, which uses the AeroSandbox dynamics stack. Vehicle follows the terrain closely to maintain low-altitude flight.}
+    \label{fig:air-racing-trajectory}
+\end{figure}
+
+The objective function of this optimization problem is a combination of flying as low as possible and as fast as possible. A (slight) regularization penalty is also added for aggressive control inputs, which encourages more human-like piloting. Quantitatively, the objective function is given by:
+
+\begin{equation}
+    \text{minimize }
+    \left(
+    \frac
+    {\text{Total flight duration}}
+    {({240\ \rm seconds})}
+    \right)^2 +
+    \left(
+    \frac
+    {\text{Average altitude}}
+    {({30\ \rm feet})}
+    \right) +
+    10^{-3} \cdot w
+\end{equation}
+
+\noindent where the wiggliness $w$ is obtained by integrating the squared second-time-derivative of each control input\footnote{Control inputs include the angle of attack $\alpha$, the bank angle $\phi$, and the throttle setting. Inputs are nondimensionalized by reference values before integration into the $w$ measure.}, and summing them.
+
+The vehicle dynamics are parameterized using the AeroSandbox dynamics stack; the selected parameterization is 3D, uses point-mass equations of motion, and uses a spherical velocity representation. The optimization problem is transcribed using direct collocation, and cubic reconstruction is used for integration. This cubic reconstruction is discrete, creating a cubic local function representation of each integrand over each interval based on a 4-point stencil\footnote{This stencil uses the two endpoints of each interval, and one point beyond either side of the interval.}; this reconstruction is then exactly integrated over each interval.
+
+In addition to the constraints obtained via direct collocation of the vehicle dynamics, the following additional constraints are added to the optimization problem:
+\begin{itemize}
+    \item Initial and final state constraints.
+    \item A path constraint that the altitude must be at least 15 meters (49 feet) above the terrain elevation. This elevation is obtained via a digital elevation model (DEM) of the terrain produced by the U.S. Geological Survey at 1 arc-second (approx. 30 m) resolution \cite{usgs_2022_dem}. To implement this in a way that is $C^1$-continuous with respect to collocation node location, the elevation model is represented as an interpolated 2D hermite spline using the AeroSandbox numerics stack \cite{sharpe_core_2022}.
+    \item The track angle may not deviate from the overall goal direction (i.e., start-to-finish) by more than $75\degree$. This prevents the optimizer from flying in circles, which can cause spurious local minima.
+    \item The vehicle's G-loading must remain in the range $[{-0.5\ \rm G}, {+9.0\ \rm G}]$ at all times, due to both structural and human factors limitations\footnote{One motivation for this rather-modest negative G limit is to test whether the optimizer can discover ridge-crossing maneuvers, as demonstrated in Figure \ref{fig:air-racing-3}.}.
+\end{itemize}
+
+This optimization problem is nonlinear and also highly nonconvex -- a simple example of this nonconvexity is the multiple local minima that can occur if the optimizer flies to the left or right of a mountain. To mitigate this, the optimization problem is warm-started using an initial guess from a simple 2D-grid relaxation using an $\mathrm{A}^*$ search algorithm\footnote{Another good simple choice here would be to initialize using a 3D Dubins path, as demonstrated by Vana et al. \cite{vana20minimal}.}.
+
+The resulting trajectory is shown in a top view in Figure \ref{fig:air-racing-trajectory}, and in 3D views in Figures \ref{fig:air-racing-2} and \ref{fig:air-racing-3}. The trajectory is highly dynamic, with the vehicle navigating a series of quick sequential max-G turns in opposite directions to follow the terrain. The trajectory tends to follow low-altitude areas, like river beds and valleys, which shows the influence of the objective function. The mean altitude above ground level (AGL) throughout the optimized flight trajectory is just 18 meters (59 feet), which is remarkably close to the 15 meter minimum altitude constraint.
+
+To achieve this low-altitude flight, the trajectory optimization algorithm naturally ``discovers'' a low-altitude ridge-crossing maneuver, which involves an inverted high-G turn. This is shown in Figure \ref{fig:air-racing-3}. This maneuver, which is practiced in military nap-of-the-earth flight, allows lower altitudes to be maintained by exploiting the much-higher positive G limit of the vehicle compared to the negative G limit. This is a good example of how the trajectory optimization algorithm can discover novel and unexpected solutions to complex problems.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{../figures/air-racing/2.png}
+    \caption{3D visualization of the optimized trajectory for the air racing optimization case study, which uses the AeroSandbox dynamics stack for both numerical formulation and visualization. Vehicle and wingtip ribbon drawn at 70x scale for visibility. Here, the vehicle navigates a series of quick sequential max-G turns in opposite directions to follow the terrain.}
+    \label{fig:air-racing-2}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{../figures/air-racing/3.png}
+    \caption{3D visualization of the optimized trajectory for the air racing optimization case study, which uses the AeroSandbox dynamics stack for both numerical formulation and visualization. Vehicle and wingtip ribbon drawn at 70x scale for visibility. Here, we show that the trajectory optimization algorithm naturally ``discovers'' a low-altitude ridge-crossing maneuver, which involves an inverted high-G turn. This is a common maneuver practiced in military nap-of-the-earth flight.}
+    \label{fig:air-racing-3}
+\end{figure}
+
+In short, this case study demonstrates the deep capabilities of the AeroSandbox dynamics stack to model complex vehicle dynamics with challenging constraints. When combined with the more performance-oriented case studies in Chapter \ref{chap:design-studies}, these examples show how a code-transformations-based MDO framework facilitates flexible modeling up and down the fidelity ladder.
+
+The code (including data, optimization problem formulation, and visualizations) needed to reproduce this case study is publicly available at \url{https://github.com/peterdsharpe/air-racing-optimization}. This source also includes links to video demonstrations of the optimized trajectory for further inspection.
+
+%\subsection{}
+
