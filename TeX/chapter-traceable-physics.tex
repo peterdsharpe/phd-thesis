@@ -61,6 +61,7 @@ Because of the linearity of the governing equations, the unknown horseshoe vorte
 \subsection{Implementation}
 
 \subsubsection{Discretization}
+\label{sec:geometry_stack}
 
 Based on this theory, a vortex lattice method was implemented into AeroSandbox as a traceable analysis. One of tasks when implementing this analysis is discretizing the geometry (i.e., generate a mesh) in a code-transformations compatible way. Because discretization of a high-level geometry representation is such a common task in engineering analysis, an aircraft geometry stack was built within AeroSandbox to facilitate this. This stack allows one to represent an aircraft geometry at a conceptual level (i.e., within a hierarchical data structure that is not tied to any specific analysis), and then to generate a variety of degenerate geometry representations from this conceptual geometry. These degenerate geometry representations could be a series of 1D beams (for structural analysis), a mean camber line geometry representation (for a VLM aerodynamics analysis), a 3D panel geometry representation (for visualization or for CFD analysis), or any other representation that is needed for a specific analysis. Examples of such degenerate geometry representations that are possible are illustrated in Figure \ref{fig:degen_geometry}. This capability to separate the concept of geometry from its representation makes it much easier to implement multi-physics analysis that may be required in MDO problems.
 
@@ -250,6 +251,58 @@ Figure \ref{fig:ll} shows analogous lifting-line analysis results for the same g
 As with the VLM, quantitative validation results for this lifting-line analysis are shown later in Section \ref{sec:aero_validation}. In general, the lifting-line method is expected to be more accurate than the VLM for aerodynamic performance prediction purposes (i.e., lift, drag, and moment prediction), due of the incorporation of 2D sectional data. The lifting line also generally leads to more interpretable results, as the local angle of attack, lift coefficient, downwash, and other properties of interest can be directly returned by the analysis. (In a VLM, these quantities must be obtained by integration along the chord, which introduces error and creates extra postprocessing work depending on the data structure of the mesh.)
 
 On the other hand, the VLM has advantages in low-aspect-ratio cases (as spanwise flow becomes more significant, invalidating the force-free wake assumption on the straight trailing vortices), in other highly-3D flow fields, and for angular rate stability derivatives (as the VLM can better capture chord-wise variations in local velocity).
+
+\subsection{Multidisciplinary Coupling: Aerostructural Analysis}
+
+The lifting line model developed in this section provides a good opportunity to demonstrate the ability to easily implement coupled multidisciplinary analyses within AeroSandbox. In this case, we can demonstrate a simple static aerostructural analysis of a wing, where the lifting line model is connected to a 6-DoF Euler-Bernoulli beam model.
+
+Here, we study a wing with a fixed jig shape, which is shown in gray in Figure \ref{fig:as_deformation}. This jig shape involves a tapered wing with an aspect ratio of 12, a straight quarter-chord, no dihedral, and a constant DAE-11 airfoil. The spanwise chord distribution of the wing $c(y)$ follows the proportionality relation below:
+
+\begin{equation}
+c(y) \propto \sqrt{1 - \frac{y}{b/2}}\qquad \text{for } 0 \leq y \leq \frac{b}{2}
+\end{equation}
+
+\begin{eqexpl}
+    \item{$c(y)$} The chord length at spanwise location $y$, where $y=0$ is the centerline.
+    \item{$b$} The wing span.
+\end{eqexpl}
+
+The structural properties of the wing are modeled as varying as a function of the local chord, with proportionality relations below. Constants are chosen such that the wing is quite flexible, which allows for a more interesting aerostructural interaction.
+
+\begin{equation}
+    \begin{aligned}
+        EI(y) &\propto c(y)^3 \\
+        GJ(y) &\propto c(y)^3 \\
+    \end{aligned}
+\end{equation}
+
+\begin{eqexpl}[30mm]
+    \item{$EI(y)$} The bending stiffness of the wing at spanwise location $y$.
+    \item{$GJ(y)$} The torsional stiffness of the wing at spanwise location $y$.
+\end{eqexpl}
+
+The wing structural equations have Dirichlet boundary conditions at the root and Neumann conditions at the tip, consistent with a cantilevered symmetric wing. These equations model both bending and torsion effects on the wing. For simplicity, only aerodynamic loads are considered in the analysis, with no additional external loads (e.g., gravity).
+
+The aerodynamic operating point is at an angle of attack of $5\degree$ (measured at the fixed wing root), with a freestream velocity high enough to produce interesting aeroelastic effects.
+
+The resulting aerostructural analysis is implemented in AeroSandbox by coupling the lifting-line analysis to the Euler-Bernoulli beam model. Both models use an identical discretization, which is facilitated through the degenerate geometry representations created by the AeroSandbox geometry stack (as described in Section \ref{sec:geometry_stack}). Coupling is implemented through an all-at-once approach, where the governing equations for the aerodynamic and structural models are solved simultaneously.
+
+This solve quickly obtains an aerostructrual equilibrium condition in just 3 iterations, which is sensible as both the aerodynamic and structural models are almost-linear. Figure \ref{fig:as_deformation} shows the deformed wing shape in blue, relative to the original jig shape in gray. The wing has a noticeable upward deflection and washout at the tip, which is expected due to the aerodynamic lift distribution. Figure \ref{fig:as_spanplot} shows both the aerodynamic and structural quantities of interest as a function of the spanwise location $y$.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{../figures/aerostructural/deformation.pdf}
+    \caption{Fully-coupled aerostructural analysis results for a simple wing geometry. The deformed wing at static aerostructural equilibrium is shown in blue, with the original jig shape shown in gray.}
+    \label{fig:as_deformation}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{../figures/aerostructural/spanplot.pdf}
+    \caption{Aerodynamic and structural quantities of interest as a function of the spanwise location $y$. Pitching moment is measured about the wing's local quarter-chord axis.}
+    \label{fig:as_spanplot}
+\end{figure}
+
 
 
 \section{AeroBuildup: A Workbook-style Aerodynamics Buildup}
