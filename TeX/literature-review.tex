@@ -9,7 +9,7 @@ In this chapter, we review the past, present, and future of aircraft design opti
 
 \begin{quote}
     \setstretch{1.25}
-    \emph{``When an aircraft designer hears that a new program will use multidisciplinary optimization, the reaction is often less than enthusiastic. Over the past 30 years, aircraft optimization at the conceptual and preliminary design levels has often yielded results that were either not believable, or might have been obtained more simply using methods familiar to the engineers. Even 5 to 20 years ago, actual industry application of numerical optimization for aircraft preliminary design was not widespread.''}
+    ``When an aircraft designer hears that a new program will use multidisciplinary optimization, the reaction is often less than enthusiastic. Over the past 30 years, aircraft optimization at the conceptual and preliminary design levels has often yielded results that were either not believable, or might have been obtained more simply using methods familiar to the engineers. Even 5 to 20 years ago, actual industry application of numerical optimization for aircraft preliminary design was not widespread.''
     \flushright-Ilan Kroo, 1997 \cite{kroo_multidisciplinary_1997}
 \end{quote}
 
@@ -57,7 +57,7 @@ It is important to highlight the benefits of this expert-driven manual design st
     ``One of the more successful projects paired one of our most experienced designers with a new-hire who had focused his education more on programming and multidisciplinary optimization than core air vehicle design. The Mentor took the time to help the Mentee understand the value of general aircraft design from an artistic perspective as opposed to a numerical optimization. In order to accomplish this, the Mentor spent a little extra time with the Mentee in the earliest stages of conceptual design, the sketching stage. By forcing the Mentee to quite literally drop the mouse, pick up a pencil and paper, and sketch all the different ways that he could think of that his airplane could look like and be configured, the Mentee had to start thinking about the aircraft as more than just a series of interconnected parametric equations and optimization routines.''
 \end{quote}
 
-This highlights the true requirement for an MDO framework to provide value in industry: it must be transparent enough to the end-user that it enhances, rather than obscures, a designer's artistic vision. A framework that requires significant computer-science or mathematical expertise not only adds a barrier to entry, but it also distracts from the ultimate goal of building and flying a real-world physical system. The most successful design processes in industry are those that leverage the strengths of both human and computer, rather than attempting to replace one with the other.
+This highlights the true requirement for a conceptual MDO framework to provide value in industry: it must be transparent enough to the end-user that it enhances, rather than obscures, a designer's artistic vision. A framework that requires significant computer-science or mathematical expertise not only adds a barrier to entry, but it also distracts from the ultimate goal of building and flying a real-world physical system. The most successful design processes in industry are those that leverage the strengths of both human and computer, rather than attempting to replace one with the other.
 
 To assess the magnitude of this gulf between academic and industry use of MDO, we surveyed industry literature and design reviews to identify aircraft development programs showing three minimal criteria:
 \begin{enumerate}[noitemsep]
@@ -230,7 +230,7 @@ The process of gradient computation for optimization can be further accelerated 
 
 Before Jacobian coloring and compression can be performed, the sparsity pattern of the Jacobian must be known. This is a nontrivial task and an area of active research, with the major complications summarized by Rackauckas \cite{rackauckas_generalizing_2021}. In recent years, automated sparsity detection has enabled automatic construction of sparsity patterns using a tracing approach that is quite similar to that of automatic differentiation. This bypasses many of the potential edge-case failure modes that can occur when trying to infer sparsity purely by inspecting the dense Jacobian, such as conditional branching or cancellation. Indeed, the same computational graph can be used for this process, making this a computationally-efficient addition to a code base that already leverages automatic differentiation. Andersson et al. \cite{casadi} provide an example implementation of this automated sparsity detection within the CasADi framework. Gowda et al. provide a more complete review on state-of-the-art methods in automated sparsity detection \cite{gowda_sparsity_2019}, with state-of-the-art implementations of this by Ma et al. \cite{ma_modelingtoolkit_2021}.
 
-\afterpage{\FloatBarrier}
+%\afterpage{\FloatBarrier}
 
 
 \section{Motivations for Improving Accessibility of Computational Design Optimization}
@@ -260,7 +260,7 @@ In a second example, shown in Figure \ref{fig:motivation_1b}, the other side of 
     \label{fig:motivation_1b}
 \end{figure}
 
-\afterpage{\FloatBarrier}
+%\afterpage{\FloatBarrier}
 
 \subsubsection*{Motivation 2: New Technologies Reignite a Need for Early-Stage Design Exploration}
 
@@ -313,18 +313,17 @@ Another prominent new design space that motivates revisiting first-principles co
     \label{fig:motivation_2b}
 \end{figure}
 
-\afterpage{\FloatBarrier}
+%\afterpage{\FloatBarrier}
 
 \subsubsection*{Motivation 3: Design Space Exploration}
 
-The final and most significant motivation for this thesis' focus on early-stage MDO is that it provides value far beyond merely the point design that results from an optimization study. The true value of conceptual MDO is in determining which questions a design team should be asking. Examples of such questions that might be fueled by a design tool leveraging conceptual MDO are given in Figure \ref{fig:motivation_3}. Though some of these questions can be answered with traditional methods, like post-optimality studies and parameter sweeps, modern conceptual MDO tools can supercharge this to tens, hundreds, or thousands of design variables, allowing for a much more comprehensive exploration of the design space. The inclusion of similarly large numbers of relevant constraints effectively prunes the design space, reining unrealistic designs that a parameter sweep might otherwise yield. This capability is especially important in the early stages of a program, where the design space is often poorly understood and the design team is still developing an intuition for the problem. In this sense, conceptual MDO is a tool for \textit{design space exploration}, not just design optimization.
+The final and most significant motivation for this thesis' focus on early-stage MDO is that it provides value far beyond merely the point design that results from an optimization study. The true value of conceptual MDO is in determining which questions a design team should be asking. Examples of such questions that might be fueled by a design tool leveraging conceptual MDO are given in Figure \ref{fig:motivation_3}.
 
-\begin{figure}[H]
+\begin{figure}[h]
     \centering
     \includegraphics[page=5,trim=0cm 3cm 0cm 6.2cm, clip, width=\textwidth]{../figures/motivation_for_conceptual_MDO_focus.pdf}
     \caption{In addition to answering specific design questions, conceptual MDO tools can help designers develop a broader intuition about the problem space and determine which questions to ask next. This figure gives examples of such exploratory questions.}
     \label{fig:motivation_3}
 \end{figure}
 
-\afterpage{\FloatBarrier}
-
+Though some of these questions can be answered with traditional methods, like post-optimality studies and parameter sweeps, modern conceptual MDO tools can supercharge this to tens, hundreds, or thousands of design variables, allowing for a much more comprehensive exploration of the design space. The inclusion of similarly large numbers of relevant constraints effectively prunes the design space, reining unrealistic designs that a parameter sweep might otherwise yield. This capability is especially important in the early stages of a program, where the design space is often poorly understood and the design team is still developing an intuition for the problem. In this sense, conceptual MDO is a tool for \textit{design space exploration}, not just design optimization.

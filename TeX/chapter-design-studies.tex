@@ -91,7 +91,7 @@ A first simple aircraft design problem, called \emph{SimpleAC}, is included here
         \item {$V_\text{min}$} $25\ \si{\meter/\second}$, the takeoff airspeed.
         \item {$C_{L, \text{max}}$} $1.6$, the takeoff lift coefficient.
         \item {$S_\text{wet}/S$} $2.075$, the wetted area ratio.
-        \item {$W_0$} $6250 \si{\newton}$, the aircraft weight excluding the wing and fuel.
+        \item {$W_0$} $6250\ \si{\newton}$, the aircraft weight excluding the wing and fuel.
         \item {$W_\text{w, c1}$} $2 \times 10^{-5}\ \si{\per\meter}$, a wing weight coefficient.
         \item {$W_\text{w, c2}$} $60\ \si{\Pa}$, another wing weight coefficient.
     \end{eqexpl}
@@ -111,15 +111,15 @@ The code given in Appendix \ref{sec:simpleac-code} converges to a solution in 14
         row{1}={font=\bfseries},
     }
         \toprule
-        Figure of Merit                            & Optimal Value             \\
+        Figure of Merit                            & Optimal Value               \\
         \midrule
-        Fuel weight $W_f$                          & 937.8 \si{\newton}        \\
-        Aspect ratio $\AR$                         & 12.10                     \\
-        Wing area $S$                              & 14.15 \si{\meter\squared} \\
-        Cruise airspeed $V$                        & 57.11 \si{\meter/\second} \\
-        All-up weight $W$                          & 8,705 \si{\newton}        \\
-        Cruise lift coefficient $C_L$              & 0.2901                    \\
-        Fuel volume in fuselage $V_\text{f, fuse}$ & 0.0619 \si{\meter\cubed}  \\
+        Fuel weight $W_f$                          & $937.8\ \si{\newton}$        \\
+        Aspect ratio $\AR$                         & $12.10$                     \\
+        Wing area $S$                              & $14.15\ \si{\meter\squared}$ \\
+        Cruise airspeed $V$                        & $57.11\ \si{\meter/\second}$ \\
+        All-up weight $W$                          & $8,705\ \si{\newton}$        \\
+        Cruise lift coefficient $C_L$              & $0.2901$                    \\
+        Fuel volume in fuselage $V_\text{f, fuse}$ & $0.0619\ \si{\meter\cubed}$  \\
         \bottomrule
     \end{tblr}
 \end{table}
@@ -132,7 +132,7 @@ The code given in Appendix \ref{sec:simpleac-code} converges to a solution in 14
 
 \subsection{Vehicle Overview}
 
-One of the first aircraft design case studies used to develop AeroSandbox was the \emph{MIT Firefly}, a small tube-stowed, rocket-propelled, transonic micro-UAV. The concept of operations of this air vehicle is summarized in Figure \ref{fig:firefly_conops}. Firefly is designed to be deployed in-flight from a host aircraft, launching from a small standardized canister. This requires that the aircraft fit within a $70 \times 70 \times 480$ mm box in its stowed configuration, but the requirements admit the option of unfolding the vehicle into a flight configuration immediately after launch. After launch, the air vehicle is required to maintain an airspeed of at least Mach 0.8 for at least 60 seconds, without loss of altitude; this is termed the ``dash phase''. After the dash phase, the vehicle continues to fly in a ``glide phase'' until it runs out of both propulsive energy and altitude, at which point it performs a controlled crash landing. During this glide phase, there are no airspeed or other trajectory restrictions. The objective of the vehicle design is to maximize the \emph{total mission range}, including both the dash and glide phases.
+One of the first aircraft design case studies used to develop AeroSandbox was the \emph{MIT Firefly}, a small tube-stowed, rocket-propelled, transonic micro-UAV. The concept of operations of this air vehicle is summarized in Figure \ref{fig:firefly_conops}. Firefly is designed to be deployed in-flight from a host aircraft, launching from a small standardized canister. This requires that the aircraft fit within a 70 $\times$ 70 $\times$ 480 mm box in its stowed configuration, but the requirements admit the option of unfolding the vehicle into a flight configuration immediately after launch. After launch, the air vehicle is required to maintain an airspeed of at least Mach 0.8 for at least 60 seconds, without loss of altitude; this is termed the ``dash phase''. After the dash phase, the vehicle continues to fly in a ``glide phase'' until it runs out of both propulsive energy and altitude, at which point it performs a controlled crash landing. During this glide phase, there are no airspeed or other trajectory restrictions. The objective of the vehicle design is to maximize the \emph{total mission range}, including both the dash and glide phases.
 
 \begin{figure}[H]
     \centering
@@ -764,6 +764,7 @@ This fleet-design study is just one example of how a rapid design tool can be us
 \subsection{Computational Reproducibility}
 
 A publicly-accessible repository of the hydrogen aircraft design tool is available at \url{https://github.com/peterdsharpe/transport-aircraft}.
+
 
 \section{Other Aircraft Design Case Studies}
 

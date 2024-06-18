@@ -1,8 +1,10 @@
-\chapter{A Code Transformations Paradigm for Multidisciplinary Design Optimization Frameworks}
+\chapter{A Code Transformations Paradigm for Design Optimization Frameworks}
 \label{chap:code_transformations}
 
+This chapter introduces a new paradigm for engineering design optimization frameworks called \textit{code transformations}. Section \ref{sec:definitions} defines the paradigm and introduces the concept of code traceability. Section \ref{sec:aerosandbox} presents AeroSandbox, a reference implementation of this paradigm. Section \ref{sec:benchmarks} benchmarks this framework against existing ones, measured by the technical and non-technical metrics of Figure \ref{fig:birds_eye_view}. Finally, Section \ref{sec:syntax-interface} introduces observations of ideal syntax and interface design for MDO frameworks.
 
 \section{Introduction and Definitions}
+\label{sec:definitions}
 
 In recent years, several advanced scientific computing techniques have proliferated that offer fundamentally new capabilities by using non-standard interpretations of numerical code \cite{rackauckas_generalizing_2021}. Examples of these techniques include:
 
@@ -60,7 +62,7 @@ A crucial advantage of code transformation over many state-of-the-art methods is
     \newcolumntype{S}{>{\centering\arraybackslash}m{0.21\textwidth}}
     \newcolumntype{Q}{>{\centering\arraybackslash}m{0.16\textwidth}}
 
-    \definecolor{q1}{HTML}{EC0505}
+    \definecolor{q1}{HTML}{BA3434}
     \definecolor{q2}{HTML}{458505}
     \definecolor{q3}{HTML}{068383}
     \definecolor{q4}{HTML}{0C6CFD}
@@ -208,7 +210,7 @@ However, the question remains whether this relaxation of mathematical restrictio
 \begin{figure}[h]
     \centering
     \includegraphics[width=3in,clip,trim={0 4.5cm 0 6.5cm}]{../figures/gpkit-compare/cantilever-beam.png}
-    \caption{Setup for a cantilever beam analysis problem, which is identical to an example in the GPkit user documentation \cite{gpkit} and used as a benchmark to compare solution performance across various frameworks. The beam is discretized into $N$ elements, and a uniform distributed load is applied.}
+    \caption{Setup for a cantilever beam analysis problem, which is identical to an example in the GPkit user documentation \cite{gpkit, gpkit_beam} and used as a benchmark to compare solution performance across various frameworks. The beam is discretized into $N$ elements, and a uniform distributed load is applied.}
     \label{fig:gpkit-cantilever-beam}
 \end{figure}
 
@@ -256,7 +258,7 @@ To demonstrate what this looks like in practice, we implement a benchmark proble
 \begin{figure}[h]
     \centering
     \includegraphics[width=4in]{../figures/om_beam-crop.pdf}
-    \caption{High-level formulation of a beam shape optimization problem, which is identical to an example in the OpenMDAO user documentation \cite{gray_openmdao_2019} and used as a benchmark to compare solution performance across various frameworks. The beam is discretized into $N$ elements along its length, with a point load at the tip.}
+    \caption{High-level formulation of a beam shape optimization problem, which is identical to an example in the OpenMDAO user documentation \cite{gray_openmdao_2019, om_beam} and used as a benchmark to compare solution performance across various frameworks. The beam is discretized into $N$ elements along its length, with a point load at the tip.}
     \label{fig:om-beam-opt}
 \end{figure}
 
@@ -272,7 +274,7 @@ In Figure \ref{fig:benchmark_om_beam}, we compare the wall-clock runtime of Aero
 However, the true advantage of a code transformations framework in this case study is not in runtime speed, but rather in a reduction in engineering time. This ``code complexity'' is challenging to precisely quantify, but one possible (imperfect) metric for this is the number of user-written lines of code required to implement a given problem. Referencing the high-level overview of the optimization user experience in Figure \ref{fig:birds_eye_view}, this metric loosely corresponds to the amount of friction a user must overcome to implement a problem of interest. Table \ref{tab:benchmark_om_beam} shows that the AeroSandbox implementation of this problem requires roughly 8x fewer lines of code than the OpenMDAO one, which suggests that it requires much less engineering effort to develop.
 
 \begin{table}
-    \caption{Comparison of user-written lines of code and wall-clock runtimes between AeroSandbox and OpenMDAO on the beam shape optimization benchmark problem.}
+    \caption{Comparison of user-written lines of code and wall-clock runtimes between AeroSandbox and OpenMDAO on the beam shape optimization benchmark problem. AeroSandbox code implementation is available in Listing \ref{lst:om_beam}, and the OpenMDAO code implementation is given by the OpenMDAO development team \cite{om_beam}.}
     \label{tab:benchmark_om_beam}
     \begin{centering}
         \begin{tblr}{
@@ -412,7 +414,7 @@ The author's prior Master's thesis \cite{sharpe_aerosandbox_2021} further discus
 
 Another relevant consideration in the development of a numerical framework that allows for code transformations is the coding style that is encouraged by the paradigm. In particular, it is much easier to write a traceable numerics stack if one can guarantee that the user's code follows a \emph{functional} programming style, which avoids side effects and mutable state (collectively called ``in-place operations'', since they modify an array without allocating a new memory register). This is because it the most natural way to store intermediate values of a computational graph during evaluation is by directly attaching them to graph nodes. If code is mutable, then different nodes in the graph may point to the same array -- in other words, the same memory location. (An example of this is a pair of nodes that occur immediately before and after an indexed array assignment). This leads to a overwriting of intermediate values during execution. Unfortunately, many code transformations rely on accessing these intermediate values -- for example, reverse-mode automatic differentiation requires these values to evaluate the backward pass.
 
-To address this, some early numerics libraries that support dynamic tracing, like Autograd \cite{maclaurin_autograd_2015, maclaurin_modeling_2016}, simply forbid mutable state in user code -- a functional programming style is required. Pytorch takes a similar approach, though a bit less severe: instead, the developers heavily discourage in-place operations, though still makes an attempt to handle them by attaching a ``version counter'' to each array that is incremented upon mutation \cite{paszke_pytorch_2019}. This approach does not work in a fair number of cases\footnote{An example of this is when the array is externally-referenced both before and after mutation, since this makes memory duplication unavoidable and requires a computational graph rewrite}, but it allows Pytorch to support limited mutation in user code. Critically, in cases where this is not possible, the counter system allows Pytorch to alert the user, rather than silently producing incorrect results.
+To address this, some early numerics libraries that support dynamic tracing, like Autograd \cite{maclaurin_autograd_2015, maclaurin_modeling_2016}, simply forbid mutable state in user code -- a functional programming style is required. PyTorch takes a similar approach, though a bit less severe: instead, the developers heavily discourage in-place operations, though still makes an attempt to handle them by attaching a ``version counter'' to each array that is incremented upon mutation \cite{paszke_pytorch_2019}. This approach does not work in a fair number of cases\footnote{An example of this is when the array is externally-referenced both before and after mutation, since this makes memory duplication unavoidable and requires a computational graph rewrite}, but it allows PyTorch to support limited mutation in user code. Critically, in cases where this is not possible, the counter system allows PyTorch to alert the user, rather than silently producing incorrect results.
 
 On the other hand, other tracing-compatible numerics libraries make an attempt to work around this limitation syntactically, which can allow the use of other coding styles (to varying degrees). For example, while JAX \cite{jax} does not directly support in-place operations, it does offer the user alternative syntax that can be used to replace in-place array element assignments with functional-style array transformations\footnote{For example, in JAX, the in-place code \mintinline{python}{x[0] = 5} can be roughly replaced by the functional code \mintinline{python}{x_new = x.at[0].set(5)}. This places some burden of understanding mutability on the end-user, but in most cases it at least allows some workaround to be performed here.}.
 
