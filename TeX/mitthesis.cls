@@ -475,7 +475,7 @@ at the
 \par
 \@copyrightnotice
 \par
-\vskip 3\baselineskip
+\vskip 2\baselineskip
 \signature{Author}{\@department \\ \@thesisdate}
 \par
 \vfill
@@ -534,7 +534,7 @@ requirements for the \@degreeword\ of \\
 %   document in whole or in part in any medium now known or hereafter
 %   created.}\par}
 
-\def\permission{\par\noindent{\centering
+\def\permission{\par\noindent{\centering\normalsize
 The author hereby grants to MIT a nonexclusive, worldwide, irrevocable, royalty-free license to exercise any and all rights under copyright, including to reproduce, preserve, distribute and publicly display copies of the thesis, or release the thesis under an open-access license.
 }\par}
 

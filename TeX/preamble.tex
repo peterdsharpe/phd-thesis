@@ -47,11 +47,21 @@
     backgroundcolor=black!5
 ]{example}
 
-\usepackage{fontspec}
-\setmonofont{Source Code Pro}
-\setmainfont{TeX Gyre Pagella}
-%\setmainfont{Fira Sans}
-%\setmainfont{TeX Gyre Heros}
+%\usepackage{fontspec}
+\usepackage{mathspec}
+%\setmathsfont(Digits,Latin,Greek)[Numbers={Proportional}]{EB Garamond}
+\setmathrm{EB Garamond}
+
+\widowpenalty=300
+\clubpenalty=300
+
+\defaultfontfeatures{Mapping=tex-text}
+\newfontfamily{\smallcaps}[RawFeature={+c2sc,+scmp}]{EB Garamond}
+\setromanfont[Numbers={Proportional}, Ligatures={Common}]{EB Garamond}
+\setsansfont[Scale=MatchLowercase, BoldFont={Lato Bold}]{Lato Regular}
+\setmonofont[Scale=MatchLowercase]{Source Code Pro}
+
+
 
 \usepackage{tikz}
 \usetikzlibrary{positioning}
@@ -138,3 +148,20 @@
 \usepackage[section]{placeins}
 
 \usepackage{nth}
+
+%\usepackage{titling}
+\usepackage[palatino,nogrey]{quotchap}
+\definecolor{chaptergrey}{HTML}{64ACBE}
+
+
+\usepackage{xstring}
+
+\makeatletter
+    \patchcmd{\@makechapterhead}{\thechapter}{%
+     \IfSubStr{ABCDEFGHIJKLMNOPQRSTUVWXYZ}{\thechapter}{\appname\,\thechapter}{\chapname\,\thechapter}
+    }
+\makeatother
+
+\newcommand{\appname}{{\fontfamily{phv}\fontsize{22pt}{26pt}\selectfont\raisebox{1em}{\textcolor{gray}{Appendix}}}} % set the appendix name <<<<<<<<<<<
+\newcommand{\chapname}{{\fontfamily{phv}\fontsize{22pt}{26pt}\selectfont\raisebox{1em}{\textcolor{gray}{\chaptername}}}} % set the chapter name <<<<<<<<<<<
+
