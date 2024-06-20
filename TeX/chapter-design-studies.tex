@@ -631,10 +631,11 @@ In this study, we formulated an aircraft design problem for a hydrogen-fueled lo
         Wing Span                     & < 64.8 m (213 ft) & FAA AC 150/5300-13 ICAO Group V: 52 – 65 m \\
         Engine-out Climb Gradient     & > 2.4\%           & Part 25.121                                \\
         Fuel Source                   & Hydrogen          &                                            \\
+        \bottomrule
     \end{tblr}
 \end{table}
 
-A three key configuration-level decisions were made a priori based on existing literature:
+Three key configuration-level decisions were made a priori based on existing literature:
 \begin{enumerate}
     \item Choice of \lh fuel, rather than \gh, due to its significantly higher realizable specific energy.
     \item Choice to place fuel in two conformal forward and aft tanks in the fuselage, which results in a smaller center-of-gravity shift during fuel burn compared to a single aft tank\footnote{Having one aft tank requires a larger horizontal stabilizer in order to trim during the center of gravity shift, costing drag. Also, multiple tanks are needed anyway for FAR 25 certification under current guidance.}. Other tank configurations were considered and not selected for boil-off reasons.
@@ -730,7 +731,7 @@ As with the Firefly example, exploring the impact of a given technology assumpti
 
 \subsection{Fleet Design and Market Considerations}
 
-Another example of how a rapid design tool can be used is to explore business-level impacts of a technology choice. To explore just the tip of the iceberg here, here we show how one might think about covering a market of many long-haul flights with different ranges.
+Another example of how a rapid design tool can be used is to explore business-level impacts of a technology choice. To demonstrate this, here we show how one might think about covering a market of many long-haul flights with different ranges.
 
 First, consider the payload-range diagram of the \lh-fueled aircraft design, shown in Figure \ref{fig:h2_payload_range}. This diagram shows the maximum payload that can be carried by the aircraft as a function of range, a key metric of usefulness for an airline. For example, in this simplified model, the aircraft can carry 400 passengers at its design range of 7,500 nmi. For flights slightly longer than this range, the aircraft must reduce the fuel burn by carrying fewer passengers. For flights shorter than this range, the aircraft is seat-limited to its 400 passenger capacity; however, what is not shown here is that less fuel can be carried, which reduces the aircraft's fuel burn and improves its transport energy efficiency.
 
