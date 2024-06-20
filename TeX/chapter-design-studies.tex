@@ -208,7 +208,7 @@ The physics formulation of the optimization problem can be summarized as follows
 
         \textbf{Constraints} (in total, 8,420 constraints), which are primarily drawn from six interacting disciplinary analyses:
         \begin{itemize}
-            \item \textbf{Aerodynamics}: a component-wise buildup of lift, drag, and moment using AeroSandbox's AeroBuildup model, detailed in Section TODO.
+            \item \textbf{Aerodynamics}: a component-wise buildup of lift, drag, and moment using AeroSandbox's AeroBuildup model, detailed in Section \ref{sec:aerobuildup}.
             \item \textbf{Stability \& Control}: a linearized flight dynamics modal analysis, which uses stability derivatives computed by directly differentiating the aerodynamics model and constrains the spectral characteristics of the short-period, Dutch roll, and spiral mode dynamics.
             \item \textbf{Structures \& Mass Properties}: weight closure and structural analysis using first-order models, calibrated to test articles for as-built Firefly prototypes.
             \item \textbf{Propulsion}: A 1D nozzle flow analysis (and in later versions, a detailed reacting chemical kinetics model implemented by Mathesius \cite{mathesius_integrated_2023}), which computes the thrust and specific impulse of the rocket motor at each time point.
@@ -475,7 +475,7 @@ The physics formulation of the optimization problem can be summarized as follows
         \item \textbf{Constraints} (in total, roughly 4,000 constraints), drawn directly and indirectly from several interacting disciplinary analyses, with the major ones as follows:
         \begin{itemize}
 
-            \item \textbf{Aerodynamics}: a component-wise buildup of lift, drag, and moment using AeroSandbox's AeroBuildup model, detailed in Section TODO. A nonlinear lifting line method and a vortex lattice method were also included as alternate options used to validate the buildup model. Optimization solutions typically differ by only a few percent between models, which implies good cross-validation. This is unsurprising, as a solar airplane represents a near-ideal case for typical theoretical assumptions for 3D aerodynamics (high aspect ratios, well-separated lifting surfaces).
+            \item \textbf{Aerodynamics}: a component-wise buildup of lift, drag, and moment using AeroSandbox's AeroBuildup model, detailed in Section \ref{sec:aerobuildup}. A nonlinear lifting line method and a vortex lattice method were also included as alternate options used to validate the buildup model. Optimization solutions typically differ by only a few percent between models, which implies good cross-validation. This is unsurprising, as a solar airplane represents a near-ideal case for typical theoretical assumptions for 3D aerodynamics (high aspect ratios, well-separated lifting surfaces).
 
             \item \textbf{Stability \& Control}: Static stability is verified through a workbook-style buildup of the location of the aircraft's neutral point, with static margin set as 20\% of mean aerodynamic chord\footnote{This static margin, which is a hair high for a high-$L/D$ aircraft, is intended to mitigate risk. Fixing a too-aft CG during detailed design usually costs more weight than fixing a too-forward CG, due to differences in available moment arms.}.
 
