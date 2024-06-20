@@ -382,13 +382,13 @@ We initially approached this aircraft design problem by exploring a wide range o
 
 \subsection{Vehicle Overview}
 
-The MIT Dawn aircraft is a sailplane-like configuration, as shown in Figure \ref{fig:dawn_overview}. On the outboard sections of the wing, two small all-moving aerodynamic surfaces are mounted on booms extending from the wing trailing edge. These two unique surfaces, called \emph{tailerons}, are used for roll control and aeroelastic stabilization; further details on these surfaces are given in recent work by Sharpe, Ulker, and Drela \cite{sharpe_tailerons_2023}. Propulsion is provided by two propellers, which are wing-mounted and driven by electric motors. The payload is held in a separate pod, mounted with a truss beneath the main wing to allow for propeller clearance.
+The Dawn aircraft generally has a sailplane-like conventional configuration, as shown in Figure \ref{fig:dawn_overview}. On the outboard sections of the wing, two small all-moving aerodynamic surfaces are mounted on booms extending from the wing trailing edge. These two unique surfaces, called \emph{tailerons}, are used for roll control and aeroelastic stabilization; further details on these surfaces are given in recent work by Sharpe, Ulker, and Drela \cite{sharpe_tailerons_2023}. Propulsion is provided by two propellers, which are wing-mounted and driven by electric motors. The payload is held in a separate pod, mounted with a truss beneath the main wing to allow for propeller clearance.
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{../figures/dawn1_3view.pdf}
     \includegraphics[width=\textwidth]{../figures/dawn1b.pdf}
-    \caption{Basic aircraft configuration, approximate scale, and major components of the MIT Dawn solar-electric HALE aircraft. Exact aircraft dimensions vary depending on technology assumptions. Figure illustrated by Mark Drela.}
+    \caption{Basic aircraft configuration, approximate scale, and major components of the Dawn solar-electric HALE aircraft. Exact aircraft dimensions vary depending on technology assumptions. Figure illustrated by Mark Drela.}
     \label{fig:dawn_overview}
 \end{figure}
 
@@ -431,7 +431,7 @@ Table \ref{tab:dawn_overview} summarizes various key parameters of the aircraft 
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{../figures/dawnfigures/Mass_breakdown_baseline.png}
-    \caption{High-level mass budget for the MIT Dawn solar-electric HALE aircraft. Large pie chart shows total breakdown, with the smaller pie charts showing subsystem-level breakdowns for the structural and power systems components. Reproduced from Sharpe et al. \cite{sharpe_optimization_2021}.}
+    \caption{High-level mass budget for the Dawn solar-electric HALE aircraft. Large pie chart shows total breakdown, with the smaller pie charts showing subsystem-level breakdowns for the structural and power systems components. Reproduced from Sharpe et al. \cite{sharpe_optimization_2021}.}
     \label{fig:dawn_mass_budget}
 \end{figure}
 
@@ -442,7 +442,7 @@ Table \ref{tab:dawn_overview} summarizes various key parameters of the aircraft 
     This subsection includes content from the author's contributions to prior work by Sharpe, Dewald, and Hansman \cite{sharpe_optimization_2021}.
 \end{attrib}
 
-Just as with the Firefly design problem, the MIT Dawn design problem was formulated as a combined vehicle-and-trajectory optimization problem. The trajectory represents a 24-hour cycle, beginning and ending at solar noon. This periodic interval is of interest here because of the inherent challenge of \emph{diurnal energy closure}: a solar aircraft must be capable of ending any given 24-hour period within the mission envelope with more potential energy (in the forms of battery charge state and altitude) than it started with\footnote{Some additional energy margin must be included here, for robustness. In this study, we add energy generation margin by effectively decreasing the solar insolation in all conditions by a flat 5\% knockdown.}.
+Just as with the Firefly design problem, the Dawn design problem was formulated as a combined vehicle-and-trajectory optimization problem. The trajectory represents a 24-hour cycle, beginning and ending at solar noon. This periodic interval is of interest here because of the inherent challenge of \emph{diurnal energy closure}: a solar aircraft must be capable of ending any given 24-hour period within the mission envelope with more potential energy (in the forms of battery charge state and altitude) than it started with\footnote{Some additional energy margin must be included here, for robustness. In this study, we add energy generation margin by effectively decreasing the solar insolation in all conditions by a flat 5\% knockdown.}.
 
 While sufficient energy generation is key to ensuring energy closure, energy storage also constrains the design space. The aircraft's battery must be sized so that its charge state remains within allowable bounds\footnote{A maximum allowable battery depth-of-discharge of 85\% was assumed.} - given the time-varying solar insolation and unsteady power draws (from the propulsion system, payload, and avionics), evaluating the feasibility of this constraint for a given solution becomes nontrivial. Furthermore, one would expect that a system with cyclic power injections might be optimally operated using a cyclic strategy; and indeed this is observed via altitude cycling under some assumptions.
 
@@ -493,7 +493,7 @@ The physics formulation of the optimization problem can be summarized as follows
 
 \end{example}
 
-Further details on the MIT Dawn MDO problem formulation and constituent models are available in Sharpe et al. \cite{sharpe_optimization_2021}. As with the Firefly problem, the Dawn problem is implemented in AeroSandbox using a SAND architecture; Figure \ref{fig:dawn_xdsm} shows the data flow within the MDO process in extended design structure matrix (XDSM) format \cite{xdsm}.
+Further details on the Dawn MDO problem formulation and constituent models are available in Sharpe et al. \cite{sharpe_optimization_2021}. As with the Firefly problem, the Dawn problem is implemented in AeroSandbox using a SAND architecture; Figure \ref{fig:dawn_xdsm} shows the data flow within the MDO process in extended design structure matrix (XDSM) format \cite{xdsm}.
 
 \begin{figure}[h]
     \centering
@@ -501,7 +501,7 @@ Further details on the MIT Dawn MDO problem formulation and constituent models a
         \setstretch{1.0}
         \input{../figures/dawn_xdsm.tikz}
     \end{adjustbox}
-    \caption{Extended Design Structure Matrix (XDSM) representation of the MIT Dawn solar-electric HALE aircraft design optimization problem. Reproduced from Sharpe et al. \cite{sharpe_optimization_2021}.}
+    \caption{Extended Design Structure Matrix (XDSM) representation of the Dawn solar-electric HALE aircraft design optimization problem. Reproduced from Sharpe et al. \cite{sharpe_optimization_2021}.}
     \label{fig:dawn_xdsm}
 \end{figure}
 
@@ -584,7 +584,7 @@ Table \ref{tab:dawn_sensitivities} gives a selected subset of these sensitivitie
 
 \subsection{Computational Reproducibility}
 
-A publicly-accessible repository of the code used to generate the MIT Dawn conceptual design is available via the \emph{Dawn Design Tool} at \url{https://github.com/peterdsharpe/DawnDesignTool}. We note that this public code has been forked and privately refined in collaboration with the Electra.aero engineering team, so results using this public repository should not be considered representative of any up-to-date design decisions or performance estimates.
+A publicly-accessible repository of the code used to generate the Dawn conceptual design is available via the \emph{Dawn Design Tool} at \url{https://github.com/peterdsharpe/DawnDesignTool}. We note that this public code has been forked and privately refined in collaboration with the Electra.aero engineering team, so results using this public repository should not be considered representative of any up-to-date design decisions or performance estimates.
 
 
 \section{Liquid-Hydrogen-Fueled Long-Haul Transport Aircraft}
