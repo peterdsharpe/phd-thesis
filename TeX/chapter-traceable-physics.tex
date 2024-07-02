@@ -459,7 +459,7 @@ Using this geometry and freestream conditions, we perform an angle of attack swe
     \item LORAAX \cite{loraax}, a fully-coupled 3D panel and 2D (strip-wise) integral boundary layer method. An iterative solution is used to obtain a force-free wake.
 \end{itemize}
 
-AVL \cite{avl} (using XFoil \cite{drela_xfoil_1989} for 2D sectional data), OpenVSP's VSPAero conceptual aerodynamics tool \cite{mcdonald_open_2022}, and Loraax, a 3D panel and integral boundary layer code. The results of this comparison are shown in Figure \ref{fig:fw_results}.
+AVL \cite{avl} (using XFoil \cite{drela_xfoil_1989} for 2D sectional data), OpenVSP's VSPAero conceptual aerodynamics tool \cite{mcdonald_open_2022}, and LORAAX, a 3D panel and integral boundary layer code. The results of this comparison are shown in Figure \ref{fig:fw_results}.
 
 \begin{figure}[!htb]
     \centering
@@ -491,7 +491,7 @@ Performance is assessed at sea-level conditions with a freestream velocity of $1
     \label{fig:glider_geometry}
 \end{figure}
 
-Figure \ref{fig:glider_results} shows the aerodynamic polars for the glider geometry, computed using the AeroSandbox VLM, lifting-line, and AeroBuildup analyses. In general, trends are relatively similar to the flying wing case. On, lift, Ggod agreement is achieved between all three models. As before, the lifting line and AeroBuildup models able to capture nonlinear lift curve effects that the VLM misses.
+Figure \ref{fig:glider_results} shows the aerodynamic polars for the glider geometry, computed using the AeroSandbox VLM, lifting-line, and AeroBuildup analyses. In general, trends are relatively similar to the flying wing case. On, lift, good agreement is achieved between all three models. As before, the lifting line and AeroBuildup models able to capture nonlinear lift curve effects that the VLM misses.
 
 On the drag polar, the VLM model once again only reports induced drag (as no profile drag model is included), and thus is not expected to match the other models. The lifting line and AeroBuildup models both agree quite closely on their drag predictions across a range of lift coefficients.
 
