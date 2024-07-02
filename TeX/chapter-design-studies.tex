@@ -167,7 +167,7 @@ This first-principles design driver calling for the highest-possible volumetric 
 
 These design drivers also allow one to easily foresee that volume allocations will come at a premium when designing Firefly: expanding the volume available for propellant will inevitably result in fuselage shapes that generate more wave drag at the M0.8 dash condition\footnote{because these higher-volume shapes are blunter, and hence cause a deeper low-pressure spike resulting in stronger shock formation}. This sets the stage for an interesting multidisciplinary design optimization problem, where these coupled relationships can be explored further.
 
-\subsection{MDO Problem Formulation}
+\subsection{Aircraft Design Problem Formulation}
 \label{sec:firefly-mdo}
 
 The design of Firefly is formulated as a combined vehicle-and-trajectory optimization problem, as these two are inextricably linked. The trajectory is represented via a predetermined number of discrete points in time (roughly $N=200$), which are connected via a direct collocation method\footnote{A introduction to the math representing the dynamics here is given by Kelly \cite{kelly_introduction_2017}.}. This is depicted in Figure \ref{fig:firefly_time_discretization}.
@@ -435,7 +435,7 @@ Table \ref{tab:dawn_overview} summarizes various key parameters of the aircraft 
     \label{fig:dawn_mass_budget}
 \end{figure}
 
-\subsection{MDO Problem Formulation}
+\subsection{Aircraft Design Problem Formulation}
 \label{sec:dawn-mdo}
 
 \begin{attrib}
