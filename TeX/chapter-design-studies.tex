@@ -143,7 +143,7 @@ One of the first aircraft design case studies used to develop AeroSandbox was th
 
 As explained by Vernacchia \cite{vernacchia_development_2020}, Firefly aims to fill a previously-unexplored ``small and fast gap'' in the aircraft design space, with sustained cruise speeds of Mach 0.8 and a gross weight of 2.2 kg\footnote{For comparison: most air vehicles at this size scale are propeller-driven and fly at roughly Mach 0.2 or less. Most air vehicles capable of this sustained speed have gross weights at least an order of magnitude larger.}.
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \includegraphics[width=\textwidth]{../figures/firefly_cutout-crop.pdf}
     \caption{Cutout-view of MIT Firefly, showing various unique features. CAD render prepared by Julia Gaubatz \cite{gaubatz_design_2024}.}
@@ -222,7 +222,7 @@ The physics formulation of the optimization problem can be summarized as follows
 
 Because every analysis module used in this Firefly design problem is compatible with a code transformations paradigm, formulating this as an ``all-in-one'' optimization problem within a simultaneous analysis and design (SAND) architecture is straightforward \cite{haftka_simultaneous_1985, martins_multidisciplinary_2013}. This overall MDO problem architecture is loosely depicted in Figure \ref{fig:sand}, where most constraints are formulated implicitly. (This contrasts with nested approaches to closure, which is shown in Figure \ref{fig:nested})
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \includesvg[width=\textwidth]{../figures/sand.svg}
     \caption{Schematic of the simultaneous analysis and design (SAND) architecture used for the MIT Firefly MDO problem.}
@@ -235,7 +235,7 @@ The Firefly MDO problem is relatively high-dimensional, with 3,910 decision vari
 
 The point results of the Firefly design optimization problem yields the vehicle design shown in the CAD render of Figure \ref{fig:firefly_cutout}. However, one of the first compelling framework-level observations that was made during this case study was how useful it is to be able to immediately visualize the aircraft geometry within seconds of solving the optimization problem. As quipped by aircraft designer Bob Liebeck\footnote{personal correspondence}, ``you can tell a lot about an airplane by whether it passes the TLAR: `That Looks About Right' .'' Therefore, this case study was the motivation for building the AeroSandbox aircraft geometry stack, a code-transformations-compatible library that allows for rapid visualization of new designs. The raw outputs of this geometry stack are shown in Figure \ref{fig:firefly_geometry}, and the resemblance between this initial OML render from AeroSandbox and the final CAD render of Figure \ref{fig:firefly_cutout} is apparent.
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \includegraphics[width=\textwidth]{../figures/firefly_geometry.png}
     \caption{Raw user-facing output of the AeroSandbox geometry stack for the MIT Firefly UAV.}
@@ -284,7 +284,7 @@ The resulting trajectory, which was simultaneously optimized with the vehicle, i
     \end{enumerate}
 \end{enumerate}
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \includegraphics[width=\textwidth]{../figures/BAE-2022-06-17-Peter/ppt/media/image7.png}
     \caption{Trajectory that maximizes vehicle total range, resulting from the combined vehicle-and-trajectory MDO problem formulation given in Section \ref{sec:firefly-mdo}.}
@@ -322,7 +322,7 @@ For this particular case study, the results of such a sweep are shown in Figure 
 
 Charts like these can be crucial in high-level conceptual decision-making, where an entire family of aircraft can be depicted in a single chart. The results of this design sweep take a few minutes to compute in serial, but parallelization across cores or computers can allow this to be presented to the user in seconds.
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \includegraphics[width=\textwidth]{../figures/firefly_pareto-crop.pdf}
     \caption{Pareto front of the MIT Firefly UAV design space, showing the tradeoff between total range and dash range. Each point represents both a unique vehicle design and trajectory.}
@@ -337,7 +337,7 @@ This experience also motivated the development of purpose-built aircraft flight 
 
 This experience emphasized how useful it is to have an MDO tool that can switch between analysis (e.g., only closure, no optimization) and design modes, as discussed in the birds-eye view of optimization shown in Figure \ref{fig:birds_eye_view}. An MDO tool, if built correctly, has the potential to follow the vehicle through its lifecycle similar to a digital twin, providing value from the conceptual design phase through to flight test.
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \begin{subfigure}[b]{0.5\textwidth}
         \centering
@@ -354,7 +354,7 @@ This experience emphasized how useful it is to have an MDO tool that can switch 
     \label{fig:firefly_flight_test}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \includegraphics[width=0.95\textwidth,trim={0 0.2in 0 0.8in}]{../figures/firefly_flight_render.png}
     \caption{Flown trajectory of the first flight of MIT Firefly, reconstructed and visualized in the AeroSandbox dynamics stack. Vehicle is drawn using a generic aircraft model and at roughly 30x scale, which allows easier visualization of vehicle orientation. Flight test was air-dropped from a quadrotor, with the stabilization period visible at the beginning of the trajectory.}
@@ -384,7 +384,7 @@ We initially approached this aircraft design problem by exploring a wide range o
 
 The Dawn aircraft generally has a sailplane-like conventional configuration, as shown in Figure \ref{fig:dawn_overview}. On the outboard sections of the wing, two small all-moving aerodynamic surfaces are mounted on booms extending from the wing trailing edge. These two unique surfaces, called \emph{tailerons}, are used for roll control and aeroelastic stabilization; further details on these surfaces are given in recent work by Sharpe, Ulker, and Drela \cite{sharpe_tailerons_2023}. Propulsion is provided by two propellers, which are wing-mounted and driven by electric motors. The payload is held in a separate pod, mounted with a truss beneath the main wing to allow for propeller clearance.
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \includegraphics[width=\textwidth]{../figures/dawn1_3view.pdf}
     \includegraphics[width=\textwidth]{../figures/dawn1b.pdf}
@@ -428,7 +428,7 @@ Table \ref{tab:dawn_overview} summarizes various key parameters of the aircraft 
     \end{tblr}
 \end{table}
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \includegraphics[width=\textwidth]{../figures/dawnfigures/Mass_breakdown_baseline.png}
     \caption{High-level mass budget for the Dawn solar-electric HALE aircraft. Large pie chart shows total breakdown, with the smaller pie charts showing subsystem-level breakdowns for the structural and power systems components. Reproduced from Sharpe et al. \cite{sharpe_optimization_2021}.}
@@ -495,7 +495,7 @@ The physics formulation of the optimization problem can be summarized as follows
 
 Further details on the Dawn MDO problem formulation and constituent models are available in Sharpe et al. \cite{sharpe_optimization_2021}. As with the Firefly problem, the Dawn problem is implemented in AeroSandbox using a SAND architecture; Figure \ref{fig:dawn_xdsm} shows the data flow within the MDO process in extended design structure matrix (XDSM) format \cite{xdsm}.
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \begin{adjustbox}{width=\textwidth,center,trim={3.5in 0 0.25in 0}}
         \setstretch{1.0}
@@ -509,7 +509,7 @@ Further details on the Dawn MDO problem formulation and constituent models are a
 
 The result of the optimization process described in Section \ref{sec:dawn-mdo} is the point design summarized in Table \ref{tab:dawn_overview} Figures \ref{fig:dawn_mass_budget}. The point design estimate produced using AeroSandbox was then further refined in collaboration with Electra.aero, leading to the successful construction and first flight of a full-scale demonstrator aircraft, as shown in Figure \ref{fig:dawn_flight}.
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \includegraphics[width=\textwidth]{../figures/dawn_flight.jpg}
     \caption{Photograph of the Dawn One solar-electric HALE aircraft lifting off during its first flight test, in September 2022. Reproduced from Electra.aero \cite{electra_dawn_flight}.}
@@ -528,7 +528,7 @@ Secondly, a steep change in the mission feasibility is observed near $40\degree$
 
 Third, we can identify the impact of specific localized weather phenomena. For example, the southern polar vortex tends to raise stratospheric wind speeds during the month of November at latitudes near $60\degree$ S, which makes station-keeping extremely challenging\footnote{Interestingly, an analogous phenomenon is not observed with the Arctic polar vortex in the northern hemisphere.}.
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \includegraphics[width=\textwidth]{../figures/dawnfigures/30kg_payloadw_mission.png}
     \caption{Feasibility of a solar aircraft throughout the seasonality-latitude mission space, as measured by the minimum required wingspan of an aircraft that achieves energy closure with the required payload. The baseline science mission, which involves summertime flight over the continental United States, is shown with a dashed black rectangle on the plot. Within this rectangle, the sizing case (i.e., most difficult mission) is shown with a black dot. Reproduced from Sharpe et al. \cite{sharpe_optimization_2021}.}
@@ -541,7 +541,7 @@ Early mapping of this broader global mission space allowed the Dawn development 
 
 One of the most useful features of a code transformations framework is that the separation between formulation and numerics allows for rapid problem reformulation. For example, suppose that instead of answering the baseline design problem (which assesses wingspan, given some fixed payload), we wish to instead assess what payload would be possible, given some fixed wingspan. This change can be implemented by changing just two lines of code, and after a few minutes of computation, results from this ``flipped problem'' are available for the user. This is shown in Figure \ref{fig:dawn_payload}, where a fixed span of 34 meters is assumed\footnote{Arbitrarily based on the wingspan of the MIT Daedalus aircraft, as a useful point of comparison for the design team.}.
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \includegraphics[width=\textwidth]{../figures/dawnfigures/max_payload.png}
     \caption{Feasibility of a solar aircraft throughout the seasonality-latitude mission space, as measured by the maximum payload that can be carried by a clean-sheet aircraft dewign with a fixed wingspan of 34 meters. Equivalent to a ``flipped problem'' of Figure \ref{fig:dawn_wingspan}. Reproduced from Sharpe et al. \cite{sharpe_optimization_2021}.}
@@ -648,7 +648,7 @@ From this set of requirements a vehicle design optimization problem was formulat
 
 In the formulation of Figure \ref{fig:h2_formulation}, the objective function the \emph{transport energy efficiency}, which is defined as the chemical potential energy of the fuel burned divided by the economically-useful work (measured in passenger-miles) performed by the aircraft. This metric, which is common in green transportation studies, is often used to compare economic viability across both renewable and nonrenewable solutions, which are otherwise difficult to compare directly \cite{waypoint2050}.
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \includegraphics[width=\textwidth,page=1]{../figures/Hydrogen_figures-crop.pdf}
     \caption{High-level design optimization problem formulation for a liquid-hydrogen-fueled long-haul transport aircraft.}
@@ -661,7 +661,7 @@ This problem is formulated and solved using AeroSandbox, yielding a point design
 
 Another immediate change that is apparent in Figure \ref{fig:h2_three_view} is the placement of the flight deck, which has no forward visibility. This solves pressurization and access challenges, but requires a camera-based forward visibility system. Existing certification pathways of enhanced flight vision systems (EFVS) and synthetic vision systems (SVS) may be used to certify this IFR-only flight deck configuration, but this is an open research question.
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \includesvg[width=\textwidth]{../figures/Hydrogen/ppt/media/image25.svg}
     \caption{Three-view drawing of the \lh-fueled long-haul transport aircraft design.}
@@ -703,7 +703,7 @@ Notably, Table \ref{tab:h2_results} indicates that the transport energy efficien
 
 For a more detailed breakdown of the mass changes as a result of fuel choice, we can inspect the mass budgets of the \lh and kerosene aircraft designs directly. Recent versions of AeroSandbox support mass properties data structures that allow visualizations of these budgets to be generated automatically. Figures \ref{fig:h2_mass_budget} and \ref{fig:kerosene_mass_budget} show the mass budgets of the \lh and kerosene aircraft designs, respectively. These figures show that the \lh aircraft has a much lower fuel mass fraction than the kerosene aircraft; however, it is offset by increased weight in the wing, fuselage, and fuel tanks.
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
 %    \includegraphics[width=0.5in,page=2, trim={2in 0 2in 0}]{../figures/Hydrogen_figures-crop.pdf}
     \includegraphics[width=\textwidth, trim={3in 0 3in 0}]{../figures/Hydrogen/ppt/media/image27.png}
@@ -711,7 +711,7 @@ For a more detailed breakdown of the mass changes as a result of fuel choice, we
     \label{fig:h2_mass_budget}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \includegraphics[width=\textwidth, trim={3in 0 3in 0}]{../figures/Hydrogen/ppt/media/image26.png}
     \caption{Mass budget for an equivalent \textbf{kerosene}-fueled aircraft design, which allows comparison against the \lh design in Figure \ref{fig:h2_mass_budget}. Takeoff gross weight (TOGW) and operating empty weight (OEW) are given in the center of the diagram.}
@@ -722,7 +722,7 @@ For a more detailed breakdown of the mass changes as a result of fuel choice, we
 
 As with the Firefly example, exploring the impact of a given technology assumption on the design is as simple as changing two lines of code within a procedural-style code transformations framework. Here, the impact of the tank gravimetric efficiency $\eta_{\rm tank}$ on the transport energy efficiency of the \lh-fueled aircraft design was explored. The results of this study are shown in Figure \ref{fig:transport_energy}, which shows that the relative performance of the \lh-fueled aircraft design is highly sensitive to the tank gravimetric efficiency. Given that current tanks have $\eta_{\rm tank}$ values between 50--75\% \cite{brewer_hydrogen_1991}, this implies that \lh transport aircraft are roughly competitive with kerosene-fueled aircraft in terms of transport energy efficiency. This chart also demonstrates why \gh-based aircraft (with $\$\eta_{\rm tank} \approx 10\%$) are wholly infeasible for long-haul aircraft. Finally, this chart gives a clear explanation as to why estimates for the relative transport energy of hydrogen aircraft vary so widely in the aircraft design literature -- this metric is highly sensitive to the assumed tank technology.
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \includegraphics[width=\textwidth]{../figures/Hydrogen/ppt/media/image28.png}
     \caption{Comparison of transport energy efficiency of \lh- and kerosene-fueled aircraft, designed around the same mission. Relative performance depends strongly on the \lh tank gravimetric efficiency, which forms a critical performance metric.}
@@ -735,7 +735,7 @@ Another example of how a rapid design tool can be used is to explore business-le
 
 First, consider the payload-range diagram of the \lh-fueled aircraft design, shown in Figure \ref{fig:h2_payload_range}. This diagram shows the maximum payload that can be carried by the aircraft as a function of range, a key metric of usefulness for an airline. For example, in this simplified model, the aircraft can carry 400 passengers at its design range of 7,500 nmi. For flights slightly longer than this range, the aircraft must reduce the fuel burn by carrying fewer passengers. For flights shorter than this range, the aircraft is seat-limited to its 400 passenger capacity; however, what is not shown here is that less fuel can be carried, which reduces the aircraft's fuel burn and improves its transport energy efficiency.
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \includegraphics[width=5in]{../figures/Hydrogen/ppt/media/image30.png}
     \caption{Payload-range diagram for the \lh-fueled aircraft design.}
@@ -744,7 +744,7 @@ First, consider the payload-range diagram of the \lh-fueled aircraft design, sho
 
 However, this improvement in transport energy efficiency for shorter-than-maximum-range flights is not the same for \lh- and kerosene-fueled aircraft. This is because the fuel mass fraction of the \lh aircraft is much lower than that of the kerosene aircraft, so a hydrogen aircraft achieves less benefit from flying shorter-range flights. This is illustrated in Figure \ref{fig:market_segmentation}, where each line shows the transport energy of a particular optimized aircraft design as a function of range. (For each aircraft, the design range is indicated by a dot on the line.) As an operator, the effective transport efficiency \emph{of the combined fleet} is the lower-bound envelope of these curves. Notably, for a kerosene aircraft, there is a relatively small benefit to flying the ``right size airplane for a given mission'', so the market can be covered with two aircraft without much loss in efficiency. For a hydrogen aircraft, this is not the case, and the market must be segmented more finely to achieve the same efficiency.
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \begin{subfigure}[b]{0.49\textwidth}
         \includegraphics[width=\textwidth]{../figures/Hydrogen/ppt/media/image32.png}

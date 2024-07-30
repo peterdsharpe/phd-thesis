@@ -74,7 +74,7 @@ Finally, there are characteristics about performance relations that we can be em
 
 The example given in the subsequent sections is for a small electric-driven propeller aircraft, although the methodology is applicable to any aircraft type. Some considerations for applying this methodology to other aircraft types are discussed in Section \ref{sec:sysid_conclusion}.
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \ifdraft{}{\includegraphics[width=\textwidth, trim=1cm 1cm 1cm 1cm,clip=true]{../figures/aircraft_sysid/overall_procedure}}
     \caption{Process for inference-based performance reconstruction from flight data.}
@@ -92,7 +92,7 @@ General specifications of the aircraft can be found in the early design drawing 
 
 The aircraft was flown in the vicinity of the Charles River basin near Cambridge, MA. Five tests were conducted on the morning of May 3, 2023, of which two were airborne flight tests. The final airborne flight test lasted approximately 260 seconds (4.3 minutes), beginning and ending with a successful water takeoff and landing. Figure \ref{fig:solar_surfer_flight} depicts a still image of the aircraft in flight. A simple racetrack-like pattern was flown, as shown in Figure \ref{fig:solar_surfer_track}. Winds were calm at roughly 1.5 m/s from the south.
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \begin{subfigure}[b]{0.45\textwidth}
         \ifdraft{}{\includegraphics[width=\textwidth]{../figures/aircraft_sysid/Flight1_02549.JPG}}
@@ -111,7 +111,7 @@ The aircraft was flown in the vicinity of the Charles River basin near Cambridge
 
 Figure \ref{fig:raw_flight_data} illustrates the subset of the raw sensor data during flight that will be used for performance reconstruction. Overall, the data is reasonable, and we can clearly identify takeoff and landing by the strong increase in barometric altimeter noise near $t=0\ \rm sec$ and $t=263\ \rm sec$. We can also identify several distinct flight phases, such as a high-speed pass near $t=150\ \rm sec$ and gliding periods near $t=40\ \rm sec$, $t=210\ \rm sec$, and $t=250\ \rm sec$.
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \ifdraft{}{\includegraphics[width=\textwidth]{../figures/aircraft_sysid/flight_raw_data}}
     \caption{Raw sensor data from \emph{Solar Surfer} aircraft test flight}
@@ -151,7 +151,7 @@ Figure \ref{fig:power_curve_naive} quickly illustrates the infeasibility of this
 
 Figure \ref{fig:power_curve_naive} also demonstrates the pitfalls of naive curve-fitting in the absence of any kind of physics-based model structure. Perhaps the most severe of these is the extrapolation to physically-impossible conclusions. For example, the naive linear fit shown in blue would imply that the power draw at zero airspeed is negative, which is clearly impossible. The naive cubic fit shown in red initially appears more reasonable, although it too makes erroneous conclusions: it implies that beyond $20\ \rm m/s$, the power draw decreases with increasing airspeed. Clearly, our intuitions about what the ``correct'' model would look are not being incorporated into the curve-fitting process, and hence we are leaving information on the table.
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \ifdraft{}{\includegraphics[width=\textwidth]{../figures/aircraft_sysid/power_polar_naive}}
     \caption{Raw uncorrected data for the power curve, with naive curve fitting to demonstrate the infeasibility of this approach. Uncorrected data exhibits high amounts of unexplained variance. Naive curve fits extrapolate to physically-impossible conclusions and do not capture uncertainty.}
@@ -169,7 +169,7 @@ As an illustrative example, imagine that we wish to reconstruct a \emph{truth} e
 
 However, there are (literally) an infinite number of possible strategies that one can use to do this noise removal, depending on our embedded assumptions about how sensor noise is entering our data-generating process. For example, consider three different possible state estimations of the vehicle's airspeed, as illustrated in Figure \ref{fig:under_over_fitting}.
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \ifdraft{}{\includegraphics[width=\textwidth]{../figures/aircraft_sysid/under_over_fitting}}
     \caption{Three possible curves that could be used to estimate the true underlying state of the vehicle. Airspeed data, zoomed to $t \in (60, 90)$; a subset of Figure \ref{fig:raw_flight_data}. 95\% confidence interval (CI) of reconstruction shaded in middle plot.}
@@ -320,7 +320,7 @@ Though equation \ref{eq:arbitrary_order_noise_estimator} gives the correct expre
 
 While we have shown that the second-order estimator has improved robustness to low sample rates, it is not immediately clear that this will hold for arbitrary orders - as the order increases, we might expect to see some form of numerical instability as we take successively higher-order derivatives of noisy data. To test this, we can plot the performance of noise estimators of various orders, as shown in Figure \ref{fig:noise_variance_higher_order}.
 
-\begin{figure}[!htb]
+\begin{figure}[htbp!]
     \centering
     \ifdraft{}{\includegraphics[width=\textwidth]{../figures/aircraft_sysid/noise_variance_higher_order}}
     \caption{Performance of higher-order data-driven noise estimators.}
@@ -336,7 +336,7 @@ Interestingly, except for a miniscule region near the Nyquist frequency, estimat
 
 With the ability to estimate the amount of noise in the data, we can also estimate the uncertainty of our resulting models and curve fits. To do this, we combine a resampling bootstrap approach (described in \cite{surrogates, elements_of_statistical_learning}) with a noise-variance-aware spline interpolator (described in \cite{surrogates, wahba}). Together, these yield not only a best-estimate of the underlying model, but also a measure of the uncertainty in that estimate. An example is depicted in Figure \ref{fig:power_curve_spline_but_no_physics}, which uses the same power-curve dataset as in Figure \ref{fig:power_curve_naive}.
 
-\begin{figure}[!htb]
+\begin{figure}[htbp!]
     \centering
     \ifdraft{}{\includegraphics[width=\textwidth]{../figures/aircraft_sysid/power_polar_spline_but_no_physics}}
     \caption{Raw uncorrected data for the power curve, with a noise-variance-aware spline model. A resampling bootstrap allows uncertainty quantification. This improves over the naive approach of Figure \ref{fig:power_curve_naive}, although, the lack of physics-based model structure still leads to the recovery of a physically-implausible result.}
@@ -436,7 +436,7 @@ The aerodynamic drag can be modeled as a function of airspeed, as required to cl
     \item Dimensionalize the computed $C_D$ to obtain the drag.
 \end{enumerate}
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \includesvg{../figures/aircraft_sysid/aero_polar_form.svg}
     \caption{Assumed parameterized form of the aerodynamic polar, where drag coefficient is a piecewise-quadratic function of the lift coefficient. Same mathematical form as the profile drag function used by AVL \cite{drela_athena_2004}.}
@@ -507,7 +507,7 @@ Optionally, other norms of the $P_{\rm total}$ residual vector can be minimized 
 
 With the optimization problem solved, we can now use the resulting $\theta$ values to compute the corrected data and model. This is shown in Figure \ref{fig:power_curve_with_physics}. The corrected data and model are now in excellent agreement, and the corrected data has significantly less unexplained variance than the raw data. The remaining unexplained variance is attributable to a variety of factors, such as wind updrafts and downdrafts and non-unity load factors during banked flight. In theory, both these effects could be corrected out using a similar inference procedure that is shown in this work (which could be augmented by, for example, IMU data). This is left as future work, which, if successful, would reduce the data spread in Figure \ref{fig:power_curve_with_physics} further.
 
-\begin{figure}[!htb]
+\begin{figure}[htbp!]
     \centering
     \ifdraft{}{\includegraphics[width=\textwidth]{../figures/aircraft_sysid/power_curve_with_physics.pdf}}
     \caption{Inferred power curve with physics-informed corrections on data and model, and using noise estimator with a resampling bootstrap for uncertainty quantification. Power curve agrees closely with the data and shows physically-plausible behavior. Uncertainty quantification is significantly tighter than in Figure \ref{fig:power_curve_spline_but_no_physics}, as the function space has been restricted using embedded physics knowledge.}
@@ -518,7 +518,7 @@ Conveniently, this process yields other critical performance information, like t
 
 A notable observation is that the inferred aerodynamic polar of Figure \ref{fig:aerodynamic_polar_with_physics} and the propulsive efficiency curve of Figure \ref{fig:propeller_polar_with_physics} show relatively wide uncertainty bands, while the power curve of Figure \ref{fig:power_curve_with_physics} shows a relatively narrow uncertainty band. This is interesting, since in typical analysis the power curve is computed as a function of these two performance relations; hence, one would intuitively expect that the power curve would inherit the uncertainty of both relations. The reason this does not occur here is that the uncertainties in the aerodynamic polar and the propulsive efficiency curves are not independent. In other words, the power required can be inferred relatively precisely, but there is not quite enough data to rigorously determine whether power losses are more due to aerodynamic drag or propulsive inefficiency.
 
-\begin{figure}[!htb]
+\begin{figure}[htbp!]
     \centering
     \ifdraft{}{\includegraphics[width=\textwidth]{../figures/aircraft_sysid/aerodynamic_polar_with_physics.pdf}}
     \caption{Inferred aerodynamic polar with physics-informed corrections on data and model, and using noise estimator with a resampling bootstrap for uncertainty quantification.}
@@ -527,7 +527,7 @@ A notable observation is that the inferred aerodynamic polar of Figure \ref{fig:
 
 Compared to the naive approach in Figure \ref{fig:power_curve_naive}, Figure \ref{fig:power_curve_with_physics} enables us to make very accurate, physically-grounded, and uncertainty-quantified assertions about the performance of the airplane, based on minimal data (here, only four minutes of flight time).
 
-\begin{figure}[!htb]
+\begin{figure}[htbp!]
     \centering
     \ifdraft{}{\includegraphics[width=\textwidth]{../figures/aircraft_sysid/propeller_polar_with_physics.pdf}}
     \caption{Inferred propulsive efficiency curve with physics-informed corrections on data and model, and using noise estimator with a resampling bootstrap for uncertainty quantification.}

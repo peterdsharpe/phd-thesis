@@ -215,7 +215,7 @@
 
     On a more optimistic note, MDO's substantial academia-industry gap is equally attributable to academia's remarkable advances in design optimization research over recent decades. This progress is readily apparent from analyzing trends in academic literature. As shown in Figure \ref{fig:mdo_citation_counts}, the fraction of aircraft design publications directly referencing MDO has grown from near-zero in 1985 to 10\% today.
 
-    \begin{figure}[h]
+    \begin{figure}[htbp!]
         \centering
         \includegraphics{../figures/mdo_citation_counts}
         \caption{Prevalance of optimization-related keywords in academic literature with the keyword ``aircraft design''. Data from Google Scholar; includes industry-standard texts such as AIAA journals and conference proceedings. MDO-specific keywords (red line) include any of: ``multidisciplinary design optimization'', ``MDO'', and ``MDAO''. The blue line adds the keyword ``optimization'' to this list.}
@@ -230,7 +230,7 @@
 
     When considering this full design process (i.e., from initial requirements to product delivery), the scope of challenges becomes even broader. Indeed, industry adoption of MDO is often limited by non-computational user frictions \cite{salas_framework_1998, gpkit, martins_engineering_2021}. In the present work, we deliberately term these user frictions ``costs'', borrowing optimization nomenclature to emphasize that minimizing these frictions is an implied part of the objective function of any optimization-driven design process. Figure \ref{fig:birds_eye_view} summarizes a variety of design literature to present a holistic view of this complete process as applied to aircraft design \cite{torenbeek_advanced_2013, martins_engineering_2021, yang_observations_2009, torenbeek_synthesis_1976, roskam_airplane_1989, nicolai_fundamentals_2010, salas_framework_1998}. Frictions that a designer may experience from a computational optimization framework at each step are shown in \textcolor[HTML]{BB5045}{red}.
 
-    \begin{figure}[h]
+    \begin{figure}[htbp!]
         \centering
         \ifdraft{}{\includegraphics[width=\textwidth]{../figures/design_optimization_process_birds_eye_view}}
         \caption{A high-level overview of the optimization-driven design process, as applied to aircraft design. ``Costs'' (user frictions to be minimized) associated with each step are shown in \textcolor[HTML]{BB5045}{red}.}
@@ -250,7 +250,7 @@
 
     Before proceeding further, it is important to clarify the scope of aircraft design optimization problems that are of interest in this thesis, as the definition of ``MDO'' is somewhat overloaded. More precisely, the modern field of MDO can be decomposed into two related but distinct subfields which have developed different strategies and mindsets to address different design needs. Figure \ref{fig:mdo_overloaded_term} illustrates this distinction, showing how the term ``MDO'' can refer to separate tasks at different stages of the aircraft design process.
 
-    \begin{figure}[h]
+    \begin{figure}[htbp!]
         \centering
         \ifdraft{}{\includegraphics[trim=0cm 1.1cm 0cm 3cm, clip, width=\textwidth]{../figures/mdo_overloaded_term}}
         \caption{Multiple definitions of the term ``multidisciplinary design optimization''. Here, conceptual, or ``wide'' MDO is contrasted against preliminary, or ``deep'' MDO.}
@@ -570,7 +570,7 @@
 
     Fundamentally, AeroSandbox is a tool for building and transforming computational graphs, and indeed these graphs can be directly inspected both computationally and visually, as Figure \ref{fig:computational-graph-aerosandbox} shows. When constructing this graph, AeroSandbox deliberately makes certain framework-level decisions (e.g., to use a static, rather than dynamic graph; to use heuristics for forward- vs. reverse-mode automatic differentiation); these choices are tradeoffs that tend to work well on engineering analysis code \cite{rackauckas_engineering_2021}.
 
-    \begin{figure}[h]
+    \begin{figure}[htbp!]
         \centering
         \includegraphics[width=\textwidth]{../figures/computational_graph_blimp.png}
         \caption{Computational graph of a mass model for an airship, as constructed by AeroSandbox. This graph is automatically constructed at runtime.}
@@ -690,7 +690,7 @@
 
     Qualitatively, NeuralFoil tracks XFoil very closely across a wide range of angles of attack and Reynolds numbers. In Figure \ref{fig:clcd_polar}, we compare the performance of NeuralFoil to XFoil on aerodynamic polar prediction. Notably, the airfoil analyzed here was developed from scratch for a real-world aircraft development program and is completely separate from the airfoils used during NeuralFoil's training, so NeuralFoil isn't gaining an unfair advantage by memorizing this airfoil's performance. In this example, and in others, NeuralFoil is typically accurate to within a few percent of XFoil's predictions. NeuralFoil also has the benefit of smoothing out XFoil's ``jagged'' predictions (for example, near $C_L=1.4$ and $Re=90k$ in Figure \ref{fig:clcd_polar}) in cases where XFoil is not reliably converging, which would otherwise make optimization difficult. Indeed, due to the nature of the neural network structures used, NeuralFoil outputs are structurally guaranteed to be $C^\infty$-continuous.
 
-    \begin{figure}[h]
+    \begin{figure}[htbp!]
         \centering
         \includesvg[width=\textwidth]{../figures/neuralfoil/neuralfoil_point_validation.svg}
         \caption{Sample validation of NeuralFoil versus XFoil.}
@@ -755,7 +755,7 @@
 
     Concretely, conservation of energy\footnote{including both unsteady altitude and airspeed terms} is used to construct an instantaneous aircraft power balance equation. The drag polar and propulsive efficiency are modeled as parametric functions (with initially-unknown parameters) informed by physical intuition or first-principles modeling. By posing this as an optimization problem to minimize residuals within some collapsed space (e.g., the airspeed-power space representing an aircraft's power curve), we simultaneously fit these unknown functions to the data while also correcting for unsteady flight effects. The resulting model is then used to reconstruct the aircraft's performance curves. Remarkably, this physics-informed regression approach shows excellent accuracy reconstructing the true performance curves from real-world noisy data, even when the raw data has significant contamination from unsteady flight effects and is quite limited. Additionally, by wrapping this optimization problem in a bootstrap resampling loop of the flight data samples, uncertainty bounds are obtained from an unbiased estimator. Figure \ref{fig:overall_procedure} broadly illustrates the toolchain for performance reconstruction used in this contribution.
 
-    \begin{figure}[h]
+    \begin{figure}[htbp!]
         \centering
         \ifdraft{}{\includegraphics[width=\textwidth, trim=1cm 1cm 1cm 1cm,clip=true]{../figures/aircraft_polar_reconstruction/figures/overall_procedure}}
         \caption{Process for inference-based performance reconstruction from flight data}
@@ -764,7 +764,7 @@
 
     In a working example, key performance information (drag polar, propulsive efficiency curve, and power curve) is reconstructed from a short test flight of the \textit{Solar Surfer} aircraft. This aircraft, shown in Figure \ref{fig:solar_surfer_flight}, is a remote-controlled solar-electric seaplane design with a 14-foot wingspan and as-flown all-up mass of 9.4 kg. A 260-second-long test flight was flown in a racetrack-like pattern, as shown in Figure \ref{fig:solar_surfer_track}. Altitude, airspeed, and battery voltage and current were recorded at approximately 5 Hz. No specific attempt was made to excite the system to facilitate later system identification.
 
-    \begin{figure}[h]
+    \begin{figure}[htbp!]
         \centering
         \begin{subfigure}[b]{0.45\textwidth}
             \ifdraft{}{\includegraphics[width=\textwidth]{../figures/aircraft_polar_reconstruction/assets/Flight1_02549.JPG}}
@@ -783,7 +783,7 @@
 
     To illustrate the utility of this approach, we take the aircraft power curve (i.e., required power as a function of airspeed in steady level flight) as an example performance output of interest. Figure \ref{fig:power_curve_naive} illustrates the raw data recorded from the \textit{Solar Surfer} test flight in black, and also demonstrates the inability of naive fitting without physics-informed constraints to capture performance curves. Figure \ref{fig:power_curve_with_physics} shows the corrected data; this includes not only unsteady corrections but also the on-the-fly fitted models for propulsive efficiency from an inferred advance ratio. These corrections substantially collapse the data. From this, a power curve can be simultaneously estimated, along with uncertainty bounds.
 
-    \begin{figure}[h]
+    \begin{figure}[htbp!]
         \centering
         \begin{subfigure}[b]{0.8\textwidth}
             \centering

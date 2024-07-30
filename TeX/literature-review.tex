@@ -90,7 +90,7 @@ Ashley considers another possible explanation for the lack of visible MDO use in
 
 On a more optimistic note, MDO's substantial academia-industry gap is equally attributable to academia's remarkable advances in design optimization research over recent decades. This progress is readily apparent from analyzing trends in academic literature. As shown in Figure \ref{fig:mdo_citation_counts}, the fraction of aircraft design publications directly referencing MDO has grown substantially over the past 40 years.
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \includegraphics{../figures/mdo_citation_counts}
     \caption{Prevalance of optimization-related keywords in academic literature with the keyword ``aircraft design''. Data from Google Scholar; includes industry-standard texts such as AIAA journals and conference proceedings. MDO-specific keywords (red line) include any of: ``multidisciplinary design optimization'', ``MDO'', and ``MDAO''. The blue line adds the keyword ``optimization'' to this list.}
@@ -105,7 +105,7 @@ Another important area where MDO research has made significant progress is in de
 
 When considering this full design process (i.e., from initial requirements to product delivery), the scope of challenges becomes even broader. Indeed, industry adoption of MDO is often limited by non-computational user frictions \cite{salas_framework_1998, gpkit, martins_engineering_2021}. In the present work, we deliberately term these user frictions ``costs'', borrowing optimization nomenclature to emphasize that minimizing these frictions is an implied part of the objective function of any optimization-driven design process. Figure \ref{fig:birds_eye_view} summarizes a variety of design literature to present a holistic view of this complete process as applied to aircraft design \cite{torenbeek_advanced_2013, martins_engineering_2021, yang_observations_2009, torenbeek_synthesis_1976, roskam_airplane_1989, nicolai_fundamentals_2010, salas_framework_1998}. Frictions that a designer may experience from a computational optimization framework at each step are shown in \textcolor[HTML]{BB5045}{red}.
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \ifdraft{}{\includegraphics[width=\textwidth]{../figures/design_optimization_process_birds_eye_view}}
     \caption{A high-level overview of the optimization-driven design process, as applied to aircraft design. ``Costs'' (user frictions to be minimized) associated with each step are shown in \textcolor[HTML]{BB5045}{red}.}
@@ -125,7 +125,7 @@ The remainder of this chapter will discuss some of the most important advances i
 
 Before proceeding further, it is important to clarify the scope of aircraft design optimization problems that are of interest in this thesis, as the definition of ``MDO'' is somewhat overloaded. More precisely, the modern field of MDO can be decomposed into two related but distinct subfields which have developed different strategies and mindsets to address different design needs \cite{piperni_development_2013}. Figure \ref{fig:mdo_overloaded_term} illustrates this distinction, showing how the term ``MDO'' can refer to separate tasks at different stages of the aircraft design process.
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \ifdraft{}{\includegraphics[trim=0cm 1.1cm 0cm 3cm, clip, width=\textwidth]{../figures/mdo_overloaded_term}}
     \caption{Multiple definitions of the term ``multidisciplinary design optimization''. Here, conceptual, or ``wide'' MDO is contrasted against preliminary, or ``deep'' MDO.}
@@ -319,7 +319,7 @@ Another prominent new design space that motivates revisiting first-principles co
 
 The final and most significant motivation for this thesis' focus on early-stage MDO is that it provides value far beyond merely the point design that results from an optimization study. The true value of conceptual MDO is in determining which questions a design team should be asking. Examples of such questions that might be fueled by a design tool leveraging conceptual MDO are given in Figure \ref{fig:motivation_3}.
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \includegraphics[page=5,trim=0cm 3cm 0cm 6.2cm, clip, width=\textwidth]{../figures/motivation_for_conceptual_MDO_focus.pdf}
     \caption{In addition to answering specific design questions, conceptual MDO tools can help designers develop a broader intuition about the problem space and determine which questions to ask next. This figure gives examples of such exploratory questions.}

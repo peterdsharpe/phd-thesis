@@ -46,7 +46,7 @@ The vortex-lattice method (VLM) is a low-fidelity aerodynamics analysis used to 
 
 A VLM analysis is based on classical potential-flow theory. Because this flow field model is a linear partial differential equation, it can be quickly solved using a boundary-element method representation by superimposing Green's-function kernels. These kernels model disturbances in the flow field that are induced by the lifting surfaces. In a VLM analysis, these kernels are modeled as a collection of \emph{horseshoe vortices} that are distributed along the wing in a regular lattice pattern (distributed in both spanwise and chordwise directions). A single horseshoe vortex is illustrated in Figure \ref{fig:horseshoe_vortex}. Each horseshoe vortex is a connected polyline of uniform-strength vortex filaments, with three segments: a bound vortex on the wing, and two trailing legs extending downstream to infinity\footnote{These trailing legs extend to the far-field Trefftz plane. In theory, these trailing legs should follow the local flow direction (and hence be ``force-free'' by the Kutta-Joukowski theorem), but often they are simply extended directly backwards which simplifies induced velocity computation and removes the need for an iterative wake relaxation.}. (In practice, a fourth leg consisting of a far-downstream ``starting vortex'' can be imagined to close the horseshoe vortex, which forms a ring vortex and thus satisfies the Helmholtz vortex theorems.) The Kutta condition is naturally satisfied, as the only place where the wing can shed vorticity is at the trailing edge (due to placement of the trailing legs).
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \includegraphics[width=5in]{../figures/horseshoe_vortex.png}
     \caption{Illustration of a horseshoe vortex (black) and the induced fluid velocity field around it, which is the fundamental building block of a VLM analysis. In reality the induced velocity field has global influence, but it is truncated here for conceptual clarity.}
@@ -69,7 +69,7 @@ Conceptually, the ideas behind this geometry stack are inspired by the degenerat
 
 This unified, vertically-integrated workflow contrasts with many current design optimization workflows, which instead usually treat meshing and solving as separate black-box tools. In cases where end-to-end gradients are required (i.e., aerodynamic shape optimization with respect to a set of design variables), the usual strategy is to compute gradients for each process and then later to stitch them together. For example, a meshing tool might use forward-mode automatic differentiation\footnote{or, if the mesh has a deterministic connectivity (i.e., hyperbolic marching from a surface), one could use a method with similar properties, like complex-step differentiation or finite-differencing}, while a solver might use a discrete adjoint of the governing PDE to obtain mesh gradients. Stitching these gradients together is a perfectly viable solution from a computational perspective, but as a practical matter it often requires a fair amount of boilerplate code from the user. In contrast, unifying the meshing and solution processes within a code transformations framework eliminates the need for the user to manually interact with component partials, lessening the expertise required to build a differentiable analysis.
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \begin{subfigure}{0.32\textwidth}
         \includegraphics[width=\textwidth]{../figures/geometry_concept-crop.pdf}
@@ -113,7 +113,7 @@ In the case of the present VLM implementation, both formulations are offered, wi
 
 Figure \ref{fig:vlm} shows the results of a VLM analysis performed using AeroSandbox, using a generic glider design and a prescribed aerodynamic operating point. At the moderately high paneling resolution shown here ($N=700$ panels), solution takes about 0.25 seconds on a laptop-grade CPU. The surface color shows the vortex strength (or equivalently, $\Delta C_p$ across the wing), while the streamlines show the flow field.
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \includegraphics[width=\textwidth]{../figures/vlm.png}
     \caption{AeroSandbox VLM analysis results for a simple glider geometry at a prescribed aerodynamic operating point. Surface color shows the vortex strength (or equivalently, $\Delta C_p$ across the wing). Streamlines show the flow field.}
@@ -190,14 +190,14 @@ sol = opti.solve()
 
 The optimization problem is solved to tolerance within 18 IPOPT iterations, corresponding to around 10 seconds of wall-clock time on a laptop CPU. This yields the wing geometry shown in Figure \ref{fig:vlm_opt}, which is indeed elliptical in chord distribution. To confirm, the chord distribution can be directly compared to an elliptical distribution as shown in Figure \ref{fig:vlm_opt_compare}. Very slight differences appear due to numerical discretization, but as panel resolution is increased, these results converge.
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \includegraphics[width=\textwidth]{../figures/vlm_opt.png}
     \caption{Result of the AeroSandbox VLM analysis-based aerodynamic shape optimization problem. The optimized wing has an elliptical chord distribution.}
     \label{fig:vlm_opt}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \includegraphics[width=\textwidth]{../figures/vlm_opt_compare.pdf}
     \caption{Comparison of the optimized chord distribution to the theoretical elliptical chord distribution.}
@@ -241,7 +241,7 @@ Numerical discretization is performed by thin-surface meshing with a chordwise p
 
 Figure \ref{fig:ll} shows analogous lifting-line analysis results for the same glider example as the VLM analysis. The reduction in discretization resolution due to the elimination of chordwise refinement is immediately apparent from the lower number of discrete panels. This leads to much shorter asymptotic runtimes, especially for vehicles with complex systems of multiple interacting lifting surfaces.
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \includegraphics[width=\textwidth]{../figures/ll.png}
     \caption{AeroSandbox lifting-line analysis results for a simple glider geometry at a prescribed aerodynamic operating point. Surface color shows the vortex strength (or equivalently, $\Delta C_p$ across the wing). Streamlines show the flow field.}
@@ -289,14 +289,14 @@ The resulting aerostructural analysis is implemented in AeroSandbox by coupling 
 
 This solve quickly obtains an aerostructrual equilibrium condition in just 3 iterations, which is sensible as both the aerodynamic and structural models are almost-linear. Figure \ref{fig:as_deformation} shows the deformed wing shape in blue, relative to the original jig shape in gray. The wing has a noticeable upward deflection and washout at the tip, which is expected due to the aerodynamic lift distribution. Figure \ref{fig:as_spanplot} shows both the aerodynamic and structural quantities of interest as a function of the spanwise location $y$.
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \includegraphics[width=\textwidth]{../figures/aerostructural/deformation.pdf}
     \caption{Fully-coupled aerostructural analysis results for a simple wing geometry. The deformed wing at static aerostructural equilibrium is shown in blue, with the original jig shape shown in gray.}
     \label{fig:as_deformation}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \includegraphics[width=\textwidth]{../figures/aerostructural/spanplot.pdf}
     \caption{Aerodynamic and structural quantities of interest as a function of the spanwise location $y$. Pitching moment is measured about the wing's local quarter-chord axis.}
@@ -369,7 +369,7 @@ Because of these considerations, Firefly is an excellent test case to show the v
 
 To begin, we can compute the traditional static aerodynamic polars, which is an ``alpha sweep'': lift, drag, and moment coefficients as a function of the angle of attack $\alpha$. In Figure \ref{fig:ab_polars}, we show the AeroBuildup-computed polars for the MIT Firefly air vehicle, at a representative flight condition of sea level flight at Mach 0.15. This is comparable to the aerodynamic conditions on the Firefly vehicle at the end of its nominal trajectory\footnote{Firefly's optimized trajectory during the glide phases predictably has a nearly-constant indicated airspeed, of around 86 KIAS (44 m/s at sea level). Slight variations occur due to Reynolds effects.}, as shown in Figure \ref{fig:firefly_trajectory}. For this analysis, control surface deflections of zero are used.
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \includegraphics[width=6in]{../figures/aerobuildup_figs/polars.pdf}
     \caption{Standard static aerodynamic polars for the MIT Firefly air vehicle, computed using AeroBuildup. Analysis is an angle of attack ($\alpha$) sweep at Mach 0.15 and sea level conditions. Control surfaces are not deflected.}
@@ -400,7 +400,7 @@ For example, Figure \ref{fig:ab_high_aoa} gives a ``3D'' version of the traditio
 
 Of particular interest is the ``moment flow'' diagram in the lower left of Figure \ref{fig:ab_high_aoa}, which shows how the yawing and pitching moment coefficients ($C_n$ and $C_m$) vary throughout the $\alpha, \beta$ phase space; arrows and streamlines indicate the direction that passive aerodynamic moments will tend to point the nose, from any initial vehicle orientation. This mapping is similar to a ``phase portrait'' in dynamical systems theory, though inertial effects are neglected in this strictly-static analysis. Nevertheless, this provides an excellent initial map of the vehicle's passive stability characteristics from upset flight conditions, even those well-past stall. For example, the moment flow diagram indicates that Firefly is passively stable roughly in the regime where $\beta \in [-30\degree, +30\degree]$ and for all $\alpha$, but not outside of this. This may indicate that active control inputs are required to recover from such upset conditions.
 
-\begin{figure}[!htb]
+\begin{figure}[htbp!]
     \centering
     \includegraphics[width=\textwidth]{../figures/aerobuildup_figs/high_alpha.pdf}
     \caption{A ``3D'' version of standard aerodynamic polars, where lift, drag, moment (i.e., $C_n$ and $C_m$), and aerodynamic efficiency are given as a function of \emph{both} angle of attack $\alpha$ and sideslip angle $\beta$. Analysis is for the MIT Firefly air vehicle at sea-level Mach 0.15 conditions, with $\alpha$ and $\beta$ varied. Aerodynamics computed with the AeroBuildup physics model, and given for an extreme range of $\alpha, \beta \in [-90\degree, +90\degree]$ to demonstrate post-stall modeling capability. Control surfaces are undeflected in all cases.}
@@ -423,7 +423,7 @@ AeroBuildup is capable of capturing these effects simultaneously, as shown in Fi
 
 \noindent This provides a unique view into this combination of nuanced aerodynamic effects that is rare to obtain at the conceptual phase. Because the impact of both transonic and low-Reynolds effects can be considered together, the designer can make a meaningful prediction about which set of competing aerodynamic design drivers is likely to dominate the vehicle's performance.
 
-\begin{figure}[!htb]
+\begin{figure}[htbp!]
     \centering
     \includegraphics[width=\textwidth]{../figures/aerobuildup_figs/transonic.pdf}
     \caption{Transonic and low-Reynolds-number aerodynamic effects can be simultaneously captured by AeroBuildup. Here, the MIT Firefly air vehicle is analyzed across a range of Mach numbers $M_\infty$ and angles of attack $\alpha$. In all cases, atmospheric conditions are taken at Firefly's launch altitude of 30,000 ft. Because of this, Reynolds number also indirectly changes as a function of Mach number.}
@@ -445,7 +445,7 @@ The first such validation study is based on a flying wing geometry described in 
 
 The geometry used in this study is described fully by Tinling and Kolk \cite{tinling_effects_1951}, and is also visualized in Figure \ref{fig:fw_geometry}. The wing has a $35\degree$ quarter-chord sweep, a span of $b=3.098\ \rm m$, an aspect ratio of $\AR = 10$, and a taper ratio of $\lambda=0.5$. A constant NACA $\mathrm{64_{1}A012}$ airfoil is used along the entire span, with no twist. The wing is analyzed at a Reynolds number of $\text{Re}_c=2 \times 10^6$ to match the wind tunnel conditions, corresponding to $91.3\ \rm m/s$ ($M_\infty=0.26$) at sea level.
 
-\begin{figure}[!htb]
+\begin{figure}[htbp!]
     \centering
     \includegraphics[width=5in]{../figures/aero_validation/flying_wing_geometry.png}
     \caption{Three-view of the flying wing aircraft geometry used in the AeroSandbox aerodynamics validation study. Based on geometry used in wind tunnel experiements in NACA Report RM-A50K27 \cite{tinling_effects_1951}.}
@@ -461,7 +461,7 @@ Using this geometry and freestream conditions, we perform an angle of attack swe
 
 AVL \cite{avl} (using XFoil \cite{drela_xfoil_1989} for 2D sectional data), OpenVSP's VSPAero conceptual aerodynamics tool \cite{mcdonald_open_2022}, and LORAAX, a 3D panel and integral boundary layer code. The results of this comparison are shown in Figure \ref{fig:fw_results}.
 
-\begin{figure}[!htb]
+\begin{figure}[htbp!]
     \centering
     \includegraphics[width=\textwidth]{../figures/aero_validation/flying_wing_polars-crop.pdf}
     \caption{Comparison of aerodynamic polars for the flying wing geometry at $\text{Re}_c=2 \times 10^6$. The AeroSandbox VLM, lifting-line, and AeroBuildup analyses are compared to wind tunnel data and other conceptual-level aerodynamics tools. The wind tunnel data is reproduced from NACA Report RM-A50K27 \cite{tinling_effects_1951}.}
@@ -484,7 +484,7 @@ The second validation study aims to demonstrate the relative strengths and weakn
 
 Performance is assessed at sea-level conditions with a freestream velocity of $15\ \rm m/s$, which corresponds to a relatively low Reynolds number of $\text{Re}_c = 155 \times 10^3$ referenced to the mean aerodynamic chord of the main wing.
 
-\begin{figure}[!htb]
+\begin{figure}[htbp!]
     \centering
     \includegraphics[width=5in]{../figures/aero_validation/glider_geometry.png}
     \caption{Three-view of the glider aircraft geometry used in the AeroSandbox aerodynamics validation study.}
@@ -497,7 +497,7 @@ On the drag polar, the VLM model once again only reports induced drag (as no pro
 
 On moment prediction, the lifting line and vortex lattice methods agree reasonably well within the range of angles of attacks that have mostly attached flow ($\alpha \in [-5\degree, +12\degree]$). The AeroBuildup method generally predicts a more-negative $C_{m\alpha}$ derivative; this is likely erroneous, and occurs due to the method's inability to capture the downwash effects of the main wing on the horizontal stabilizer. This is a known limitation of the AeroBuildup method, and is a tradeoff of speed vs. accuracy that could be made in future iterations of the method.
 
-\begin{figure}[!htb]
+\begin{figure}[htbp!]
     \centering
     \includegraphics[width=\textwidth]{../figures/aero_validation/glider_polars-crop.pdf}
     \caption{Comparison of aerodynamic polars for the glider geometry of Figure \ref{fig:glider_geometry}. Geometries are assessed at flight conditions corresponding to $\text{Re}_c = 155 \times 10^3$. The AeroSandbox VLM, lifting-line, and AeroBuildup analyses are cross-compared to assess agreement.}
@@ -600,7 +600,7 @@ This aircraft trajectory optimization case study focuses on fast, low-altitude f
 
 The task in this case study is to fly a fighter jet between two points 75 km (40 nmi) apart, located near Riffe Lake, Washington, USA. The aircraft's aerodynamics and propulsion physics are loosely modeled after an F/A-18 in full afterburner, ultimately yielding in an average Mach number of 0.95 in the resulting trajectory. This scenario replicates a mission in Microsoft's recent Flight Simulator 2020, which allows results to be compared\footnote{Flight physics will vary slightly between this case study and the Flight Simulator 2020 model, but broader strategic decisions like whether to fly over or around a mountain make for a meaningful comparison.} against known fastest times.
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \includesvg[width=\textwidth]{../figures/air-racing/trajectory.svg}
     \caption{Top-down visualization of the optimized trajectory for the air racing optimization case study, which uses the AeroSandbox dynamics stack. Trajectory follows riverbeds and valleys closely to maintain low-altitude flight.}
@@ -642,14 +642,14 @@ The resulting trajectory is shown in a top view in Figure \ref{fig:air-racing-tr
 
 To achieve this low-altitude flight, the trajectory optimization algorithm naturally ``discovers'' a low-altitude ``ridge-crossing'' maneuver, which involves an inverted high-G turn. This is shown in Figure \ref{fig:air-racing-3}. This maneuver, which is also used in real-world military nap-of-the-earth flight, allows lower altitudes to be maintained by exploiting the much-higher positive G limit of the vehicle compared to its negative G limit. This is a good example of how the trajectory optimization algorithm can discover novel and unexpected solutions to complex problems, even without any explicit user guidance.
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \includegraphics[width=\textwidth]{../figures/air-racing/2.png}
     \caption{3D visualization of the optimized trajectory for the air racing optimization case study, which uses the AeroSandbox dynamics stack for both numerical formulation and visualization. Here, the vehicle navigates a series of quick sequential max-G turns in opposite directions to follow the terrain. In this figure, the aircraft and wingtip ribbon are drawn at 70x scale for visibility; in some places, this scaling-up causes a visual artifact where the wingtips appear to barely intersect the ground.}
     \label{fig:air-racing-2}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[htbp!]
     \centering
     \includegraphics[width=\textwidth]{../figures/air-racing/3.png}
     \caption{3D visualization of the optimized trajectory for the air racing optimization case study, which uses the AeroSandbox dynamics stack for both numerical formulation and visualization. Here, we show that the trajectory optimization algorithm naturally ``discovers'' a low-altitude ridge-crossing maneuver, which involves an inverted high-G turn. This is a common maneuver practiced in military nap-of-the-earth flight. In this figure, the aircraft and wingtip ribbon are drawn at 70x scale for visibility; in some places, this scaling-up causes a visual artifact where the wingtips appear to barely intersect the ground.}
