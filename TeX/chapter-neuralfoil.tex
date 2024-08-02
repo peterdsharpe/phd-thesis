@@ -170,7 +170,7 @@ The CST parameterization allows for varying numbers of degrees of freedom. An 18
 
 Conversion of user-specified airfoils to this format for NeuralFoil to use is automatically and efficiently handled as a least-squares fitting problem.
 
-\begin{figure}[htbp!]
+\begin{figure}[H]
     \centering
     \adjustbox{trim=0cm 1.5cm 0cm 0cm}{
         \includesvg[width=0.65\textwidth]{../figures/neuralfoil/kulfan_parameterization_illustration.svg}
@@ -184,7 +184,7 @@ Conversion of user-specified airfoils to this format for NeuralFoil to use is au
 
 Control surfaces are handled as a degenerate problem by re-normalizing the deflected airfoil shape. This is illustrated in Figure \ref{fig:control_surface_decomposition}. In step 1, an example airfoil is given. In step 2, a user-specified control surface deflection is applied. In step 3, the airfoil is re-normalized by applying the necessary similarity transformation (rotation, translation, and scaling) such that the leading-edge and trailing-edge locations are placed at their standard $(0, 0)$ and $(1, 0)$ locations in chord-normalized airfoil coordinates. The geometric rotation required for this re-normalization is later applied as a change in the effective angle of attack, $\Delta\alpha$. For consistency, the scaling factor required for this operation is also later used to scale the input Reynolds number appropriately, though the effect of this Reynolds scaling is typically minor. Finally, the resulting pitching moment must also be adjusted to account for the shifting of the force center due to translation during re-normalization.
 
-\begin{figure}[htbp!]
+\begin{figure}[H]
     \centering
     \includesvg[width=\textwidth]{../figures/neuralfoil/control_surface_decomposition.svg}
     \caption{Illustration of the automatic procedure for handling control surface deflections in NeuralFoil.}
@@ -389,7 +389,7 @@ Another useful definition is that of the sonic pressure coefficient $\Cpcr$, whi
 
 At the location where supersonic flow first begins at $\Mcr$, Equations \ref{eq:laitone} and \ref{eq:sonic-pressure-coefficient} can be set equal. This yields a relation that maps the minimum value of the incompressible pressure coefficient $\Cpm$ to the critical Mach number $\Mcr$. This relation does not admit a closed-form solution, but it can be solved numerically; this is shown in Figure \ref{fig:compressibility_corrections}.
 
-\begin{figure}[htbp!]
+\begin{figure}[H]
     \centering
     \includesvg{../figures/neuralfoil/critical_mach_vs_cp0.svg}
     \caption{Laitone's rule allows a mapping from the minimum incompressible pressure coefficient $\Cpom$ to the critical Mach number $\Mcr$.}
@@ -479,7 +479,7 @@ Individual components of the loss function are weighted differently, to reflect 
 
 Qualitatively, NeuralFoil tracks XFoil very closely across a wide range of angles of attack and Reynolds numbers. In Figure \ref{fig:nf-clcd-polar}, we compare the performance of NeuralFoil to XFoil on aerodynamic polar prediction. This study aims to evaluate the generalization performance: to what extent is the model learning physics vs. merely memorizing its training data? This generalization performance forms an important metric of usefulness for real-world design problems.
 
-\begin{figure}[htbp!]
+\begin{figure}[H]
     \centering
     \includesvg[width=\textwidth]{../figures/neuralfoil/neuralfoil_point_comparison.svg}
     \caption{Generalization performance of NeuralFoil, assessed by sample validation with repsect to XFoil on an out-of-distribution airfoil. Each colored line represents an analysis at a different Reynolds number. Results are for incompressible, viscous flow with $\Ncr=9$ and natural transition. Solid lines represent NeuralFoil (``NF'') analyses, which are given for two models with different accuracy-speed tradeoffs. The dotted line represents XFoil results at the respective Reynolds number. Agreement with XFoil is almost exact for the ``xxxlarge'' model, across a broad range of angles of attack and Reynolds numbers.}
@@ -693,7 +693,7 @@ Although the accuracy of NeuralFoil with respect to XFoil has been demonstrated 
 
 To assess whether a model such as NeuralFoil is prone to model error exploitation, we set up an aerodynamic shape optimization problem with a known answer from the literature, and evaluate how close the optimized result matches this. In aerodynamic shape optimization (and aircraft design more broadly), there are relatively few problems that are rigorously specified, and even fewer where the correct optimized result is provided in exacting detail. However, one such case study that provides a useful design problem is Drela's 1998 \textit{Pros \& Cons of Airfoil Optimization} \cite{drela_pros_1998}, which discusses airfoil design for the \emph{MIT Daedalus} human-powered aircraft \cite{langford_feasibility_1986, langford_daedalus_1989, drela_humanpowered_1985}. Basic figures for this aircraft, along with its centerline airfoil, the DAE-11, are shown in Figure \ref{fig:daedalus_iso}.
 
-\begin{figure}[htbp!]
+\begin{figure}[H]
     \centering
     \includesvg[width=\textwidth]{../figures/neuralfoil/daedalus-iso.svg}
     \caption{Drawing of the \emph{MIT Daedalus} human-powered aircraft, along with its centerline airfoil, the DAE-11. This airfoil is the subject of the airfoil design optimization problem posed in this section.}
