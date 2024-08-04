@@ -287,7 +287,7 @@ The aerodynamic operating point is at an angle of attack of $5\degree$ (measured
 
 The resulting aerostructural analysis is implemented in AeroSandbox by coupling the lifting-line analysis to the Euler-Bernoulli beam model. Both models use an identical discretization, which is facilitated through the degenerate geometry representations created by the AeroSandbox geometry stack (as described in Section \ref{sec:geometry_stack}). Coupling is implemented through an all-at-once approach, where the governing equations for the aerodynamic and structural models are solved simultaneously.
 
-This solve quickly obtains an aerostructrual equilibrium condition in just 3 iterations, which is sensible as both the aerodynamic and structural models are almost-linear. Figure \ref{fig:as_deformation} shows the deformed wing shape in blue, relative to the original jig shape in gray. The wing has a noticeable upward deflection and washout at the tip, which is expected due to the aerodynamic lift distribution. Figure \ref{fig:as_spanplot} shows both the aerodynamic and structural quantities of interest as a function of the spanwise location $y$.
+This solve quickly obtains an aerostructural equilibrium condition in just 3 iterations, which is sensible as both the aerodynamic and structural models are almost-linear. Figure \ref{fig:as_deformation} shows the deformed wing shape in blue, relative to the original jig shape in gray. The wing has a noticeable upward deflection and washout at the tip, which is expected due to the aerodynamic lift distribution. Figure \ref{fig:as_spanplot} shows both the aerodynamic and structural quantities of interest as a function of the spanwise location $y$.
 
 \begin{figure}[H]
     \centering
@@ -491,7 +491,7 @@ Performance is assessed at sea-level conditions with a freestream velocity of $1
     \label{fig:glider_geometry}
 \end{figure}
 
-Figure \ref{fig:glider_results} shows the aerodynamic polars for the glider geometry, computed using the AeroSandbox VLM, lifting-line, and AeroBuildup analyses. In general, trends are relatively similar to the flying wing case. On, lift, good agreement is achieved between all three models. As before, the lifting line and AeroBuildup models able to capture nonlinear lift curve effects that the VLM misses.
+Figure \ref{fig:glider_results} shows the aerodynamic polars for the glider geometry, computed using the AeroSandbox VLM, lifting-line, and AeroBuildup analyses. In general, trends are relatively similar to the flying wing case. On lift, good agreement is achieved between all three models. As before, the lifting line and AeroBuildup models able to capture nonlinear lift curve effects that the VLM misses.
 
 On the drag polar, the VLM model once again only reports induced drag (as no profile drag model is included), and thus is not expected to match the other models. The lifting line and AeroBuildup models both agree quite closely on their drag predictions across a range of lift coefficients.
 
