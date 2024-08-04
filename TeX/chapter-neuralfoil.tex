@@ -197,7 +197,7 @@ To quantify this loss of accuracy, Figure \ref{fig:control_surface_accuracy} sho
 
 \begin{figure}[H]
     \centering
-    \includesvg[width=\textwidth]{../figures/neuralfoil/control_surface_accuracy.svg}        \caption{Accuracy of NeuralFoil on an airfoil with large control surface deflections. Here, we show aerodynamics results from both NeuralFoil and XFoil. All runs are on a NACA0012 airfoil at $\Rey_c = 10^6$ and $\alpha = 0\degree$, with varying control surface deflections on a trailing-edge flap hinged at $x/c=0.70$.}
+    \includesvg[width=\textwidth]{../figures/neuralfoil/control_surface_accuracy.svg}        \caption{Accuracy of NeuralFoil on an airfoil with large control surface deflections. Here, we show aerodynamics results from both NeuralFoil and XFoil. All runs are on a NACA0012 airfoil at $\Rey_c = 10^6$, $\Mi=0$, and $\alpha = 0\degree$, with varying control surface deflections on a trailing-edge flap hinged at $x/c=0.70$.}
     \label{fig:control_surface_accuracy}
 \end{figure}
 
@@ -490,7 +490,7 @@ The airfoil analyzed here was developed separately for a real-world aircraft dev
 
 In this study, aerodynamic performance is assessed across a range of Reynolds numbers spanning four orders of magnitude. The amplification factor is set as $\Ncr=9$ and natural transition is used. All cases are run in the incompressible limit ($\Mi=0$).
 
-Figure \ref{fig:nf-clcd-polar} shows that excellent agreement is achieved between NeuralFoil and XFoil. The results are nearly exact for the ``xxxlarge'' model, which is the most accurate and computationally expensive model included with NeuralFoil. The ``medium`` model achieves slightly reduced accuracy while offering considerable speed improvements. Table \ref{tab:neuralfoil_performance}.
+Figure \ref{fig:nf-clcd-polar} shows that excellent agreement is achieved between NeuralFoil and XFoil. The results are nearly exact for the ``xxxlarge'' model, which is the most accurate and computationally expensive model included with NeuralFoil. The ``medium`` model achieves slightly reduced accuracy while offering considerable speed improvements, as shown in Table \ref{tab:neuralfoil_performance}.
 
 The Reynolds numbers shown in Figure \ref{fig:nf-clcd-polar} were chosen to illustrate accuracy in a challenging flow condition that occurs near $\Rey=80 \times 10^3$ for this airfoil. Here, the upper-surface boundary layer becomes extremely delicate, as illustrated by the sudden, discontinuous jump near $C_L=1.0$. At angles of attack below this jump, the boundary layer simply undergoes laminar separation and never reattaches. At angles of attack above this jump, a laminar separation bubble (LSB) is formed, which undergoes turbulent reattachment before eventually separating again farther downstream. This specific effect only occurs in a narrow window of airfoil shapes, $\Rey_c$, and $\Ncr$ near the values shown in Figure \ref{fig:nf-clcd-polar}, which forces the network to rely on learned physics. Nevertheless, this phenomenon is well-captured by the ``xxxlarge'' NeuralFoil model, demonstrating its generalization performance. Another benefit of NeuralFoil shown in Figure \ref{fig:nf-clcd-polar} is the inherent $C^\infty$-continuity of its solutions, which smooths out XFoil's ``jagged'' predictions in regions such as the aforementioned discontinuity.
 
@@ -565,7 +565,7 @@ In this study, each model is evaluated on a range of airfoils and flow condition
 
 The ``ground truth'' reference solutions for this study are taken from a high-resolution XFoil simulation with 289 points, which is the highest resolution that XFoil 6.98 allows before it begins silently truncating wake points\footnote{This is due to a fixed-size array that XFoil allocates named \texttt{IDX}, which is truncated to avoid overflowing.}.
 
-In Figure \ref{fig:nf-accuracy-speed}, the $x$-axis shows the accuracy of each model, measured as the mean relative error of the drag coefficient\footnote{Or, equivalently, the mean absolute error of $\ln(C_D)$} across all 189 cases. The $y$-axis shows the runtime speed, which is the median time to run each of the 189 cases. By using the median runtime, XFoil again gains a runtime speed advantage, as slow convergence creates a strong positive skew in the distribution of XFoil's runtimes.
+In Figure \ref{fig:nf-accuracy-speed}, the $x$-axis shows the accuracy of each model, measured as the mean relative error of the drag coefficient\footnote{Or, equivalently, the mean absolute error of $\ln(C_D)$} across all 189 cases. The $y$-axis shows the runtime speed, which is the median time to run each of the 189 cases. By using the median runtime (as opposed to the mean), XFoil again gains a runtime speed advantage, as slow convergence creates a strong positive skew in the distribution of XFoil's runtimes.
 
 As shown in Figure \ref{fig:nf-accuracy-speed}, all of NeuralFoil's model sizes give a speedup over XFoil, even when controlling for accuracy. With naïve looping over all 189 cases, NeuralFoil achieves the same accuracy level as XFoil at speeds more than 8x faster. However, NeuralFoil really shines when taking advantage of its vectorization and analyzing all 189 cases simultaneously. Here, speedups can be nearly 1,000x at the same accuracy level.
 
@@ -675,7 +675,7 @@ Accurate and rapid aerodynamics analysis across this broader input space has the
                 & Angle of attack range & Uniform + normal distrib.; central 95\% in range $[-17\degree,\ +18\degree]$ & $0\degree$ to $3\degree$ & {$-0.5\degree$ to $6\degree$\\(subsonic) \\$-1.5\degree$ to $4.5\degree$\\(transonic)} & $-2\degree$ to $10\degree$ \\
                 & Reynolds number range & Log-normal distrib.; central 95\% in range $[1.9\times 10^3,\ 262\times10^6]$ & {$10^4$ to $10^{10}$ (training)} & None specified & $13\times 10^6$ (fixed) \\
                 & Mach number range & 0 for learned core, although compressibility correction allows prediction up to $\Mcr$ & {0.3 to 0.6 (subsonic) \\ 0.6 to 0.7 (transonic)} & {0.3 to 0.6 (subsonic) \\0.7 to 0.75 (transonic)} & 0.3 (fixed) \\
-                & Transition, turbulence, and forced trips & $\Ncr$ varied from 0 to 18; Trips varied from LE to TE & None specified ($\tilde{\nu}=0$ assumed) & None specified ($\tilde{\nu}=0$ assumed) & None specified ($\Ncr=9$ assumed) & \\
+                & Transition, turbulence, and forced trips & $\Ncr$ varied from 0 to 18; Trips varied from LE to TE & None specified ($\tilde{\nu}_\infty=0$ assumed) & None specified ($\tilde{\nu}_\infty=0$ assumed) & None specified ($\Ncr=9$ assumed) & \\
                 & Training data & {XFoil\\(7.5M samples)} & {RANS-SA via ADflow\\(86k samples)} & {RANS-SA via ADflow\\(42k samples)} & {XFoil\\(16k samples)} \\ \midrule
                 \SetCell[r=2]{m,2.5cm}{Performance, as evaluated on the corresponding distribution above} & $C_L$ mean absolute error & 0.012 & 0.010 & Unspecified & 1.0\% \\
                 & $C_D$ mean relative error & 2.0\% & 1.7\% & 0.3\% & N/A (not attempted) \\

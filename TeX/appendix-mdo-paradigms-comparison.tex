@@ -1,7 +1,7 @@
 \chapter{Extended Comparison of MDO Framework Paradigms}
 \label{chap:paradigm_comparison}
 
-This appendix aims to expand on the comparisons made in Table \ref{tab:paradigm_comparison} by providing more details on the pros and cons of various MDO paradigms. In this table, three qualitative metrics are defined over which MDO framework paradigms are evaluated. These metrics represent framework needs derived from the barriers to industry adoption that are identified in Chapter \ref{chap:literature}. Here, we define those metrics more precisely:
+This appendix aims to expand on the subjective comparisons made in Table \ref{tab:paradigm_comparison} by providing more details on the pros and cons of various MDO paradigms. In this table, three qualitative metrics are defined over which MDO framework paradigms are evaluated. These metrics represent framework needs derived from the barriers to industry adoption that are identified in Figure \ref{fig:birds_eye_view} and the remainder of Chapter \ref{chap:literature}. Here, we define those metrics more precisely:
 
 \begin{enumerate}
     \item \textbf{Ease of implementation:} How much effort is required to implement a typical aircraft design problem (from ``concept idea'' to ``working code'') in this paradigm? How much optimization or programming expertise is required, beyond the basics needed to write engineering analysis code?
@@ -37,7 +37,7 @@ Because of these reasons, the runtime speed and scalability of black-box optimiz
 
 Gradient-based optimization methods that are manually augmented with user-provided analytic gradients offer substantial runtime performance improvements over black-box optimization methods -- indeed, to-date this is the dominant approach in deep MDO methods where runtime speed is the primary limitation \cite{martins_coupledadjoint_2005}, like RANS-based shape optimization. However, deriving and implementing derivatives for each model can be a Herculean effort that is challenging to scale to wide MDO methods with hundreds of constituent models \cite{brelje_multidisciplinary_2021}. Moreover, this process requires significant end-user expertise and is often tedious and error-prone. Indeed, erroneous gradient calculations can be some of the most persistent and difficult errors to detect and debug \cite{martins_engineering_2021}. Due to the user expertise and engineering time required to implement each model in such a framework, this paradigm faces an uphill battle for conceptual design in industry.
 
-Modeling flexibility approaches the total freedom that black-box optimization affords, although the requirement for differentiability (more precisely, $C^1$-continuity) can preclude certain types of conditional logic. In practice, this restriction is usually not overly burdensome. If analysis code is scratch-written to be compatible with such a framework, workarounds are usually possible; however, compatibility with existing codes may not be possible in all cases.
+The modeling flexibility of these methods approaches the total freedom that black-box optimization affords, although the requirement for differentiability (more precisely, $C^1$-continuity) can preclude certain types of conditional logic. In practice, this restriction is usually not overly burdensome. If analysis code is scratch-written to be compatible with such a framework, workarounds are usually possible; however, compatibility with existing codes may not be possible in all cases.
 
 \subsection*{Disciplined Optimization Paradigm}
 
