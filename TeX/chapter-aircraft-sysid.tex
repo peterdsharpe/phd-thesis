@@ -339,13 +339,13 @@ With the ability to estimate the amount of noise in the data, we can also estima
 \begin{figure}[H]
     \centering
     \ifdraft{}{\includegraphics[width=\textwidth]{../figures/aircraft_sysid/power_polar_spline_but_no_physics}}
-    \caption{Raw uncorrected data for the power curve, with a noise-variance-aware spline model. A resampling bootstrap allows uncertainty quantification. This improves over the naive approach of Figure \ref{fig:power_curve_naive}, although, the lack of physics-based model structure still leads to the recovery of a physically-implausible result.}
+    \caption{Raw uncorrected data for the power curve, with a noise-variance-aware spline model. A resampling bootstrap allows uncertainty quantification. This improves over the naive approach of Figure \ref{fig:power_curve_naive}, although, the lack of physics-based model structure still leads to the recovery of a physically-implausible result. In Section \ref{sec:physics_based_corrections}, we demonstrate how this reconstruction can be further improved by adding physics-informed model constraints.}
     \label{fig:power_curve_spline_but_no_physics}
 \end{figure}
 
 Figure \ref{fig:power_curve_spline_but_no_physics} certainly represents a mild improvement over the naive curve fits shown in Figure \ref{fig:power_curve_naive} in that it leverages uncertainty. For example, the uncertainty narrows near $19\ \rm m/s$ where data is abundant, and it widens considerably below $7\ \rm m/s$ where data is sparse. This awareness of model uncertainty reduces our propensity to make statistical conclusions that go beyond what the data can truly support.
 
-Furthermore, this uncertainty quantification allows us to determine where in the flight envelope more data should be collected (i.e., serve as an acquisition function). For example, to refine the power curve of Figure \ref{fig:power_curve_spline_but_no_physics}, we might aim to fly future test flights at speeds between 13 and 17 m/s.
+Furthermore, this uncertainty quantification allows us to determine where in the flight envelope more data should be collected (i.e., this can serve as an acquisition function). For example, to refine the power curve of Figure \ref{fig:power_curve_spline_but_no_physics}, we might aim to fly future test flights at speeds between 13 and 17 m/s.
 
 With this said, two major problems remain with the approach of Figure \ref{fig:power_curve_spline_but_no_physics}. First, the resulting model uncertainty is extremely high, as shown by the shaded confidence intervals in Figure \ref{fig:power_curve_spline_but_no_physics}. For example, the tightest that we can bound the required power at $10\ \rm m/s$ with reasonably-strong confidence (95\% confidence interval) is between $30$ and $190$ Watts. This is a huge range and not a particularly useful insight. Near the low end of the airspeed range, the model uncertainty becomes so large that even the most basic claims are impossible to assert.
 
