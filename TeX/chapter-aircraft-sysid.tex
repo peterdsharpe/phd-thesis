@@ -180,14 +180,12 @@ Ultimately, all three charts in Figure \ref{fig:under_over_fitting} represent di
 
 The chart on the left of Figure \ref{fig:under_over_fitting} is clearly overfitted (i.e., tracks the data too closely) based on engineering intuition. Essentially, we are assuming that each sample is the true data, and that each sample has no noise; hence, the ``truth'' curve exhibits extremely high variance (strong wiggles). There is no \emph{mathematical} reason why this interpretation can't be correct (it's theoretically possible that the sensor is giving perfect information), but of course, it is is \emph{physically} implausible for our system. If this interpretation were true, it would imply that the vehicle is achieving velocity-vector-aligned accelerations on the order of 2.4 G, which is not physically plausible given the onboard propulsion system.
 
-The chart on the right of Figure \ref{fig:under_over_fitting} is clearly underfitted (i.e., tracks the data too slowly), as there are large regions where the estimator has a consistent bias (e.g., consistently too high or low) with respect to the underlying data. It might seem like there are no contexts where such an interpretation would be reasonable, but that is not necessarily the case. For example, if the sensor noise at each sample was not independent, but rather correlated with noise from the previous samples, we might not be able to rule out this interpretation of reality.
-
-Of course, a quick glance at the three charts above would tell us ``the middle one looks about right'', although it's not immediately clear why.
+The chart on the right of Figure \ref{fig:under_over_fitting} is clearly underfitted (i.e., tracks the data too slowly), as there are large regions where the estimator has a consistent bias (e.g., consistently too high or low) with respect to the underlying data. It might seem like there are no contexts where such an interpretation would be reasonable, but that is not necessarily the case. For example, if the sensor noise at each sample was not independent, but rather correlated with noise from the previous samples, we might not be able to rule out this interpretation of reality. Of course, a quick glance at the three charts above would tell us ``the middle one looks about right'', although it's not immediately clear why.
 
 \subsection{Optimal Sensor Data Reconstruction using Data-Driven Noise Estimates}
 \label{subsec:optimal_sensor_data_reconstruction}
 
-The key difference is that the middle chart embeds certain assumptions that we intuitively know about our data into its reconstruction. Specifically, the middle chart is an optimal reconstruction of the data assuming that:
+The key difference is that the middle chart embeds certain assumptions that we intuitively know about our data into its reconstruction. Specifically, the middle chart is an ``optimal'' reconstruction of the data assuming that:
 
 \begin{itemize}
     \item The noise in each sample is independent (i.e., uncorrelated with previous samples) and normally-distributed
@@ -196,13 +194,15 @@ The key difference is that the middle chart embeds certain assumptions that we i
     \item The sample rate is significantly higher than the underlying dynamics of the system that we aim to recover (i.e., the system is ``slow'' relative to the sample rate), with this assumption quantified later in Section \ref{sec:sysid_first_order_noise_estimator}.
 \end{itemize}
 
+Here, an ``optimal'' reconstruction is defined based on minimization of an ordinary cross-validation function, which is sometimes known as the ``leaving-one-out'' lemma. An exhaustive mathematical treatment of this metric is given by Wahba \cite{wahba_spline_2007}.
+
 Under these assumptions above, the probabilistic properties of the noise reduce to a single parameter: the variance of the noise $\sigma^2_n$. Thus, by constructing an estimator for this statistic, we can recover the probability distribution of the noise and hence an optimal estimator of the data.
 
 \subsubsection{Motivation for Finding the Variance of the Noise}
 
 The variance of the noise is a useful quantity to estimate for several reasons. First, a probabilistic model of the sensor noise allows us to make optimal choices about the bias-variance tradeoff, armed with a rigorous definition of what optimal means here.
 
-There is a second factor that motivates us to estimate the variance of the noise. Computing an optimal smoothing spline for a time-series dataset is a well-studied problem, but this process is greatly aided if we know the variance of the noise \cite{wahba}. So, if we can obtain an estimate of noise variance, we've done most of the work required to compute an optimal data reconstructor.
+There is a second factor that motivates us to estimate the variance of the noise. Computing an optimal smoothing spline for a time-series dataset is a well-studied problem, but this process is greatly aided if we know the variance of the noise \cite{wahba_spline_2007}. So, if we can obtain an estimate of noise variance, we've done most of the work required to compute an optimal data reconstructor.
 
 In an ideal world, we would estimate this variance of the noise by taking a large number of samples while the vehicle is at some fixed, steady, known condition. For example, to estimate the airspeed data noise, we might place the aircraft in a wind tunnel at some constant speed. If we ran that experiment for an extended duration, we would know that the true underlying data was constant, and hence any observed variance in the samples would be due to the variance of the sensor noise.
 
@@ -334,7 +334,7 @@ Interestingly, except for a miniscule region near the Nyquist frequency, estimat
 
 \subsection{Uncertainty Quantification Using Noise Variance Estimators}
 
-With the ability to estimate the amount of noise in the data, we can also estimate the uncertainty of our resulting models and curve fits. To do this, we combine a resampling bootstrap approach (described in \cite{surrogates, elements_of_statistical_learning}) with a noise-variance-aware spline interpolator (described in \cite{surrogates, wahba}). Together, these yield not only a best-estimate of the underlying model, but also a measure of the uncertainty in that estimate. An example is depicted in Figure \ref{fig:power_curve_spline_but_no_physics}, which uses the same power-curve dataset as in Figure \ref{fig:power_curve_naive}.
+With the ability to estimate the amount of noise in the data, we can also estimate the uncertainty of our resulting models and curve fits. To do this, we combine a resampling bootstrap approach (described in \cite{surrogates, elements_of_statistical_learning}) with a noise-variance-aware spline interpolator (described in \cite{surrogates, wahba_spline_2007}). Together, these yield not only a best-estimate of the underlying model, but also a measure of the uncertainty in that estimate. An example is depicted in Figure \ref{fig:power_curve_spline_but_no_physics}, which uses the same power-curve dataset as in Figure \ref{fig:power_curve_naive}.
 
 \begin{figure}[H]
     \centering
@@ -343,14 +343,13 @@ With the ability to estimate the amount of noise in the data, we can also estima
     \label{fig:power_curve_spline_but_no_physics}
 \end{figure}
 
-Figure \ref{fig:power_curve_spline_but_no_physics} certainly represents an improvement over the naive curve fits shown in Figure \ref{fig:power_curve_naive} in that it leverages uncertainty. For example, the uncertainty narrows near $19\ \rm m/s$ where data is abundant, and it widens considerably below $7\ \rm m/s$ where data is sparse. This awareness of model uncertainty reduces our propensity to make statistical conclusions that go beyond what the data can truly support.
+Figure \ref{fig:power_curve_spline_but_no_physics} certainly represents a mild improvement over the naive curve fits shown in Figure \ref{fig:power_curve_naive} in that it leverages uncertainty. For example, the uncertainty narrows near $19\ \rm m/s$ where data is abundant, and it widens considerably below $7\ \rm m/s$ where data is sparse. This awareness of model uncertainty reduces our propensity to make statistical conclusions that go beyond what the data can truly support.
 
 Furthermore, this uncertainty quantification allows us to determine where in the flight envelope more data should be collected (i.e., serve as an acquisition function). For example, to refine the power curve of Figure \ref{fig:power_curve_spline_but_no_physics}, we might aim to fly future test flights at speeds between 13 and 17 m/s.
 
 With this said, two major problems remain with the approach of Figure \ref{fig:power_curve_spline_but_no_physics}. First, the resulting model uncertainty is extremely high, as shown by the shaded confidence intervals in Figure \ref{fig:power_curve_spline_but_no_physics}. For example, the tightest that we can bound the required power at $10\ \rm m/s$ with reasonably-strong confidence (95\% confidence interval) is between $30$ and $190$ Watts. This is a huge range and not a particularly useful insight. Near the low end of the airspeed range, the model uncertainty becomes so large that even the most basic claims are impossible to assert.
 
-Second, the model still allows physically-implausible relationships, such as the unexplained power curve increase near $13\ \rm m/s$ and the flattening power curve near $20\ \rm m/s$. Clearly, the uncertainty bounds here are wider than what they would be if our physical insights were incorporated into the model.
-
+Second, the model still allows physically-implausible relationships, such as the unexplained power curve increase near $13\ \rm m/s$ and the flattening power curve near $20\ \rm m/s$. Clearly, the uncertainty bounds here are wider than what they would be if our physical insights were incorporated into the model. In the next section, we will show how to improve these results by incorporating physics-based corrections and domain-specific knowledge.
 
 \section{Incorporating Physics-Based Data Corrections and Domain-Specific Knowledge}
 \label{sec:physics_based_corrections}
