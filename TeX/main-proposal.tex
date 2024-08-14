@@ -340,6 +340,8 @@
         \label{fig:computational-graph}
     \end{figure}
 
+    In aerospace engineering communities, reverse-mode automatic differentiation is sometimes referred to as a ``discrete adjoint'' method \cite{kenway_effective_2019}. Strictly speaking, however, the discrete adjoint method is a specific application of reverse-mode automatic differentiation to the solution of PDE-constrained optimization problems \cite{martins_coupledadjoint_2005}. (This is contrasted with continuous adjoint methods, which perform the adjoint transformation \emph{before} equation discretization.)
+
     Advances in automatic differentiation (and in particular, combining this with GPU computing) are largely responsible for the revolution of practical advances in machine learning in the past decade \cite{baydin_automatic_2018}. Rackauckas in 2021 \cite{rackauckas_generalizing_2021} states: ``[Automatic differentiation] has become the pervasive backbone behind all of the machine learning libraries. If you ask what PyTorch or Flux.jl is doing that’s special, the answer is really that it’s doing automatic differentiation over some functions.'' The goal is that similar practical advances can be brought to bear in engineering design optimization, a field that has similar potential to benefit from this scientific computing technique.
 
     \subsubsection{Automatic Sparsity Detection and Jacobian Coloring}

@@ -155,7 +155,7 @@ To address these needs, this chapter introduces NeuralFoil, a tool for rapid aer
     \item \textbf{Compressibility correction}: The solution is corrected for non-zero Mach numbers using analytical methods, as described in Section \ref{sec:nf-compressibility}.
 \end{enumerate}
 
-\noindent In the following sections, we will describe this model architecture and theoretical basis in more detail. Readers primarily interested in general performance metrics and validation studies are invited to skip ahead to Section \ref{sec:nf-results}. Readers primarily interested in a practical aerodynamic shape optimization example are directed to Section \ref{sec:optimization}.
+In the following sections, we will describe this model architecture and theoretical basis in more detail. Readers primarily interested in general performance metrics and validation studies are invited to skip ahead to Section \ref{sec:nf-results}. Readers primarily interested in a practical aerodynamic shape optimization example are directed to Section \ref{sec:optimization}.
 
 \subsection{Pre-Solve}
 \label{sec:airfoil-parameterization}
@@ -632,6 +632,7 @@ The results of these analyses can be quantitatively compared in Table \ref{tab:n
 \end{table}
 
 \subsection{Comparison to other Airfoil Machine Learning Models}
+\label{sec:nf-ml-comparison}
 
 Here, we compare and contrast NeuralFoil with several prior attempts to apply machine learning techniques to airfoil aerodynamics analysis. Peng et al. \cite{peng_learning_2022} apply a convolutional neural network to this task, where the input is an array of airfoil coordinates and the output is a scalar lift coefficient. Bouhlel et al. \cite{bouhlel_scalable_2020} use feedforward neural networks to predict airfoil lift and drag coefficients; this is augmented by Sobolev regularization that adds gradient information into the loss function. Du et al. \cite{du_rapid_2021} use multilayer perceptrons, recurrent neural networks, and mixture-of-experts approaches to predict both scalar (lift and drag) and vector (pressure distribution) quantities.
 
@@ -677,14 +678,27 @@ Accurate and rapid aerodynamics analysis across this broader input space has the
                 & Mach number range & 0 for learned core, although compressibility correction allows prediction up to $\Mcr$ & {0.3 to 0.6 (subsonic) \\ 0.6 to 0.7 (transonic)} & {0.3 to 0.6 (subsonic) \\0.7 to 0.75 (transonic)} & 0.3 (fixed) \\
                 & Transition, turbulence, and forced trips & $\Ncr$ varied from 0 to 18; Trips varied from LE to TE & None specified ($\tilde{\nu}_\infty=0$ assumed) & None specified ($\tilde{\nu}_\infty=0$ assumed) & None specified ($\Ncr=9$ assumed) & \\
                 & Training data & {XFoil\\(7.5M samples)} & {RANS-SA via ADflow\\(86k samples)} & {RANS-SA via ADflow\\(42k samples)} & {XFoil\\(16k samples)} \\ \midrule
-                \SetCell[r=2]{m,2.5cm}{Performance, as evaluated on the corresponding distribution above} & $C_L$ mean absolute error & 0.012 & 0.010 & Unspecified & 1.0\% \\
-                & $C_D$ mean relative error & 2.0\% & 1.7\% & 0.3\% & N/A (not attempted) \\
+                \SetCell[r=2]{m,2.5cm}{Accuracy, \textbf{as evaluated on the corresponding distribution above}} & $C_L$ mean absolute error$^\dag$ & 0.012 & 0.010 & Unspecified & 1.0\% \\
+                & $C_D$ mean relative error$^\dag$ & 2.0\% & 1.7\% & 0.3\% & N/A (not attempted) \\
                 \bottomrule
+                \SetCell[c=6]{m,1\textwidth}{$^\dag$ As further discussed in Section \ref{sec:nf-ml-comparison}, accuracy results should not be directly compared across models, as they are evaluated on different distributions. In particular, NeuralFoil's evaluation set spans a far larger analysis space, including post-stall flows and transitional Reynolds numbers.}Are
             \end{tblr}
         \end{adjustbox}
     \end{centering}
 \end{table}
 
+\subsection{Definitional Notes on Physics-Informed Machine Learning}
+
+In this work, we have described NeuralFoil as an instance of \emph{physics-informed machine learning} -- this is a notoriously overloaded term that academics will vociferously debate the definition of, so it becomes necessary to clarify the definition used in this work\footnote{Ultimately, the classification of whether a model is \emph{physics-informed} or not is a marketing distraction. The disproportionate scrutiny on nomenclature would be better-placed on de facto practicality - whether a model is accurate, generalizable, fast, and trustworthy as an engineering tool.}. Here, we follow the definition by Brunton \cite{brunton_data_2017, brunton_youtube_piml}, where physics-informed machine learning refers to any machine learning model that leverages some form of knowledge about the underlying problem physics to improve its performance (as measured by accuracy, generalization, computational efficiency, data efficiency, etc.)\footnote{An alternative definition is that physics-informed machine learning encompasses any method that does something \emph{other} than blindly learn a functional mapping from one semantic-free latent space to another.}. This knowledge can be embedded at \emph{any} of five stages, reproduced from Brunton \cite{brunton_youtube_piml}:
+\begin{enumerate}[noitemsep]
+    \item Formulating a problem to model
+    \item Collecting and curating training data to inform the model
+    \item Choosing an architecture with which to represent the model
+    \item Designing a loss function to assess the performance of the model
+    \item Selecting and implementing an optimization algorithm to train the model
+\end{enumerate}
+
+\noindent In the case of NeuralFoil, physical knowledge is embedded at the first four of these steps, by a) carefully parameterizing input and output latent spaces to have close-to-affine mappings, b) curating training data that is deliberately diverse in ways likely to excite various physical phenomena, c) embedding in physics symmetries into the model architecture, and d) constructing the loss function based on knowledge about the relative importance of different aerodynamic quantities. Arguably, NeuralFoil's self-estimation of analysis confidence also constitutes a physics-informed feature, as the model asymptotes to empirical physics models when it discerns that the learned core can no longer be trusted. These considerations demonstrably lead to a more generalizable model than prior efforts, as shown in Sections \ref{sec:nf-validation-basic} and \ref{sec:nf-ml-comparison}.
 
 \section{Airfoil Design Optimization with NeuralFoil}
 \label{sec:optimization}
@@ -737,8 +751,8 @@ Using the problem formulation described above, we can solve this airfoil design 
 Figure \ref{fig:daedalus_optimized} compares three airfoil designs produced with different methodologies, each aimed at solving the \emph{MIT Daedalus} airfoil design problem described previously:
 
 \begin{itemize}
-    \item \textbf{NeuralFoil-optimized}, which is the result of optimizing while using NeuralFoil as the aerodynamics analysis tool
-    \item \textbf{XFoil-optimized}, which is the result of optimizing while using XFoil as the aerodynamics analysis tool
+    \item \textbf{NeuralFoil-optimized}, which is the result of optimizing while using NeuralFoil as the aerodynamics analysis tool. Notably, this uses NeuralFoil's 18-parameter CST shape parameterization.
+    \item \textbf{XFoil-optimized}, which is the result of optimizing while using XFoil as the aerodynamics analysis tool. Here, we directly wrap XFoil calls in a gradient-based optimizer, with gradients computed by finite-differencing.
     \item \textbf{Expert-designed}, which is the original DAE-11 airfoil designed by Drela \cite{drela_lowreynoldsnumber_1988} and used on the as-flown \emph{MIT Daedalus} aircraft
 \end{itemize}
 
