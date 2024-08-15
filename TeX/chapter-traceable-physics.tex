@@ -188,7 +188,7 @@ sol = opti.solve()
     \label{lst:vlm_optimization}
 \end{listing}
 
-The optimization problem is solved to tolerance within 18 IPOPT iterations, corresponding to around 10 seconds of wall-clock time on a laptop CPU. This yields the wing geometry shown in Figure \ref{fig:vlm_opt}, which is indeed elliptical in chord distribution. To confirm, the chord distribution can be directly compared to an elliptical distribution as shown in Figure \ref{fig:vlm_opt_compare}. Very slight differences appear due to numerical discretization, but as panel resolution is increased, these results converge.
+The optimization problem is solved to tolerance within 18 IPOPT iterations, corresponding to around 10 seconds of wall-clock time on a laptop CPU. This yields the wing geometry shown in Figure \ref{fig:vlm_opt}, which is indeed elliptical in chord distribution. To confirm, the chord distribution can be directly compared to an elliptical distribution as shown in Figure \ref{fig:vlm_opt_compare}. Very slight differences appear due to the fact that the vortex lattice method does not make the assumption of locally-2D flow. With the added consideration of 3D relief, chords near the tip must be slightly wider than elliptical to achieve elliptical loading \cite{smith_computation_1993}.
 
 \begin{figure}[H]
     \centering

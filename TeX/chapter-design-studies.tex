@@ -111,14 +111,14 @@ The code given in Appendix \ref{sec:simpleac-code} converges to a solution in 14
         row{1}={font=\bfseries},
     }
         \toprule
-        Figure of Merit                            & Optimal Value               \\
+        Figure of Merit                            & Optimal Value                \\
         \midrule
         Fuel weight $W_f$                          & $937.8\ \si{\newton}$        \\
-        Aspect ratio $\AR$                         & $12.10$                     \\
+        Aspect ratio $\AR$                         & $12.10$                      \\
         Wing area $S$                              & $14.15\ \si{\meter\squared}$ \\
         Cruise airspeed $V$                        & $57.11\ \si{\meter/\second}$ \\
         All-up weight $W$                          & $8,705\ \si{\newton}$        \\
-        Cruise lift coefficient $C_L$              & $0.2901$                    \\
+        Cruise lift coefficient $C_L$              & $0.2901$                     \\
         Fuel volume in fuselage $V_\text{f, fuse}$ & $0.0619\ \si{\meter\cubed}$  \\
         \bottomrule
     \end{tblr}
@@ -565,26 +565,31 @@ Table \ref{tab:dawn_sensitivities} gives a selected subset of these sensitivitie
         row{1} = {font=\bfseries},
     }
         \toprule
-        Figure of Merit                 & Sensitivity of Wingspan & Sensitivity of TOGW \\
+        Figure of Merit                 & Sensitivity of Wingspan & Sensitivity of TOGW    \\
         \midrule
-        Any added mass                  & 0.22 m/kg               & 4.17 kg/kg          \\
-        Any added power draw            & 0.010 m/W               & 0.185 kg/W          \\
-        Any added drag                  & 0.479 m/N               & 7.50 kg/N           \\
-        Battery spec. energy            & -0.090 m/(Wh/kg)        & -0.960 kg/(Wh/kg)   \\
-        Battery packing fraction        & -0.461 m/(\%)           & -4.847 kg/(\%)      \\
-        Solar cell efficiency           & -0.464 m/(\%)           & -0.865 kg/(\%)      \\
-        Solar cell area density         & 12.4 m/(kg/m$^2$)       & 149 kg/(kg/m$^2$)   \\
-        Solar cell usable wing fraction & -10.6 m/(\%)            & 80.9 kg/(\%)        \\
-        Propeller efficiency            & -0.613 m/(\%)           & -4.72 kg/(\%)       \\
-        Motor efficiency                & -0.586 m/(\%)           & -4.75 kg/(\%)       \\
-        Minimum cruise altitude         & 5.10 m/km               & 46.2 kg/km          \\
+        Any added mass                  & 0.22 m/kg               & 4.17 kg/kg$^*$\\
+        Any added power draw            & 0.010 m/W               & 0.185 kg/W             \\
+        Any added drag                  & 0.479 m/N               & 7.50 kg/N              \\
+        Battery spec. energy            & -0.090 m/(Wh/kg)        & -0.960 kg/(Wh/kg)      \\
+        Battery packing fraction        & -0.461 m/(\%)           & -4.847 kg/(\%)         \\
+        Solar cell efficiency           & -0.464 m/(\%)           & -0.865 kg/(\%)         \\
+        Solar cell area density         & 12.4 m/(kg/m$^2$)       & 149 kg/(kg/m$^2$)      \\
+        Solar cell usable wing fraction & -10.6 m/(\%)            & 80.9 kg/(\%)           \\
+        Propeller efficiency            & -0.613 m/(\%)           & -4.72 kg/(\%)          \\
+        Motor efficiency                & -0.586 m/(\%)           & -4.75 kg/(\%)          \\
+        Minimum cruise altitude         & 5.10 m/km               & 46.2 kg/km             \\
         \bottomrule
     \end{tblr}
+    \vspace{1em}
+    \setstretch{1}
+    \flushleft
+    \footnotesize
+    $^*$ Note that this is not equal to the reciprocal of the fixed weight fraction, since this sensitivity assumes that the mass is added uniformly across the aircraft (i.e., spanloaded), while the fixed mass is mostly a point-mass payload.\\
 \end{table}
 
 \subsection{Computational Reproducibility}
 
-A publicly-accessible repository of the code used to generate the Dawn conceptual design is available via the \emph{Dawn Design Tool} at \url{https://github.com/peterdsharpe/DawnDesignTool}. We note that this public code has been forked and privately refined in collaboration with the Electra.aero engineering team, so results using this public repository should not be considered representative of any up-to-date design decisions or performance estimates.
+A publicly-accessible repository of the code used to generate the Dawn aircraft conceptual design is available via the \emph{Dawn Design Tool} at \url{https://github.com/peterdsharpe/DawnDesignTool}. We note that this public code has been forked and privately refined in collaboration with the Electra.aero engineering team, so results using this public repository should not be considered exactly representative of any up-to-date design decisions or performance estimates of the as-built aircraft.
 
 
 \section{Liquid-Hydrogen-Fueled Long-Haul Transport Aircraft}
