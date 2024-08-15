@@ -752,7 +752,7 @@ Figure \ref{fig:daedalus_optimized} compares three airfoil designs produced with
 
 \begin{itemize}
     \item \textbf{NeuralFoil-optimized}, which is the result of optimizing while using NeuralFoil as the aerodynamics analysis tool. Notably, this uses NeuralFoil's 18-parameter CST shape parameterization.
-    \item \textbf{XFoil-optimized}, which is the result of optimizing while using XFoil as the aerodynamics analysis tool. Here, we directly wrap XFoil calls in a gradient-based optimizer, with gradients computed by finite-differencing. Notably, here the airfoil is parameterized using 60 degrees of freedom, to reproduce results from a study by Drela \cite{drela_pros_1998}.
+    \item \textbf{XFoil-optimized}, which is the result of optimizing while using XFoil as the aerodynamics analysis tool. Here, we directly wrap XFoil calls in a gradient-based optimizer, with gradients computed by finite-differencing. Notably, here the airfoil shape is parameterized using 60 geometric degrees of freedom, to reproduce results from a study by Drela \cite{drela_pros_1998}.
     \item \textbf{Expert-designed}, which is the original DAE-11 airfoil designed by Drela \cite{drela_lowreynoldsnumber_1988} and used on the as-flown \emph{MIT Daedalus} aircraft.
 \end{itemize}
 
