@@ -22,8 +22,8 @@ Abstract:
 > optimization techniques in industry, all without placing the burden of deep expertise in applied mathe-
 > matics and computer science on end users.
 > 
-> The major contributions of this thesis are fivefold. First, it introduces the concept of code transfor-
-> mations as a possible foundation for an MDO framework and demonstrates their practical feasibility
+> The major contributions of this thesis are fivefold. First, it introduces the concept of code transformations
+> as a possible foundation for an MDO framework and demonstrates their practical feasibility
 > through aircraft design case studies. Second, it implements several common aircraft analyses in a form
 > compatible with code transformations, providing a practical illustration of the opportunities, challenges,
 > and considerations here. Third, it presents a novel technique to automatically trace sparsity through
